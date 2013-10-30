@@ -1,0 +1,1 @@
+powershell -executionpolicy bypass -file mcollective-setup.ps1

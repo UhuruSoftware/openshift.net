@@ -1,0 +1,22 @@
+topicprefix = /topic/
+main_collective = mcollective
+collectives = mcollective
+libdir = /mcollective/plugins
+logfile = /mcollective/mcollective_client.log
+loglevel = debug
+direct_addressing = 1
+
+# Plugins
+securityprovider = psk
+plugin.psk = unset
+
+connector = activemq
+plugin.activemq.pool.size = 1
+plugin.activemq.pool.1.host = $activemqServer
+plugin.activemq.pool.1.port = $activemqPort
+plugin.activemq.pool.1.user = $activemqUser
+plugin.activemq.pool.1.password = $activemqPassword
+
+# Facts
+factsource = yaml
+plugin.yaml = /mcollective/etc/facts.yaml
