@@ -65,6 +65,38 @@ if ([string]::IsNullOrEmpty($userActivemqPassword))
     $userActivemqPassword = "marionette"
 }
 
+$userDevDir = Read-Host "Plugin development dir (default won't setup anything)"
+if ([string]::IsNullOrEmpty($userDevDir) -ne $true)
+{
+    $agentDDLFile = Join-Path $userDevDir "openshift.ddl"
+    $agentCodeFile = Join-Path $userDevDir "openshift.rb"
+    # validate the ddl and the rb files are there
+    if ((Test-Path $agentDDLFile) -ne $true)
+    {
+        Write-Host "Could not find $agentDDLFile. Aborting." -ForegroundColor Red
+        exit 1
+    }
+
+    if ((Test-Path $agentCodeFile) -ne $true)
+    {
+        Write-Host "Could not find $agentCodeFile. Aborting." -ForegroundColor Red
+        exit 1
+    }
+
+    Write-Host "Setting up OpenShift development agent ..."
+    Write-Host "Warning - The DDL file will be copied, not included. If you change the DDL file, run this script again." -ForegroundColor Yellow
+
+    # copy ddl file
+    Copy-Item $agentDDLFile "C:\mcollective\plugins\mcollective\agent\" -Force
+
+    # create an agent that includes the development agent
+
+    Invoke-Template $currentDir {
+        $devAgentCodeFile = $agentCodeFile
+        Get-Template openshift.rb.template
+    } | Out-File C:\mcollective\plugins\mcollective\agent\openshift.rb -Encoding ascii
+}
+
 # check if port is open on broker machine (sudo systemctl stop firewalld.service)
 
 Write-Host "Trying to connect to ${userActivemqServer}:${userActivemqPort} ..."

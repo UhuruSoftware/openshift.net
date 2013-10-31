@@ -5,7 +5,8 @@ libdir = /mcollective/plugins
 logfile = /mcollective/mcollective_server.log
 loglevel = debug
 daemonize = 1
-logger_type = file #console
+# Logger type should be 'console' when running from command line
+logger_type = file
 
 direct_addressing = 1
 
