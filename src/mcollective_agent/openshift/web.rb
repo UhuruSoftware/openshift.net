@@ -18,7 +18,7 @@ class WebInterface < Sinatra::Base
 
 <script type='text/javascript' >
 
-    setTimeout(function() {window.location.reload();}, 3000);
+    setTimeout(function() {window.location.reload(true);}, 3000);
 
 </script>
 SCRIPT

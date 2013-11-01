@@ -121,8 +121,8 @@ module MCollective
       #
       # Returns [exitcode, output] from the resulting action execution.
       def execute_action(action, args)
-        # action_method = "oo_#{action.gsub('-', '_')}"
-        # request_id    = args['--with-request-id'].to_s if args['--with-request-id']
+        action_method = "oo_#{action.gsub('-', '_')}"
+        request_id    = args['--with-request-id'].to_s if args['--with-request-id']
 
         exitcode = 0
         output   = action
@@ -150,7 +150,7 @@ module MCollective
         # Log.instance.info("Finished executing action [#{action}] (#{exitcode})")
         # end
 
-        print_to_debug "execute_action - pelerinul e viu"
+        print_to_debug "execute_action - action: #{action}, #{args}"
         return exitcode, output
       end
 
