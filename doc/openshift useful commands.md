@@ -24,5 +24,5 @@
  - Broker and Web Console: **/var/www/openshift**
  - Configuration files: **/etc/openshift/**
  - Mcollective Agent dir: **/usr/libexec/mcollective/mcollective/agent**
- - Cartridges location on node: **/var/lib/openshift/.cartridge_repository**
+ - Cartridges location on node: **/usr/libexec/openshift/cartridges**
  - Location of ruby gems: **/usr/share/gems/gems/**
