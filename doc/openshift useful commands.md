@@ -26,3 +26,4 @@
  - Mcollective Agent dir: **/usr/libexec/mcollective/mcollective/agent**
  - Cartridges location on node: **/usr/libexec/openshift/cartridges**
  - Location of ruby gems: **/usr/share/gems/gems/**
+ - Application location: **/var/lib/openshift/**

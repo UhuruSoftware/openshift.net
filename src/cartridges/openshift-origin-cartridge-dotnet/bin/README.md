@@ -14,6 +14,7 @@ The scripts will be run directly from the home directory of the cartridge. They 
 OpenShift follows the convention that your scripts should return zero for success and non-zero for failure. Additionally, OpenShift supports special handling of the following non-zero exit codes:
 - 127 - ??
 - 131 - ??
+
 These exit status codes will allow OpenShift to refine its behaviour when returning HTTP status codes for the REST API, whether an internal operation can continue or should aborted, etc. Should your script return a value not included in this table, OpenShift will assume the problem is fatal to your cartridge.
 
 
