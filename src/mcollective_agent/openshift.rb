@@ -2,6 +2,7 @@ ENV["BUNDLE_GEMFILE"] = File.expand_path("../openshift/Gemfile", __FILE__)
 
 require 'bundler/setup'
 require 'sinatra'
+require File.expand_path("../powershell_cmdlets", __FILE__)
 require File.expand_path("../openshift/web", __FILE__)
 
 $dev_debug_msg = []
@@ -137,7 +138,7 @@ module MCollective
         # # OpenShift::Runtime::NodeLogger.context[:request_id]    = request_id if request_id
         # # OpenShift::Runtime::NodeLogger.context[:action_method] = action_method if action_method
 
-        # exitcode, output = self.send(action_method.to_sym, args)
+        exitcode, output = self.send(action_method.to_sym, args)
         # rescue => e
         # Log.instance.error("Unhandled action execution exception for action [#{action}]: #{e.message}")
         # Log.instance.error(e.backtrace)
@@ -166,24 +167,24 @@ module MCollective
         print_to_debug "execute_parallel_action"
         # Log.instance.info("execute_parallel_action call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
 
-        # joblist = request[config.identity]
+        joblist = request[config.identity]
 
-        # joblist.each do |parallel_job|
-        # job = parallel_job[:job]
+        joblist.each do |parallel_job|
+          job = parallel_job[:job]
 
-        # cartridge = job[:cartridge]
-        # action    = job[:action]
-        # args      = job[:args]
+          cartridge = job[:cartridge]
+          action    = job[:action]
+          args      = job[:args]
 
-        # exitcode, output = execute_action(action, args)
+          exitcode, output = execute_action(action, args)
 
-        # parallel_job[:result_exit_code] = exitcode
-        # parallel_job[:result_stdout]    = output
-        # end
+          parallel_job[:result_exit_code] = exitcode
+          parallel_job[:result_stdout]    = output
+        end
 
         # Log.instance.info("execute_parallel_action call - #{joblist}")
-        # reply[:output]   = joblist
-        # reply[:exitcode] = 0
+        reply[:output]   = joblist
+        reply[:exitcode] = 0
       end
 
       #
@@ -277,7 +278,8 @@ module MCollective
 
       def oo_app_create(args)
         print_to_debug "oo_app_create"
-        output = "oo_app_create"
+        exitcode, output = Powershell.run_command(__method__, args)
+        print_to_debug output
         # begin
         # container = get_app_container_from_args(args)
         # container.create
@@ -292,7 +294,7 @@ module MCollective
         # else
         # return 0, output
         # end
-        return 0, output
+        return exitcode, output
       end
 
       def oo_app_destroy(args)
@@ -311,6 +313,7 @@ module MCollective
         # output << err
         # return rc, output
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_add(args)
@@ -322,6 +325,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.add_ssh_key(ssh_key, key_type, comment)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_remove(args)
@@ -388,6 +392,9 @@ module MCollective
 
       def oo_cartridge_list(args)
         print_to_debug "oo_cartridge_list"
+        exitcode, output = Powershell.run_command(__method__, args)
+        print_to_debug exitcode
+        print_to_debug output
         # list_descriptors = true if args['--with-descriptors']
         # porcelain = true if args['--porcelain']
 
@@ -402,6 +409,7 @@ module MCollective
         # else
         # return 0, output
         # end
+        return exitcode, output
       end
 
       def oo_app_state_show(args)
@@ -732,6 +740,7 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.configure(cart_name, template_git_url, manifest)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_post_configure(args)
@@ -742,6 +751,7 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.post_configure(cart_name, template_git_url)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_deconfigure(args)
@@ -751,6 +761,7 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.deconfigure(cart_name)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_unsubscribe(args)
