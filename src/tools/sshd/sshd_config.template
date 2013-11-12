@@ -1,0 +1,18 @@
+Port $port
+ListenAddress $listenAddress
+
+# HostKeys
+HostKey $rsaKeyLinuxPath
+HostKey $dsaKeyLinuxPath
+HostKey $ecdsaLinuxPath
+
+# Logging
+LogLevel INFO
+
+# Authentication:
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no
+UsePrivilegeSeparation no
+PidFile sshd.pid
+Subsystem	sftp	/usr/sbin/sftp-server

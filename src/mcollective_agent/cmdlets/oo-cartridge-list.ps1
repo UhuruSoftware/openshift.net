@@ -6,12 +6,13 @@ Version: '4.0'
 Versions:
 - '4.0'
 Description: The .NET Framework is a software framework developed by Microsoft that runs primarily on Microsoft Windows. 
-License: TODO: add license
-License-Url: TODO: add license URL
+License: 'TODO: add license'
+License-Url: 'TODO: add license URL'
 Categories:
 - service
 - dotnet
 - web_framework
+- windows
 Website: http://www.microsoft.com/net
 Help-Topics:
   Developer Center: http://www.microsoft.com/net
