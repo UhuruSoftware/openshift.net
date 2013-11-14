@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Cmdlets", "Uhuru.Openshift.Cmdlets\Uhuru.Openshift.Cmdlets.csproj", "{164C85D3-7F57-4937-9EEC-4C0A47C24745}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Common", "Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj", "{D10A5A01-7A90-4C28-9C76-E2C5213592C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Tests", "Uhuru.Openshift.Tests\Uhuru.Openshift.Tests.csproj", "{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{164C85D3-7F57-4937-9EEC-4C0A47C24745}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{164C85D3-7F57-4937-9EEC-4C0A47C24745}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{164C85D3-7F57-4937-9EEC-4C0A47C24745}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{164C85D3-7F57-4937-9EEC-4C0A47C24745}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
