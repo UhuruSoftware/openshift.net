@@ -7,7 +7,8 @@ module MCollective
 
       def self.run_command(command ,args)
         script = File.join(File.dirname(__FILE__), "cmdlets", "#{command.to_s.gsub('_', '-')}.ps1")
-        cmd = "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} \"#{args}\" 2>&1"
+        ps_args = args.to_json.gsub('"', '"""')
+        cmd = "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} #{ps_args} 2>&1"
         output = ""
         exitcode = 0
         Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
