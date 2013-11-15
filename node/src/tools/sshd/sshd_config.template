@@ -1,10 +1,10 @@
-Port $port
-ListenAddress $listenAddress
+Port $ENV:port
+ListenAddress $ENV:listenAddress
 
 # HostKeys
-HostKey $rsaKeyLinuxPath
-HostKey $dsaKeyLinuxPath
-HostKey $ecdsaLinuxPath
+HostKey $ENV:rsaKeyLinuxPath
+HostKey $ENV:dsaKeyLinuxPath
+HostKey $ENV:ecdsaLinuxPath
 
 # Logging
 LogLevel INFO
