@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Common", "U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Tests", "Uhuru.Openshift.Tests\Uhuru.Openshift.Tests.csproj", "{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Node", "Uhuru.Openshift.Node\Uhuru.Openshift.Node.csproj", "{C69F8537-81E8-45DF-846B-508DA2AD1B0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C69F8537-81E8-45DF-846B-508DA2AD1B0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69F8537-81E8-45DF-846B-508DA2AD1B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69F8537-81E8-45DF-846B-508DA2AD1B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69F8537-81E8-45DF-846B-508DA2AD1B0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

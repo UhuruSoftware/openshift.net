@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Tests.Unit
 {
@@ -9,7 +10,7 @@ namespace Uhuru.Openshift.Tests.Unit
         [TestMethod]
         public void Test_GetCartridgeList()
         {
-            string output = Common.Node.GetCartridgeList(true, true, false);
+            string output = Node.GetCartridgeList(true, true, false);
             Assert.IsNotNull(output);
         }
     }

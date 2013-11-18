@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Uhuru.Openshift.Common.Models;
 using YamlDotNet.RepresentationModel.Serialization;
 
-namespace Uhuru.Openshift.Common
+namespace Uhuru.Openshift.Runtime
 {
     public class CartridgeRepository
     {

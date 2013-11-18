@@ -8,7 +8,7 @@ using Uhuru.Openshift.Common.Models;
 using YamlDotNet.Core;
 using YamlDotNet.RepresentationModel.Serialization;
 
-namespace Uhuru.Openshift.Common
+namespace Uhuru.Openshift.Runtime
 {
     public class Node
     {

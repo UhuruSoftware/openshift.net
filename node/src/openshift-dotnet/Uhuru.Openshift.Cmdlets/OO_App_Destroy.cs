@@ -7,8 +7,8 @@ using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
-    [Cmdlet("OO", "App-Create")]
-    public class OO_App_Create : System.Management.Automation.Cmdlet 
+    [Cmdlet("OO", "App-Destroy")]
+    public class OO_App_Destroy : System.Management.Automation.Cmdlet
     {
         [Parameter]
         public string WithAppUuid;
@@ -31,11 +31,20 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string CartName;
 
+        [Parameter]
+        public string ComponentName;
+
+        [Parameter]
+        public string WithSoftwareVersion;
+
+        [Parameter]
+        public string CartridgeVendor;
+
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
-            this.WriteObject(container.Create());
+            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+               WithNamespace, null, null, null);
+            this.WriteObject(container.Destroy());
         }
     }
 }

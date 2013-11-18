@@ -5,6 +5,7 @@ using System.Text;
 using System.Management.Automation;
 using Uhuru.Openshift.Common;
 using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -22,7 +23,7 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            string output = Common.Node.GetCartridgeList(WithDescriptors, Porcelain, false);
+            string output = Node.GetCartridgeList(WithDescriptors, Porcelain, false);
             this.WriteObject(output);
         }
     }
