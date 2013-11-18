@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -32,7 +33,9 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-
+            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                WithContainerName, WithNamespace, null, null, null);
+            this.WriteObject(container.Create());
         }
     }
 }
