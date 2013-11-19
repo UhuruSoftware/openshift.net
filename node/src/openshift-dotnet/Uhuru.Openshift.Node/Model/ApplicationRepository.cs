@@ -9,7 +9,7 @@ namespace Uhuru.Openshift.Runtime
 {
     public class ApplicationRepository
     {
-        const string GIT = @"""C:\Program Files (x86)\Git\bin\git.exe""";
+        const string GIT = @"""C:\cygwin\installation\bin\git.exe""";
 
         private const string GIT_INIT = @"{0} init
 {0} config user.email ""builder@example.com""
@@ -34,7 +34,7 @@ set GIT_DIR=./{1}.git
 
         public string PopulateFromCartridge(string cartridgeName)
         {
-            BuildBare(@"C:\openshift\cartridges\openshift-origin-cartridge-dotnet");
+            BuildBare(Path.Combine(CartridgeRepository.RepositoryPath, "openshift-origin-cartridge-dotnet"));
             return string.Empty;
         }
 

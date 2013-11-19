@@ -5,6 +5,10 @@ module MCollective
   module Agent
     class Powershell
 
+      def self.print_to_debug(msg)
+        $dev_debug_msg << "#{msg} - #{Time.new}"
+      end
+
       def self.run_command(command ,args)
         script = File.join(File.dirname(__FILE__), "cmdlets", "#{command.to_s.gsub('_', '-')}.ps1")
         ps_args = args.to_json.gsub('"', '"""')
@@ -14,6 +18,9 @@ module MCollective
         Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
           output = stdout.read
           exitcode = wait_thr.value.exitstatus
+
+          print_to_debug "OUT #{command}: ARGS :#{args} STDOUT: #{output} EXITCODE: #{exitcode}"
+
         end
         return exitcode, output
       end

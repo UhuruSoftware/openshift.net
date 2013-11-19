@@ -15,7 +15,7 @@ namespace Uhuru.Openshift.Runtime
         private CartridgeRepository() 
         {
             LatestVersions = new List<Cartridge>();
-            foreach (string dir in Directory.GetDirectories(@"C:\openshift\cartridges"))
+            foreach (string dir in Directory.GetDirectories(CartridgeRepository.RepositoryPath))
             {
                 string manifestPath = Path.Combine(dir, "metadata", "manifest.yml");
                 if (File.Exists(manifestPath))
@@ -44,6 +44,15 @@ namespace Uhuru.Openshift.Runtime
                     instance = new CartridgeRepository();
                 }
                 return instance;
+            }
+        }
+
+        public static string RepositoryPath
+        {
+            get
+            {
+                string binLocation = Path.GetDirectoryName(typeof(CartridgeRepository).Assembly.Location);
+                return Path.GetFullPath(Path.Combine(binLocation, @"..\..\cartridges"));
             }
         }
     }

@@ -6,7 +6,7 @@
 
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
-Import-Module (Join-Path $currentDir '..\..\powershell_common\openshift-common.psm1')
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1')
 
 $targetDirectory = Get-NotEmpty $targetDirectory "c:\cygwin\installation\"
 $windowsUser = Get-NotEmpty $windowsUser "administrator"

@@ -22,6 +22,7 @@ License-Url: "http://www.uhurusoftware.com"
 Vendor: "Microsoft Corporation"
 Categories:
   - web_framework
+  - windows
 Website: http://www.microsoft.com/
 Help-Topics:
   "Developer Center": "http://www.uhurusoftware.com/community/developers"

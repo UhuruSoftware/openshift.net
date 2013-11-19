@@ -362,6 +362,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.add_broker_auth(iv, token)
         # end
+        return 0, ''
       end
 
       def oo_broker_auth_key_remove(args)

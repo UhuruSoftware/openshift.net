@@ -11,9 +11,7 @@
     systemctl list-units
 4. Clear the OpenShift Rails Cache
 
-	`cd /var/www/openshift/broker`
-
-	`bundle exec rake tmp:clear`
+	`(cd /var/www/openshift/broker/; bundle exec rake tmp:clear)`
 
 5. Run irb in the context of a broker (get access to useful node management code)
  - go to **/var/www/openshift/broker**

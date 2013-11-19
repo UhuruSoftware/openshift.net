@@ -2,9 +2,9 @@ Port $ENV:port
 ListenAddress $ENV:listenAddress
 
 # HostKeys
-HostKey $ENV:rsaKeyLinuxPath
-HostKey $ENV:dsaKeyLinuxPath
-HostKey $ENV:ecdsaLinuxPath
+HostKey /etc/ssh_host_rsa_key
+HostKey /etc/ssh_host_dsa_key
+HostKey /etc/ssh_host_ecdsa_key
 
 # Logging
 LogLevel INFO
