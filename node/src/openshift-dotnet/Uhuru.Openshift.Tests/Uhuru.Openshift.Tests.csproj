@@ -54,10 +54,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="TestHelper.cs" />
     <Compile Include="Unit\CartridgeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unit\ConfigTest.cs" />
     <Compile Include="Unit\NodeTest.cs" />
     <Compile Include="Unit\ContainerTest.cs" />
+    <Compile Include="Unit\ParseConfigTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">
@@ -68,6 +71,11 @@
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\node_test.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

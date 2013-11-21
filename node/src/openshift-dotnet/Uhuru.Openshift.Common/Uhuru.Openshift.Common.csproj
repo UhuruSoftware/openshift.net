@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Models\Cartridge.cs" />
     <Compile Include="Models\Component.cs" />
     <Compile Include="Models\Connection.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Models\Endpoint.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\Scaling.cs" />
+    <Compile Include="ParseConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
