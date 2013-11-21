@@ -52,6 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Gear.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="OO_App_Create.cs" />
     <Compile Include="OO_App_Destroy.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Add.cs" />

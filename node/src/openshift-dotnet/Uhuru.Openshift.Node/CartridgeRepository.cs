@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Utilities;
 using YamlDotNet.RepresentationModel.Serialization;
 
 namespace Uhuru.Openshift.Runtime
@@ -29,6 +30,12 @@ namespace Uhuru.Openshift.Runtime
             }
         }
 
+        public static void InstantiateCartridge(Manifest cartridge, string target)
+        {
+            Directory.CreateDirectory(target);
+            DirectoryUtil.DirectoryCopy(cartridge.RepositoryPath, target, true);
+        }
+
         public List<Cartridge> LatestVersions
         {
             get;
@@ -45,7 +52,7 @@ namespace Uhuru.Openshift.Runtime
                 }
                 return instance;
             }
-        }
+        }        
 
         public static string RepositoryPath
         {

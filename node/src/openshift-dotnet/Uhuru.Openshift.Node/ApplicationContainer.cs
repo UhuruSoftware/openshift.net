@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -20,17 +21,21 @@ namespace Uhuru.Openshift.Runtime
         public object QuotaFiles { get; set; }
         public string ContainerDir { get { return @"C:\cygwin\administrator_home"; } }
         public CartridgeModel Cartridge { get; set; }
+        public Hourglass GetHourglass { get { return this.hourglass; } }
+        public ApplicationState State { get; set; }
+        
+        private Hourglass hourglass;
 
         [Obsolete("Used only for testing")]
         public ApplicationContainer() 
         {
-            this.Cartridge = new CartridgeModel(this);
+            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
             this.ApplicationName = "testnet";
             this.ApplicationUuid = Guid.NewGuid().ToString();
         }
 
         public ApplicationContainer(string applicationUuid, string containerUuid, string userId, string applicationName,
-            string containerName, string namespaceName, object quotaBlocks, object quotaFiles, object hourglass)
+            string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
         {
             this.Uuid = containerUuid;
             this.ApplicationUuid = applicationUuid;
@@ -39,7 +44,9 @@ namespace Uhuru.Openshift.Runtime
             this.Namespace = namespaceName;
             this.QuotaBlocks = quotaBlocks;
             this.QuotaFiles = quotaFiles;
-            this.Cartridge = new CartridgeModel(this);
+            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
+            this.hourglass = hourglass ?? new Hourglass(3600);
+            this.State = new ApplicationState(this);
         }
 
         public string Create()
@@ -90,6 +97,57 @@ namespace Uhuru.Openshift.Runtime
             output += p.StandardOutput.ReadToEnd();           
 
             return output;
+        }
+
+        public void PreReceive(dynamic options)
+        {
+            options["excludeWebProxy"] = true;
+            options["userInitiated"] = true;
+            StopGear(options);
+        }
+
+        public void PostReceive(dynamic options)
+        {
+            Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+
+            Distribute(options);
+            Activate(options);
+        }
+
+        public void Distribute(dynamic options)
+        {
+
+        }
+
+        public void Activate(dynamic options)
+        {
+            Dictionary<string, object> opts = new Dictionary<string, object>();
+            opts["secondaryOnly"] = true;
+            opts["userInitiated"] = true;
+            opts["hotDeploy"] = options["hotDeploy"];
+            StartGear(opts);
+        }
+
+        private void StartGear(dynamic options)
+        {
+            this.Cartridge.StartGear(options);
+        }
+
+        private void ActivateLocalGear(dynamic options)
+        {
+
+        }
+
+        public void SetRWPermissions(string filename)
+        {
+
+        }
+
+        public string StopGear(dynamic options)
+        {
+            this.Cartridge.StopGear(options);
+            return string.Empty;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using Uhuru.Openshift.Runtime;
+using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -43,7 +44,7 @@ namespace Uhuru.Openshift.Cmdlets
         protected override void ProcessRecord()
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-               WithNamespace, null, null, null);
+               WithNamespace, null, null, new Hourglass(235));
             this.WriteObject(container.PostConfigure());
         }
     }

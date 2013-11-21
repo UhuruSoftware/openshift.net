@@ -54,11 +54,18 @@
     <Compile Include="Model\CartridgeModel.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\ApplicationState.cs" />
+    <Compile Include="Utils\Environ.cs" />
+    <Compile Include="Utils\Hourglass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">
       <Project>{d10a5a01-7a90-4c28-9c76-e2c5213592c9}</Project>
       <Name>Uhuru.Openshift.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj">
+      <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
+      <Name>Uhuru.Openshift.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
