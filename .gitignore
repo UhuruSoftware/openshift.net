@@ -1,2 +1,6 @@
-src/mcollective_agent/.idea
+.idea/
 lib/mcollective/mcollective_setup.log
+*.suo
+bin/
+!cartridges/openshift-origin-cartridge-dotnet/bin/
+obj/
