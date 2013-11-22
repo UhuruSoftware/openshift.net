@@ -4,3 +4,4 @@ lib/mcollective/mcollective_setup.log
 bin/
 !cartridges/openshift-origin-cartridge-dotnet/bin/
 obj/
+TestResults/
