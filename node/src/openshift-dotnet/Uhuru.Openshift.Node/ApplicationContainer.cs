@@ -66,6 +66,20 @@ namespace Uhuru.Openshift.Runtime
 
         public string PostConfigure()
         {
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options["init"] = true;
+            options["hotDeploy"] = true;
+            options["forceCleanBuild"] = true;
+            options["ref"] = "master";
+            
+            // call gear!!!
+
+            this.PreReceive(options);
+
+            options["all"] = true;
+            options["reportDeployment"] = true;
+
+            this.PostReceive(options);
             return string.Empty;
         }
 
@@ -79,7 +93,7 @@ namespace Uhuru.Openshift.Runtime
             string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"..\src\openshift-dotnet\Uhuru.PowerShell\Tools\sshd\configure-sshd.ps1"));
             string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"..\src\openshift-dotnet\Uhuru.PowerShell\Tools\sshd\add-key.ps1"));
 
-            ProcessStartInfo pi = new ProcessStartInfo();
+            ProcessStartInfo pi = new ProcessStartInfo();            
             pi.UseShellExecute = false;
             pi.RedirectStandardError = true;
             pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
@@ -99,18 +113,19 @@ namespace Uhuru.Openshift.Runtime
             return output;
         }
 
-        public void PreReceive(dynamic options)
+        public string PreReceive(dynamic options)
         {
             options["excludeWebProxy"] = true;
             options["userInitiated"] = true;
             StopGear(options);
+            CreateDeploymentDir();
+
+            return string.Empty;
         }
 
         public void PostReceive(dynamic options)
         {
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
-
-
             Distribute(options);
             Activate(options);
         }
@@ -120,12 +135,28 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
+        private DateTime CreateDeploymentDir()
+        {
+            DateTime deploymentdateTime = DateTime.Now;
+
+            string fullPath = Path.Combine(this.ContainerDir, "app-deployments", deploymentdateTime.ToString("yyyy-MM-dd_HH-mm-s"));
+            Directory.CreateDirectory(Path.Combine(fullPath, "repo"));
+            Directory.CreateDirectory(Path.Combine(fullPath, "dependencies"));
+            Directory.CreateDirectory(Path.Combine(fullPath, "build-depedencies"));
+            SetRWPermissions(fullPath);
+            PruneDeployments();
+            return deploymentdateTime;
+        }
+
+        private void PruneDeployments()
+        {}
+
         public void Activate(dynamic options)
         {
             Dictionary<string, object> opts = new Dictionary<string, object>();
             opts["secondaryOnly"] = true;
             opts["userInitiated"] = true;
-            opts["hotDeploy"] = options["hotDeploy"];
+            //opts["hotDeploy"] = options["hotDeploy"];
             StartGear(opts);
         }
 
@@ -146,8 +177,11 @@ namespace Uhuru.Openshift.Runtime
 
         public string StopGear(dynamic options)
         {
-            this.Cartridge.StopGear(options);
-            return string.Empty;
+            return this.Cartridge.StopGear(options);
+        }
+
+        internal void SetRoPermissions(string hooks)
+        {
         }
     }
 }

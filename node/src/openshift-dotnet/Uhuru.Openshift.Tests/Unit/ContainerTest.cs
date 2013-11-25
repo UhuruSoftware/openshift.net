@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.Openshift.Runtime;
 using System.IO;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Uhuru.Openshift.Tests.Unit
 {
@@ -14,6 +15,30 @@ namespace Uhuru.Openshift.Tests.Unit
         {
             ApplicationContainer container = new ApplicationContainer();
             container.Configure("dotNet", null, null);                       
+        }
+
+        [TestMethod]
+        public void Test_PreReceive_Init()
+        {
+            ApplicationContainer container = new ApplicationContainer();
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options["init"] = true;
+            options["hotDeploy"] = true;
+            options["forceCleanBuild"] = true;
+            options["ref"] = "master";
+            container.PreReceive(options);
+        }
+
+        [TestMethod]
+        public void Test_PostReceive_Init()
+        {
+            ApplicationContainer container = new ApplicationContainer();
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options["init"] = true;
+            options["all"] = true;
+            options["reportDeployment"] = true;
+            options["ref"] = "master";
+            container.PostReceive(options);
         }
 
         [TestMethod]

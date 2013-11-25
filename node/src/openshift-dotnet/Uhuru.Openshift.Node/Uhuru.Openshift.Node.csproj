@@ -52,6 +52,7 @@
     <Compile Include="CartridgeRepository.cs" />
     <Compile Include="Model\ApplicationRepository.cs" />
     <Compile Include="Model\CartridgeModel.cs" />
+    <Compile Include="Model\DeploymentMetadata.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserShellTrap.cs" />

@@ -31,9 +31,25 @@ set GIT_DIR=./{1}.git
 
         private const string GIT_ARHIVE = @"{0} archive --format=tar {1} | (cd {2} & {3} --warning=no-timestamp -xf -)";
 
+        private const string GIT_DESCRIPTION = @"{0} application {1}";
+
+        private const string GIT_CONFIG = @"[user]
+  name = OpenShift System User
+[gc]
+  auto = 100
+";
+
+        private const string GIT_GET_SHA1 = @"set -xe;
+git rev-parse --short {0}";
+
+        private const string PRE_RECEIVE = @"gear -Prereceive";
+
+        private const string POST_RECEIVE = "gear -Postreceive";
 
         public ApplicationContainer Container { get; set; }
         public string RepositoryPath { get; set; }
+        string cartridgeName;
+        string applicationName;
 
         public ApplicationRepository(ApplicationContainer container) : this(container, null) { }
 
@@ -71,6 +87,9 @@ set GIT_DIR=./{1}.git
                 return null;
             }
 
+            this.cartridgeName = cartridgeName;
+            this.applicationName = this.Container.ApplicationName;
+
             if (template.EndsWith(".git"))
             {
                 DirectoryUtil.DirectoryCopy(template, RepositoryPath, true);
@@ -79,7 +98,6 @@ set GIT_DIR=./{1}.git
             {
                 BuildBare(template);
             }
-
             Configure();
             return template;
         }
@@ -100,7 +118,13 @@ set GIT_DIR=./{1}.git
 
         public void Configure()
         {
-            
+            Container.SetRWPermissions(this.RepositoryPath);
+            string hooks = Path.Combine(this.RepositoryPath, "hooks");
+            Container.SetRoPermissions(hooks);
+            File.WriteAllText(Path.Combine(this.RepositoryPath, "description"), string.Format(GIT_DESCRIPTION, this.cartridgeName, this.applicationName));
+            File.WriteAllText(Path.Combine(this.Container.ContainerDir, "gitconfig"), GIT_CONFIG);
+            File.WriteAllText(Path.Combine(hooks, "pre-receive"), PRE_RECEIVE);
+            File.WriteAllText(Path.Combine(hooks, "post-receive"), POST_RECEIVE);
         }
 
         public void Archive(string destination, string refId)

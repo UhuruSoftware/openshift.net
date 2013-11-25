@@ -3,9 +3,6 @@ param(
 )
 
 #for testing
-$env:OPENSHIFT_DOTNET_DIR = "D:\_code\openshift.net\src\cartridges\openshift-origin-cartridge-dotnet\"
-$env:OPENSHIFT_DOTNET_IP = 8080
-$env:OPENSHIFT_REPO_DIR ="D:\_code\openshift.net\src\cartridges\openshift-origin-cartridge-dotnet\usr\template"
 
 
 
@@ -17,7 +14,7 @@ function start-cartridge
 {
   Write-Host "Starting"
   "Starting" > $HTTPD_PID_FILE
-  $job = Start-Job -filepath  $env:OPENSHIFT_REPO_DIR"\dotnet\webserver.ps1"
+  $job = Start-Process powershell -argument "$env:OPENSHIFT_REPO_DIR\dotnet\webserver.ps1" -passthru -windowstyle hidden
   $job.Id > $HTTPD_PID_FILE
 }
 
@@ -28,9 +25,7 @@ function stop-cartridge
   $jobid = [int](Get-Content $HTTPD_PID_FILE)
   Remove-Item $HTTPD_PID_FILE
   Invoke-WebRequest -Uri "http://localhost:$env:OPENSHIFT_DOTNET_IP"
-  Receive-Job $jobid
-  Stop-Job $jobid
-  Remove-Job $jobid
+  Stop-Process $jobid
   #need one more get request
   
 }
