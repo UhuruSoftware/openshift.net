@@ -28,11 +28,36 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Common\" />
+    <Folder Include="OO_Commandlets\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\mcollective\" />
     <Folder Include="Tools\sshd\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-app-create.ps1">
+      <Link>OO_Commandlets\oo-app-create.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-app-destroy.ps1">
+      <Link>OO_Commandlets\oo-app-destroy.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-authorized-ssh-key-add.ps1">
+      <Link>OO_Commandlets\oo-authorized-ssh-key-add.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-cartridge-list.ps1">
+      <Link>OO_Commandlets\oo-cartridge-list.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-configure.ps1">
+      <Link>OO_Commandlets\oo-configure.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-deconfigure.ps1">
+      <Link>OO_Commandlets\oo-deconfigure.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-post-configure.ps1">
+      <Link>OO_Commandlets\oo-post-configure.ps1</Link>
+    </Content>
+    <Content Include="..\..\mcollective_agent\cmdlets\oo-trap-user.ps1">
+      <Link>OO_Commandlets\oo-trap-user.ps1</Link>
+    </Content>
     <Content Include="Common\cygwin-passwd.ps1" />
     <Content Include="Common\file-ownership.ps1" />
     <Content Include="Common\openshift-common.psd1" />

@@ -7,7 +7,7 @@
     <ProjectGuid>{C69F8537-81E8-45DF-846B-508DA2AD1B0E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.Openshift.Node</RootNamespace>
+    <RootNamespace>Uhuru.Openshift.Runtime</RootNamespace>
     <AssemblyName>Uhuru.Openshift.Node</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,6 +54,7 @@
     <Compile Include="Model\CartridgeModel.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserShellTrap.cs" />
     <Compile Include="Utils\ApplicationState.cs" />
     <Compile Include="Utils\Environ.cs" />
     <Compile Include="Utils\Hourglass.cs" />
