@@ -48,8 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationContainer.cs" />
-    <Compile Include="CartridgeRepository.cs" />
+    <Compile Include="Model\ApplicationContainer.cs" />
+    <Compile Include="Model\CartridgeRepository.cs" />
     <Compile Include="Model\ApplicationRepository.cs" />
     <Compile Include="Model\CartridgeModel.cs" />
     <Compile Include="Model\DeploymentMetadata.cs" />
