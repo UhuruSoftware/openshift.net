@@ -126,6 +126,14 @@ namespace Uhuru.Openshift.Runtime
         public void PostReceive(dynamic options)
         {
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+            string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
+
+            Directory.CreateDirectory(repoDir);
+
+            ApplicationRepository applicationRepository = new ApplicationRepository(this);
+            applicationRepository.Archive(repoDir, "master");
+
             Distribute(options);
             Activate(options);
         }
