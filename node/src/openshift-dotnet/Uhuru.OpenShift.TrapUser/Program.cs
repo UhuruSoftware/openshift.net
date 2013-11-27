@@ -11,7 +11,6 @@ namespace Uhuru.OpenShift.TrapUser
     {
         static void Main(string[] args)
         {
-            UserShellTrap.SetupGearEnv();
             UserShellTrap.StartShell();
         }
     }

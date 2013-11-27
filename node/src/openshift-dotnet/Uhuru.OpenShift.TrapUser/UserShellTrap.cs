@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,13 @@ namespace Uhuru.OpenShift.TrapUser
 {
     public class UserShellTrap
     {
-        private static void LoadEnv(string directory)
+        private static void LoadEnv(string directory, StringDictionary targetList)
         {
+            if (targetList == null)
+            {
+                throw new ArgumentNullException("targetList");
+            }
+
             if (!Directory.Exists(directory))
             {
                 return;
@@ -24,22 +30,28 @@ namespace Uhuru.OpenShift.TrapUser
             {
                 string varValue = File.ReadAllText(envFile);
                 string varKey = Path.GetFileName(envFile);
-                Environment.SetEnvironmentVariable(varKey, varValue);
+                targetList[varKey] = varValue;
             }
         }
 
-        public static void SetupGearEnv()
+        private static void SetupGearEnv(StringDictionary targetList)
         {
+            if (targetList == null)
+            {
+                throw new ArgumentNullException("targetList");
+            }
+  
             string globalEnv = Path.Combine(NodeConfig.ConfigDir, "env");
-            UserShellTrap.LoadEnv(globalEnv);
+           
+            UserShellTrap.LoadEnv(globalEnv, targetList);
 
-            UserShellTrap.LoadEnv(".env");
+            UserShellTrap.LoadEnv(".env", targetList);
 
             string[] userHomeDirs = Directory.GetDirectories(".\\", "*", SearchOption.TopDirectoryOnly);
 
             foreach (string userHomeDir in userHomeDirs)
             {
-                LoadEnv(Path.Combine(userHomeDir, "env"));
+                LoadEnv(Path.Combine(userHomeDir, "env"), targetList);
             }
         }
 
@@ -51,6 +63,7 @@ namespace Uhuru.OpenShift.TrapUser
             ProcessStartInfo shellStartInfo = new ProcessStartInfo();
             shellStartInfo.EnvironmentVariables.Add("CYGWIN", "nodosfilewarning");
             shellStartInfo.FileName = "bash";
+            SetupGearEnv(shellStartInfo.EnvironmentVariables);
 
             string args = Environment.CommandLine;
             string arguments = string.Empty;

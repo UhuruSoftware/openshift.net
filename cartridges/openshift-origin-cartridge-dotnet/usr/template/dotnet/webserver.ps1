@@ -1,5 +1,6 @@
 $port = $env:OPENSHIFT_DOTNET_PORT
 $path = $env:OPENSHIFT_REPO_DIR + "\dotnet\"
+$vhost = $env:OPENSHIFT_APP_DNS
 
 #$port = 8080
 #$path = "D:\_code\openshift.net\src\cartridges\openshift-origin-cartridge-dotnet\usr\template\dotnet\"
@@ -7,7 +8,7 @@ $path = $env:OPENSHIFT_REPO_DIR + "\dotnet\"
 Write-Host "Starting a web server on port $port ..."
 
 $listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://+:$port/")
+$listener.Prefixes.Add("http://${vhost}:${port}/")
 
 $listener.Start()
 $stop = 0

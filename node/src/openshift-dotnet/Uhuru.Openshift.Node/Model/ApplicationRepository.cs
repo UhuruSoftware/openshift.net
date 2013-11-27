@@ -129,7 +129,7 @@ git rev-parse --short {0}";
             }
             Directory.CreateDirectory(template);
             string gitPath = Path.Combine(this.Container.ContainerDir, "git");
-            DirectoryUtil.DirectoryCopy(path, gitPath, true);
+            DirectoryUtil.DirectoryCopy(path, template, true);
             RunCmd(string.Format(GIT_INIT, GIT), template);
             RunCmd(string.Format(GIT_LOCAL_CLONE, GIT, this.Container.ApplicationName), gitPath);
         }
