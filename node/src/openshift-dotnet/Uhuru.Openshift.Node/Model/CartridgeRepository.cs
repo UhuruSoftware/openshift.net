@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Utilities;
 using YamlDotNet.RepresentationModel.Serialization;
 
@@ -58,8 +59,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                string binLocation = Path.GetDirectoryName(typeof(CartridgeRepository).Assembly.Location);
-                return Path.GetFullPath(Path.Combine(binLocation, @"..\..\cartridges"));
+                return NodeConfig.Values["CARTRIDGE_BASE_PATH"];
             }
         }
     }

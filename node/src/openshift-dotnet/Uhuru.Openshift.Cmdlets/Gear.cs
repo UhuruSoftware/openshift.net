@@ -169,10 +169,7 @@ namespace Uhuru.Openshift.Cmdlets
                 options["all"] = true;
                 options["reportDeployment"] = true;
                 options["ref"] = "master";
-                if (Init)
-                {
-                    container.PostReceive(options);
-                }
+                container.PostReceive(options);
             }
             else if (Build)
             {

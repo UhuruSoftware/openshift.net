@@ -18,6 +18,8 @@ namespace Uhuru.Openshift.Runtime
         public string ContainerName { get; set; }
         public string ApplicationName { get; set; }
         public string Namespace { get; set; }
+        public string BaseDir { get; set; }
+
         public object QuotaBlocks { get; set; }
         public object QuotaFiles { get; set; }
         
@@ -28,16 +30,18 @@ namespace Uhuru.Openshift.Runtime
                 return Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid);
             } 
         }
-        
+                
         public CartridgeModel Cartridge { get; set; }
         public Hourglass GetHourglass { get { return this.hourglass; } }
         public ApplicationState State { get; set; }
-        
+
+        NodeConfig config;
         private Hourglass hourglass;
 
         public ApplicationContainer(string applicationUuid, string containerUuid, string userId, string applicationName,
             string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
         {
+            this.config = NodeConfig.Values;
             this.Uuid = containerUuid;
             this.ApplicationUuid = applicationUuid;
             this.ApplicationName = applicationName;
@@ -48,10 +52,13 @@ namespace Uhuru.Openshift.Runtime
             this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
             this.hourglass = hourglass ?? new Hourglass(3600);
             this.State = new ApplicationState(this);
+            this.BaseDir = this.config["GEAR_BASE_DIR"];
         }
 
         public string Create()
         {
+            ContainerPlugin containerPlugin = new ContainerPlugin(this);
+            containerPlugin.Create();
             return string.Empty;
         }
 
@@ -91,8 +98,8 @@ namespace Uhuru.Openshift.Runtime
             string key = string.Format("{0} {1} {2}", keyType, sshKey, comment);
 
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"..\src\openshift-dotnet\Uhuru.PowerShell\Tools\sshd\configure-sshd.ps1"));
-            string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"..\src\openshift-dotnet\Uhuru.PowerShell\Tools\sshd\add-key.ps1"));
+            string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\configure-sshd.ps1"));
+            string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\add-key.ps1"));
 
             ProcessStartInfo pi = new ProcessStartInfo();            
             pi.UseShellExecute = false;
@@ -200,5 +207,73 @@ namespace Uhuru.Openshift.Runtime
         internal void SetRoPermissions(string hooks)
         {
         }
+
+        internal void InitializeHomedir(string baseDir, string homeDir)
+        {
+            Directory.CreateDirectory(Path.Combine(homeDir, ".tmp"));
+            Directory.CreateDirectory(Path.Combine(homeDir, ".sandbox"));
+            
+            string sandboxUuidDir = Path.Combine(homeDir, ".sandbox", this.Uuid);
+            Directory.CreateDirectory(sandboxUuidDir);
+            SetRWPermissions(sandboxUuidDir);
+
+            string envDir = Path.Combine(homeDir, ".env");
+            Directory.CreateDirectory(envDir);
+            SetRoPermissions(envDir);
+
+            string userEnvDir = Path.Combine(homeDir, ".env", "user_vars");
+            Directory.CreateDirectory(userEnvDir);
+            SetRoPermissions(userEnvDir);
+
+            string sshDir = Path.Combine(homeDir, ".ssh");
+            Directory.CreateDirectory(sshDir);
+            SetRoPermissions(sshDir);
+
+            string gearDir = Path.Combine(homeDir, this.ContainerName);
+            string gearAppDir = Path.Combine(homeDir, "app-root");
+
+            AddEnvVar("APP_DNS", string.Format("{0}-{1}.{2}", this.ApplicationName, this.Namespace, this.config["CLOUD_DOMAIN"]), true);
+            AddEnvVar("APP_NAME", this.ApplicationName, true);
+            AddEnvVar("APP_UUID", this.ApplicationUuid, true);
+            
+            string dataDir = Path.Combine(gearAppDir, "data");
+            Directory.CreateDirectory(dataDir);
+            AddEnvVar("DATA_DIR", dataDir, true);
+
+            string deploymentsDir = Path.Combine(homeDir, "app-deployments");
+            Directory.CreateDirectory(deploymentsDir);
+            AddEnvVar("DEPLOYMENTS_DIR", deploymentsDir, true);
+
+            CreateDeploymentDir();
+
+            AddEnvVar("GEAR_DNS", string.Format("{0}-{1}.{2}", this.ContainerName, this.Namespace, this.config["CLOUD_DOMAIN"]), true);
+            AddEnvVar("GEAR_NAME", this.ContainerName, true);
+            AddEnvVar("GEAR_UUID", this.Uuid, true);
+            AddEnvVar("HOMEDIR", homeDir, true);
+            AddEnvVar("HOME", homeDir, false);
+            AddEnvVar("NAMESPACE", this.Namespace, true);
+
+            string repoDir = Path.Combine(gearAppDir, "runtime", "repo");
+            AddEnvVar("REPO_DIR", repoDir, true);
+            Directory.CreateDirectory(repoDir);
+        }
+
+        private void AddEnvVar(string key, string value, bool prefixCloudName)
+        {
+            string envDir = Path.Combine(this.ContainerDir, ".env");
+            if (prefixCloudName)
+            {
+                key = string.Format("OPENSHIFT_{0}", key);
+            }
+            string fileName = Path.Combine(envDir, key);
+            File.WriteAllText(fileName, value);
+            SetRoPermissions(fileName);
+        }
+        
+        private void AddEnvVar(string key, string value)
+        {
+            AddEnvVar(key, value, false);
+        }
+
     }
 }

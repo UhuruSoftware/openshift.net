@@ -16,7 +16,7 @@ namespace Uhuru.Openshift.Tests.Unit
         public void Test_Configure()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
-            container.Configure("dotNet", null, null);
+            container.Configure("dotnet-4.5", null, null);
             Dictionary<string, object> options = new Dictionary<string, object>();
             options["init"] = true;
             options["all"] = true;

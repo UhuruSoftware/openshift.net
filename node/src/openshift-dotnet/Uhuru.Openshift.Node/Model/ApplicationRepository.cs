@@ -163,6 +163,13 @@ git rev-parse --short {0}";
             return Directory.Exists(this.RepositoryPath);
         }
 
+        public bool Empty()
+        {
+            if (!Exists())
+                return false;
+            return Directory.GetFiles(this.RepositoryPath).Length == 0;
+        }
+
         private void RunCmd(string cmd, string dir)
         {
             string tempfile = Path.GetTempFileName() + ".bat";

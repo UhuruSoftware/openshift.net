@@ -8,9 +8,6 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
 
-Import-Module (Get-NodeLib)
-Import-Module (Get-CommonLib)
-
 Write-Host "Loading configuration values ..."
 
 $config = [Uhuru.Openshift.Runtime.Config.NodeConfig]::Values
@@ -20,8 +17,9 @@ Write-Host "Looking up network settings ..."
 # Network configuration objects
 $externalAdapter = get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -match $config["EXTERNAL_ETH_DEV"] }
 $internalAdapter = get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -match $config["INTERNAL_ETH_DEV"] }
-$externalAdapterConfiguration = get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq $externalAdapter.InterfaceIndex }
-$internalAdapterConfiguration = get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq $internalAdapter.InterfaceIndex }
+
+$externalAdapterConfiguration = get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq $externalAdapter.DeviceID }
+$internalAdapterConfiguration = get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq $internalAdapter.DeviceID }
 
 Write-Host "Loading memory information ..."
 

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\NodeConfig.cs" />
+    <Compile Include="ContainerPlugin.cs" />
     <Compile Include="Model\ApplicationContainer.cs" />
     <Compile Include="Model\CartridgeRepository.cs" />
     <Compile Include="Model\ApplicationRepository.cs" />

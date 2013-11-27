@@ -16,8 +16,6 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
 
-Import-Module (Get-NodeLib)
-
 $userActivemqPort = Get-NotEmpty $userActivemqPort "61613"
 $userActivemqUser = Get-NotEmpty $userActivemqUser "mcollective"
 $userActivemqPassword = Get-NotEmpty $userActivemqPassword "marionette"

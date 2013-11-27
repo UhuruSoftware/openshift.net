@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Runtime
@@ -32,7 +34,7 @@ namespace Uhuru.Openshift.Runtime
         private ApplicationState state;
         private Hourglass hourglass;
         private int timeout;
-        private List<Manifest> cartridges;        
+        private Dictionary<string, Manifest> cartridges;        
 
         public CartridgeModel(ApplicationContainer container, ApplicationState state, Hourglass hourglass)
         {
@@ -40,29 +42,89 @@ namespace Uhuru.Openshift.Runtime
             this.state = state;
             this.hourglass = hourglass;
             this.timeout = 30;
-            this.cartridges = new List<Manifest>();
+            this.cartridges = new Dictionary<string, Manifest>();
         }
 
         public string Configure(string cartName, string templateGitUrl, string manifest)
-        {
-            Manifest cartridge = new Manifest();
-            CreateCartridgeDirectory(cartridge, "4.5");
-            return PopulateGearRepo(cartName, templateGitUrl);
+        {   
+            
+            string name = cartName.Split('-')[0];
+            string version = cartName.Split('-')[1];
+            Manifest cartridge = null;
+            if (!string.IsNullOrEmpty(manifest))
+            {
+                cartridge = new Manifest(manifest, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+            }
+            else
+            {
+                foreach(Cartridge cart in CartridgeRepository.Instance.LatestVersions)
+                {
+                    if(cart.OriginalName == name && cart.Version == version)
+                    {
+                        cartridge = new Manifest(cart.Spec, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+                        break;
+                    }
+                }
+            }
+            CreateCartridgeDirectory(cartridge, version);
+            return PopulateGearRepo(name, templateGitUrl);
         }
 
         public string StopGear(dynamic options)
         {
-            return StopCartridge(new Manifest(), options);
+            EachCartridge(delegate(Manifest cartridge)
+            {
+                StopCartridge(cartridge, options);
+            });            
+            return string.Empty;
         }
+
+        public delegate void ProcessCartridgeCallback(string cartDir);
+        public delegate void EachCartridgeCallback(Manifest cartridge);
+
+        private void EachCartridge(EachCartridgeCallback action)
+        {
+            ProcessCartridges(null,
+                delegate(string cartridgeDir)
+                {
+                    Manifest cartridge = GetCartridgeFromDirectory(cartridgeDir);
+                    action(cartridge);
+                });
+        }
+
+        private void ProcessCartridges(string cartridgeDir, ProcessCartridgeCallback action)
+        {
+            if (!string.IsNullOrEmpty(cartridgeDir))
+            {
+                string cartDir = Path.Combine(this.container.ContainerDir, cartridgeDir);
+                action(cartDir);
+                return;
+            }
+            else
+            {
+                foreach (string dir in Directory.GetDirectories(container.ContainerDir))
+                {
+                    if(File.Exists(Path.Combine(dir, "metadata", "manifest.yml")))
+                    {
+                        action(dir);
+                    }
+                }
+            }
+        }
+
 
         public string StartGear(dynamic options)
         {
-            return StartCartridge("start", new Manifest(), options);
+            EachCartridge(delegate(Manifest cartridge)
+            {
+                StartCartridge("start", cartridge, options);
+            });
+            return string.Empty;
         }
 
         public string StopCartridge(Manifest cartridge, dynamic options)
         {
-            DoControl("stop", new Manifest(), options);
+            DoControl("stop", cartridge, options);
             return string.Empty;
         }
 
@@ -83,9 +145,7 @@ namespace Uhuru.Openshift.Runtime
 
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
             ProcessStartInfo pi = new ProcessStartInfo();
-            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_DIR", Path.Combine(this.container.ContainerDir, "dotnet"));
-            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_IP", "80");
-            pi.EnvironmentVariables.Add("OPENSHIFT_REPO_DIR", Path.Combine(this.container.ContainerDir, "dotnet", "usr", "template"));
+            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_PORT", "80");
             pi.UseShellExecute = false;
             pi.CreateNoWindow = true;
             pi.RedirectStandardError = true;
@@ -154,6 +214,48 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public string PostConfigure(string cartridgeName)
+        {
+            string output = string.Empty;
+            
+            if (EmptyRepository())
+            {
+                output += "CLIENT_MESSAGE: An empty Git repository has been created for your application.  Use 'git push' to add your code.";
+            }
+            else
+            {
+                //output = this.StartCartridge("start",)
+            }
+
+
+            return output;
+        }
+
+        public Manifest GetCartridge(string cartName)
+        {
+            if (!cartridges.ContainsKey(cartName))
+            {
+                string cartDir = CartridgeDirectory(cartName);
+                this.cartridges[cartName] = GetCartridgeFromDirectory(cartDir);
+            }
+            return cartridges[cartName];
+        }
+
+        public string CartridgeDirectory(string cartName)
+        {
+            return string.Empty;
+        }
+
+        public Manifest GetCartridgeFromDirectory(string cartDir)
+        {
+            string cartPath = Path.Combine(container.ContainerDir, cartDir);
+            string manifestPath = Path.Combine(cartPath, "metadata", "manifest.yml");
+            string manifest = File.ReadAllText(manifestPath);
+            Manifest cartridge = new Manifest(manifest, null, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+            this.cartridges[cartDir] = cartridge;
+            return cartridge;
+        }
+
         private void CreateCartridgeDirectory(Manifest cartridge, string softwareVersion)
         {
             string target = Path.Combine(this.container.ContainerDir, cartridge.Dir);
@@ -190,6 +292,11 @@ namespace Uhuru.Openshift.Runtime
         private void WriteEnvironmentVariables(string path, Dictionary<string, string> envs)
         {
             WriteEnvironmentVariables(path, envs, true);
+        }
+
+        private bool EmptyRepository()
+        {
+            return new ApplicationRepository(this.container).Empty();
         }
     }
 }

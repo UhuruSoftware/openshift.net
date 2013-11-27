@@ -1,5 +1,5 @@
-Port $ENV:port
-ListenAddress $ENV:listenAddress
+Port $port
+ListenAddress $listenAddress
 
 # HostKeys
 HostKey /etc/ssh_host_rsa_key

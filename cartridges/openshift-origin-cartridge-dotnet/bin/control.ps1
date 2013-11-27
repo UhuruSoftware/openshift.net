@@ -24,7 +24,7 @@ function stop-cartridge
   Write-Host "Stopping"
   $jobid = [int](Get-Content $HTTPD_PID_FILE)
   Remove-Item $HTTPD_PID_FILE
-  Invoke-WebRequest -Uri "http://localhost:$env:OPENSHIFT_DOTNET_IP"
+  Invoke-WebRequest -Uri "http://localhost:$env:OPENSHIFT_DOTNET_PORT"
   Stop-Process $jobid
   #need one more get request
   

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Uhuru.Openshift.Runtime.Config;
 
 namespace Uhuru.OpenShift.TrapUser
@@ -48,8 +49,20 @@ namespace Uhuru.OpenShift.TrapUser
             string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
 
             ProcessStartInfo shellStartInfo = new ProcessStartInfo();
-            shellStartInfo.FileName = string.Format(@"bash", rcfile);
-            shellStartInfo.Arguments = string.Format(@"--rcfile ""{0}""", rcfile);
+            shellStartInfo.EnvironmentVariables.Add("CYGWIN", "nodosfilewarning");
+            shellStartInfo.FileName = "bash";
+
+            string args = Environment.CommandLine;
+            string arguments = string.Empty;
+            if (args.StartsWith("\""))
+            {
+                arguments = Regex.Replace(args, @"\A""[^""]+""\s", "");
+            }
+            else
+            {
+                arguments = Regex.Replace(args, @"\A[^\s]+", "");
+            }
+            shellStartInfo.Arguments = string.Format(@"--rcfile ""{0}"" {1}", rcfile, arguments);
             shellStartInfo.UseShellExecute = false;
 
             Process shell = Process.Start(shellStartInfo);

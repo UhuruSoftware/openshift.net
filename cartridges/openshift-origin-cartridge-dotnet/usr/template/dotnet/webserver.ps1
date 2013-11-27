@@ -1,4 +1,4 @@
-$port = $env:OPENSHIFT_DOTNET_IP
+$port = $env:OPENSHIFT_DOTNET_PORT
 $path = $env:OPENSHIFT_REPO_DIR + "\dotnet\"
 
 #$port = 8080

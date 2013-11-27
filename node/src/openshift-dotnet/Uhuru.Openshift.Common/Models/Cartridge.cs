@@ -51,6 +51,8 @@ namespace Uhuru.Openshift.Common.Models
 
         public string DefaultProfile { get; set; }
 
+        public dynamic Spec { get; set; }
+
         public Dictionary<string, Profile> ProfileMap { get; set; }
 
         public Cartridge()
@@ -64,6 +66,7 @@ namespace Uhuru.Openshift.Common.Models
         {
             Cartridge cart = new Cartridge();
 
+            cart.Spec = spec;
             cart.OriginalName = spec["Name"];
             cart.Version = spec.ContainsKey("Version") ? spec["Version"] : "0.0";
             cart.Versions = spec.ContainsKey("Versions") ? spec["Versions"] : new List<object>();

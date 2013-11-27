@@ -83,6 +83,7 @@
     <Content Include="OO-Cmdlets\oo-cartridge-list.ps1" />
     <Content Include="OO-Cmdlets\oo-configure.ps1" />
     <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
+    <Content Include="OO-Cmdlets\gear.ps1" />
     <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
     <Content Include="Tools\mcollective\any_validator.ddl" />
     <Content Include="Tools\mcollective\any_validator.rb" />
