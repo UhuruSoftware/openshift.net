@@ -8,44 +8,10 @@ namespace Uhuru.Openshift.Common
 {
     public class Config
     {
-        
-        public static string ConfigDir 
-        {
-            get
-            {
-                return string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OPENSHIFT_CONF_DIR")) ?
-                                               Environment.GetEnvironmentVariable("OPENSHIFT_CONF_DIR")
-                                               : @"c:\openshift\";
-            }
-        }
-
-        public static string PluginsDir 
-        {
-            get
-            {
-              return Path.Combine(ConfigDir, "plugins.d");
-            }
-        }
-
-        public static string NodeConfFile 
-        {
-            get
-            {
-                return Path.Combine(ConfigDir, "node.conf");
-            }
-        }
-
         private static Dictionary<string, ParseConfig> confParsed;
         private static Dictionary<string, DateTime> confMtime;
 
         private ParseConfig config;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Config"/> class.
-        /// </summary>
-        public Config()
-            : this(NodeConfFile)
-        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Config"/> class.
@@ -160,6 +126,21 @@ namespace Uhuru.Openshift.Common
         }
 
 
-
+        /// <summary>
+        /// Gets the <see cref="System.String"/> with the specified key.
+        /// Same as calling Config.Get(key).
+        /// </summary>
+        /// <value>
+        /// The <see cref="System.String"/> value associated with the key in the config file.
+        /// </value>
+        /// <param name="key">The key for which to get the value.</param>
+        /// <returns>The value associated with the key in the configuration file.</returns>
+        public string this[string key]
+        {
+            get 
+            {
+                return this.Get(key);
+            }
+        }
     }
 }

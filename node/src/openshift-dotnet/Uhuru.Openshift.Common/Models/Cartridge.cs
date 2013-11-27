@@ -1,43 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using YamlDotNet.RepresentationModel.Serialization;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using YamlDotNet.RepresentationModel;
 
 namespace Uhuru.Openshift.Common.Models
-{    
+{
     public class Cartridge
     {
         public string OriginalName { get; set; }
+
         public string Version { get; set; }
+
         public List<object> Versions { get; set; }
+
         public string Architecture { get; set; }
+
         public string DisplayName { get; set; }
+
         public string License { get; set; }
+
         public string LicenseUrl { get; set; }
+
         public string Vendor { get; set; }
+
         public string CartridgeVendor { get; set; }
+
         public string Description { get; set; }
+
         public List<object> Provides { get; set; }
+
         public List<object> Requires { get; set; }
+
         public List<object> Conflicts { get; set; }
+
         public List<object> NativeRequires { get; set; }
+
         public List<object> Categories { get; set; }
+
         public string Website { get; set; }
+
         public List<object> Suggests { get; set; }
+
         public dynamic HelpTopics { get; set; }
+
         public dynamic CartDataDef { get; set; }
+
         public List<object> AdditionalControlActions { get; set; }
+
         public List<Endpoint> Endpoints { get; set; }
+
         public List<Profile> Profiles { get; set; }
+
         public string DefaultProfile { get; set; }
+
         public Dictionary<string, Profile> ProfileMap { get; set; }
 
-        public Cartridge() 
+        public Cartridge()
         {
             ProfileMap = new Dictionary<string, Profile>();
             Profiles = new List<Profile>();
@@ -219,7 +235,7 @@ namespace Uhuru.Openshift.Common.Models
                 h["Profiles"] = profiles;
             }
 
-            return h;            
+            return h;
         }
 
         public string Name
@@ -268,6 +284,7 @@ namespace Uhuru.Openshift.Common.Models
             public class SetEnvObj
             {
                 public string Type { get; set; }
+
                 public bool Required { get; set; }
             }
         }
@@ -275,6 +292,7 @@ namespace Uhuru.Openshift.Common.Models
         public class ScalingObj
         {
             public string Min { get; set; }
+
             public string Max { get; set; }
         }
     }

@@ -1,3 +1,8 @@
+# Currently using the mcollective windows installer from kermit.fr
+
+$currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1')
+
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
     [Security.Principal.WindowsBuiltInRole] "Administrator"))
 {
@@ -44,24 +49,23 @@ Write-Host $devKitPath -ForegroundColor Yellow
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 
-Write-Host "Looking for mcollective setup package here: " -NoNewline
-Write-Host $currentDir -ForegroundColor Yellow
+$mcollectiveSetupURL = http://kermit.fr/repo/windows/bin/mcollective_2_3_1_Setup.exe
 
-$setupPackage = Get-ChildItem "$currentDir/mcollective*setup.exe"
+Write-Host "Downloading mcollective setup package from here: " -NoNewline
+Write-Host $mcollectiveSetupURL -ForegroundColor Yellow
 
+$setupPackage = Join-Path $env:TEMP "mcollective-setup.exe"
 
-if ($setupPackage.count -eq 0)
+if ((Test-Path $setupPackage) -eq $true)
 {
-    Write-Host "No mcollective setup package was found. Aborting." -ForegroundColor Red
-    exit 1
+    rm $setupPackage -Force > $null
 }
 
-Write-Host "Found package " -NoNewline
-Write-Host $setupPackage -ForegroundColor Yellow
+Invoke-WebRequest $mcollectiveSetupURL -OutFile $setupPackage
 
 Write-Host "Executing installation package ..."
 
-$logFile = "$currentDir\mcollective_setup.log"
+$logFile = Join-Path $env:TEMP "mcollective_setup.log"
 
 $arguments = "/SP /VERYSILENT /SUPRESSMSGBOXES /LOG=`"$logFile`" /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /DIR=c:\mcollective /NOICONS"
 

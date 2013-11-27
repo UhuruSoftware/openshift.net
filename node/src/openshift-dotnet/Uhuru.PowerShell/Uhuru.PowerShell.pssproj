@@ -8,6 +8,32 @@
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
     <Name>Uhuru.PowerShell</Name>
+    <ManifestFileName />
+    <AliasesToExport />
+    <Author />
+    <ClrVersion />
+    <CmdletsToExport />
+    <CompanyName />
+    <Copyright />
+    <Description />
+    <FormatsToProcess />
+    <FunctionsToProcess />
+    <Guid />
+    <ModuleList />
+    <ModuleToProcess />
+    <NestedModules />
+    <PowerShellHostVersion />
+    <PowerShellVersion />
+    <ProcessorArchitecture />
+    <RequiredAssemblies />
+    <RequiredModules />
+    <ScriptsToProcess />
+    <TypesToProcess />
+    <VariablesToExport />
+    <CodeSigningCert />
+    <OutputDirectory>
+    </OutputDirectory>
+    <SignOutput>False</SignOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,52 +54,54 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Common\" />
-    <Folder Include="OO_Commandlets\" />
+    <Folder Include="OO-Cmdlets\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\mcollective\" />
+    <Folder Include="Tools\openshift.net\" />
     <Folder Include="Tools\sshd\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-app-create.ps1">
-      <Link>OO_Commandlets\oo-app-create.ps1</Link>
+    <Content Include="Common\cygwin-passwd.ps1">
+      <Publish>False</Publish>
     </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-app-destroy.ps1">
-      <Link>OO_Commandlets\oo-app-destroy.ps1</Link>
+    <Content Include="Common\file-ownership.ps1">
+      <Publish>False</Publish>
     </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-authorized-ssh-key-add.ps1">
-      <Link>OO_Commandlets\oo-authorized-ssh-key-add.ps1</Link>
+    <Content Include="Common\library-importer.ps1" />
+    <Content Include="Common\openshift-common.psd1">
+      <Publish>False</Publish>
     </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-cartridge-list.ps1">
-      <Link>OO_Commandlets\oo-cartridge-list.ps1</Link>
+    <Content Include="Common\openshift-common.psm1">
+      <Publish>False</Publish>
     </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-configure.ps1">
-      <Link>OO_Commandlets\oo-configure.ps1</Link>
+    <Content Include="Common\template-mechanism.ps1">
+      <Publish>False</Publish>
     </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-deconfigure.ps1">
-      <Link>OO_Commandlets\oo-deconfigure.ps1</Link>
-    </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-post-configure.ps1">
-      <Link>OO_Commandlets\oo-post-configure.ps1</Link>
-    </Content>
-    <Content Include="..\..\mcollective_agent\cmdlets\oo-trap-user.ps1">
-      <Link>OO_Commandlets\oo-trap-user.ps1</Link>
-    </Content>
-    <Content Include="Common\cygwin-passwd.ps1" />
-    <Content Include="Common\file-ownership.ps1" />
-    <Content Include="Common\openshift-common.psd1" />
-    <Content Include="Common\openshift-common.psm1" />
-    <Content Include="Common\template-mechanism.ps1" />
+    <Content Include="OO-Cmdlets\oo-app-create.ps1" />
+    <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
+    <Content Include="OO-Cmdlets\oo-authorized-ssh-key-add.ps1" />
+    <Content Include="OO-Cmdlets\oo-cartridge-list.ps1" />
+    <Content Include="OO-Cmdlets\oo-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
+    <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-trap-user.ps1" />
     <Content Include="Tools\mcollective\any_validator.ddl" />
     <Content Include="Tools\mcollective\any_validator.rb" />
     <Content Include="Tools\mcollective\client.cfg.template" />
     <Content Include="Tools\mcollective\configure-mcollective.ps1" />
+    <Content Include="Tools\mcollective\facts.yaml.template" />
     <Content Include="Tools\mcollective\openshift.rb.template" />
     <Content Include="Tools\mcollective\server.cfg.template" />
+    <Content Include="Tools\mcollective\update-facts.ps1" />
+    <Content Include="Tools\openshift.net\install.ps1" />
     <Content Include="Tools\sshd\add-key.ps1" />
     <Content Include="Tools\sshd\configure-sshd.ps1" />
     <Content Include="Tools\sshd\run-sshd.ps1" />
     <Content Include="Tools\sshd\setup-sshd.ps1" />
     <Content Include="Tools\sshd\sshd_config.template" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Tools\mcollective\setup-mcollective.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />

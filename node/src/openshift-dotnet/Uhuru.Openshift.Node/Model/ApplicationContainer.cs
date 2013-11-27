@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Runtime
@@ -19,7 +20,15 @@ namespace Uhuru.Openshift.Runtime
         public string Namespace { get; set; }
         public object QuotaBlocks { get; set; }
         public object QuotaFiles { get; set; }
-        public string ContainerDir { get { return @"C:\cygwin\administrator_home"; } }
+        
+        public string ContainerDir 
+        { 
+            get 
+            { 
+                return Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid);
+            } 
+        }
+        
         public CartridgeModel Cartridge { get; set; }
         public Hourglass GetHourglass { get { return this.hourglass; } }
         public ApplicationState State { get; set; }
@@ -97,14 +106,22 @@ namespace Uhuru.Openshift.Runtime
             pi.UseShellExecute = false;
             pi.RedirectStandardError = true;
             pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
-            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory c:\cygwin\installation\ -user {1} -windowsUser administrator -userHomeDir c:\cygwin\administrator_home", configureScript, this.ApplicationUuid);
+            
+            pi.Arguments = string.Format(
+@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser administrator -userHomeDir {3} -userShell {4}", 
+                configureScript, 
+                this.ApplicationUuid, 
+                NodeConfig.Values["SSHD_BASE_DIR"], 
+                this.ContainerDir,
+                NodeConfig.Values["GEAR_SHELL"]);
+
             Process p = Process.Start(pi);
             p.WaitForExit(60000);
             output += this.ApplicationUuid;
             output += p.StandardError.ReadToEnd();
             output += p.StandardOutput.ReadToEnd();
 
-            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory c:\cygwin\installation\ -windowsUser administrator -key ""{1}""", addKeyScript, key);
+            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser administrator -key ""{1}""", addKeyScript, key, NodeConfig.Values["SSHD_BASE_DIR"]);
             p = Process.Start(pi);
             p.WaitForExit(60000);
             output += p.StandardError.ReadToEnd();
@@ -126,6 +143,14 @@ namespace Uhuru.Openshift.Runtime
         public void PostReceive(dynamic options)
         {
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+            string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
+
+            Directory.CreateDirectory(repoDir);
+
+            ApplicationRepository applicationRepository = new ApplicationRepository(this);
+            applicationRepository.Archive(repoDir, "master");
+
             Distribute(options);
             Activate(options);
         }

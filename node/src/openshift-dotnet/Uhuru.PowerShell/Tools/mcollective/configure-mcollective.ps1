@@ -1,32 +1,42 @@
+param (
+    $userActivemqServer = $(Read-Host "ActiveMQ Host (OpenShift Broker - required)"),
+    $userActivemqPort = $(Read-Host "ActiveMQ Port (default is 61613)"),
+    $userActivemqUser = $(Read-Host "ActiveMQ Username (default is mcollective)"),
+    $userActivemqPassword = $(Read-Host "ActiveMQ Password (default is marionette)"),
+    $binDir = $(Read-Host "Binary directory (required)")
+    )
+
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
     [Security.Principal.WindowsBuiltInRole] "Administrator"))
 {
-    Write-Host "This script requires elevation. Please run as administator." -ForegroundColor Red
+    Write-Host "This script requires elevation. Please run as administrator." -ForegroundColor Red
     exit 1
 }
 
-Write-Host "This script will help you configure a local mcollective service, so it can connect to an Openshift Broker.`n" -ForegroundColor Cyan
+$currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1')
+
+Import-NodeLib
+
+$userActivemqPort = Get-NotEmpty $userActivemqPort "61613"
+$userActivemqUser = Get-NotEmpty $userActivemqUser "mcollective"
+$userActivemqPassword = Get-NotEmpty $userActivemqPassword "marionette"
+
+if ([string]::IsNullOrEmpty($userActivemqServer))
+{
+    Write-Host "Broker host is empty - please specify a valid hotname or IP. Aborting." -ForegroundColor Red
+    exit 1
+}
+
+if ([string]::IsNullOrEmpty($binDir))
+{
+    Write-Host "Binary directory is empty - please specify the correct path to the OpenShift.NET binaries. Aborting." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "This script will configure a local mcollective service.`n" -ForegroundColor Cyan
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
-
-# Using a simple templating mechanism for configuring mcollective files (http://my.safaribooksonline.com/book/programming/microsoft-windows-powershell/9781449322694/4dot-accelerating-delivery/id545617)
-
-function Invoke-Template {
-    param(
-        [string]$Path,
-        [Scriptblock]$ScriptBlock
-    )
-
-    function Get-Template {
-        param($TemplateFileName)
-
-        $content = [IO.File]::ReadAllText(
-            (Join-Path $Path $TemplateFileName) )
-        Invoke-Expression "@`"`r`n$content`r`n`"@"
-    }
-
-    & $ScriptBlock
-}
 
 # check to see if mcollective is installed in c:\mcollective
 
@@ -44,57 +54,32 @@ if ($mcollectiveService -eq $null)
     exit 1
 }
 
-# ask the user for stuff
-$userActivemqServer = Read-Host "ActiveMQ Host (OpenShift Broker)"
+$agentDDLFile = Join-Path $binDir "mcollective\openshift.ddl"
+$agentCodeFile = Join-Path $binDir "mcollective\openshift.rb"
 
-$userActivemqPort = Read-Host "ActiveMQ Port (default is 61613)"
-if ([string]::IsNullOrEmpty($userActivemqPort))
+# validate the ddl and the rb files are there
+if ((Test-Path $agentDDLFile) -ne $true)
 {
-    $userActivemqPort = "61613"
+    Write-Host "Could not find $agentDDLFile. Aborting." -ForegroundColor Red
+    exit 1
 }
 
-$userActivemqUser = Read-Host "ActiveMQ Username (default is mcollective)"
-if ([string]::IsNullOrEmpty($userActivemqUser))
+if ((Test-Path $agentCodeFile) -ne $true)
 {
-    $userActivemqUser = "mcollective"
+    Write-Host "Could not find $agentCodeFile. Aborting." -ForegroundColor Red
+    exit 1
 }
 
-$userActivemqPassword = Read-Host "ActiveMQ Password (default is marionette)"
-if ([string]::IsNullOrEmpty($userActivemqPassword))
-{
-    $userActivemqPassword = "marionette"
-}
+Write-Host "Setting up OpenShift development agent ..."
+Write-Host "Warning - The DDL file will be copied, not included. If you change the DDL file, run this script again." -ForegroundColor Yellow
 
-$userDevDir = Read-Host "Plugin development dir (default won't setup anything)"
-if ([string]::IsNullOrEmpty($userDevDir) -ne $true)
-{
-    $agentDDLFile = Join-Path $userDevDir "openshift.ddl"
-    $agentCodeFile = Join-Path $userDevDir "openshift.rb"
-    # validate the ddl and the rb files are there
-    if ((Test-Path $agentDDLFile) -ne $true)
-    {
-        Write-Host "Could not find $agentDDLFile. Aborting." -ForegroundColor Red
-        exit 1
-    }
+# copy ddl file
+Copy-Item $agentDDLFile "C:\mcollective\plugins\mcollective\agent\" -Force
 
-    if ((Test-Path $agentCodeFile) -ne $true)
-    {
-        Write-Host "Could not find $agentCodeFile. Aborting." -ForegroundColor Red
-        exit 1
-    }
+# create an agent that includes the development agent
 
-    Write-Host "Setting up OpenShift development agent ..."
-    Write-Host "Warning - The DDL file will be copied, not included. If you change the DDL file, run this script again." -ForegroundColor Yellow
-
-    # copy ddl file
-    Copy-Item $agentDDLFile "C:\mcollective\plugins\mcollective\agent\" -Force
-
-    # create an agent that includes the development agent
-
-    Invoke-Template $currentDir {
-        $devAgentCodeFile = $agentCodeFile
-        Get-Template openshift.rb.template
-    } | Out-File C:\mcollective\plugins\mcollective\agent\openshift.rb -Encoding ascii
+Write-Template (Join-Path $currentDir "openshift.rb.template") "C:\mcollective\plugins\mcollective\agent\openshift.rb" @{
+    devAgentCodeFile = $agentCodeFile
 }
 
 # check if port is open on broker machine (sudo systemctl stop firewalld.service)
@@ -119,26 +104,25 @@ Write-Host "Verified ${userActivemqServer}:${userActivemqPort} is open." -Foregr
 
 # edit c:\mcollective\etc\client.cfg
 
-Write-Host "Configuring c:\mcollective\etc\client.cfg"
+Write-Host "Configuring c:\mcollective\etc\client.cfg" 
 
-Invoke-Template $currentDir {
-    $activemqServer = $userActivemqServer
-    $activemqPort = $userActivemqPort
-    $activemqUser = $userActivemqUser
-    $activemqPassword = $userActivemqPassword
-    Get-Template client.cfg.template
-} | Out-File c:\mcollective\etc\client.cfg -Encoding ascii
+Write-Template (Join-Path $currentDir "client.cfg.template")  "c:\mcollective\etc\client.cfg" @{
+    activemqServer = $userActivemqServer
+    activemqPort = $userActivemqPort
+    activemqUser = $userActivemqUser
+    activemqPassword = $userActivemqPassword
+}
 
 # edit c:\mcollective\etc\server.cfg
 Write-Host "Configuring c:\mcollective\etc\server.cfg"
 
-Invoke-Template $currentDir {
-    $activemqServer = $userActivemqServer
-    $activemqPort = $userActivemqPort
-    $activemqUser = $userActivemqUser
-    $activemqPassword = $userActivemqPassword
-    Get-Template server.cfg.template
-} | Out-File c:\mcollective\etc\server.cfg -Encoding ascii
+Write-Template (Join-Path $currentDir "server.cfg.template")  "c:\mcollective\etc\server.cfg" @{
+    activemqServer = $userActivemqServer
+    activemqPort = $userActivemqPort
+    activemqUser = $userActivemqUser
+    activemqPassword = $userActivemqPassword
+    binDir = $binDir
+} 
 
 # copy custom validator to C:\mcollective\plugins\mcollective\validator
 Write-Host "Copying custom validator to C:\mcollective\plugins\mcollective\validator ..."
@@ -154,6 +138,18 @@ if ($mcollectiveService.status -like 'running')
 
     Write-Host "Waiting 5 seconds for mcolllective to stop ..."
     Start-Sleep -s 5
+}
+
+$nodeConfPath = [Uhuru.Openshift.Runtime.Config.NodeConfig]::NodeConfigFile
+
+if (Test-Path $nodeConfPath)
+{
+    Write-Host "Found configuration file here: '${nodeConfPath}' - setting up facts file."
+    & $( Join-Path $currentDir "update-facts.ps1" )
+}
+else
+{
+    Write-Host "Did not find configuration file '${nodeConfPath}' - skipping writing facts file!"
 }
 
 Write-Host "Starting mcollectived ..."

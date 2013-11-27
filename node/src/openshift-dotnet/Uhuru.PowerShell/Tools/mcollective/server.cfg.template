@@ -23,5 +23,9 @@ plugin.activemq.pool.1.password = $activemqPassword
 
 # Facts
 factsource = yaml
-# plugin.yaml = c:\Program Files\mcollective1\etc\facts.yaml
 plugin.yaml = /mcollective/etc/facts.yaml
+
+
+# Windows MCollective Agent Settings
+plugin.openshift.winbin = $binDir
+plugin.openshift.agent = $(Join-Path $binDir "mcollective\openshift.rb")

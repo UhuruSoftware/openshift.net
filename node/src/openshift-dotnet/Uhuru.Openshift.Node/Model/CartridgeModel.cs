@@ -79,14 +79,13 @@ namespace Uhuru.Openshift.Runtime
 
         public string DoControlWithDirectory(string action, dynamic options)
         {
-            string control = Path.Combine(@"C:\cygwin\administrator_home\dotnet", "bin", "control.ps1");
+            string control = Path.Combine(this.container.ContainerDir, "dotnet", "bin", "control.ps1");
 
-            //string control = @"C:\cygwin\administrator_home\dotnet\usr\template\dotnet\webserver.ps1";
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
             ProcessStartInfo pi = new ProcessStartInfo();
-            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_DIR", @"C:\cygwin\administrator_home\dotnet");
+            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_DIR", Path.Combine(this.container.ContainerDir, "dotnet"));
             pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_IP", "80");
-            pi.EnvironmentVariables.Add("OPENSHIFT_REPO_DIR", @"C:\cygwin\administrator_home\dotnet\usr\template");
+            pi.EnvironmentVariables.Add("OPENSHIFT_REPO_DIR", Path.Combine(this.container.ContainerDir, "dotnet", "usr", "template"));
             pi.UseShellExecute = false;
             pi.CreateNoWindow = true;
             pi.RedirectStandardError = true;

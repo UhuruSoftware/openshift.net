@@ -13,6 +13,8 @@ Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "Uhuru.PowerShell", "Uhuru.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Utilities", "Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj", "{38966805-0431-42D3-B5FF-51202DBCD5CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.OpenShift.TrapUser", "Uhuru.OpenShift.TrapUser\Uhuru.OpenShift.TrapUser.csproj", "{D3949F75-D14C-411D-B4DC-FE4F2783160B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{38966805-0431-42D3-B5FF-51202DBCD5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38966805-0431-42D3-B5FF-51202DBCD5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38966805-0431-42D3-B5FF-51202DBCD5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3949F75-D14C-411D-B4DC-FE4F2783160B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3949F75-D14C-411D-B4DC-FE4F2783160B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3949F75-D14C-411D-B4DC-FE4F2783160B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3949F75-D14C-411D-B4DC-FE4F2783160B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

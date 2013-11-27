@@ -1,0 +1,58 @@
+---
+  architecture: "x86_64"
+  kernel: "Windows"
+  domain: "$openshiftDomain"
+  macaddress: "$macAddress"
+  operatingsystem: "$OS"
+  fqdn: "$fqdn"
+  hostname: "$hostname"
+  ipaddress: "$ipAddress"
+  kernelmajversion: "$kernelVersion"
+  memorysize: "$totalMemoryMB MB"
+  memoryfree: "$totalMemoryMB MB"
+  swapsize: "$totalSwapMB MB"
+  swapfree: "$freeSwapMB MB"
+  memorytotal: "$totalMemoryMB MB"
+
+  district_uuid: "$districtUUID"
+  district_active: $districtActive
+  public_ip: "$publicIP"
+  public_hostname: "$publicHostname"
+  node_profile: "$nodeProfile"
+  max_active_gears: "$maxActiveGears"
+  quota_blocks: "$quotaBlocks"
+  quota_files: "$quotaFiles"
+  gears_active_count: $gearsActiveCount
+  gears_total_count: $gearsTotalCount
+  gears_idle_count: $gearsIdleCount
+  gears_stopped_count: $gearsStoppedCount
+  gears_started_count: $
+  gears_deploying_count: 0
+  gears_unknown_count: 0
+  gears_usage_pct: 0.0
+  gears_active_usage_pct: 0.0
+  git_repos: 0
+  capacity: "0.0"
+  active_capacity: "0.0"
+  cart_list: "v2|python-2.7|perl-5.16|abstract|postgresql-9.2|python-3.3|phpmyadmin-3.5|ruby-1.9|mongodb-2.2|10gen-mms-agent-0.1|abstract-httpd|haproxy-1.4|nodejs-0.6|jenkins-client-1.4|php-5.4|diy-0.1|jenkins-1.4|mysql-5.1|cron-1.4"
+  embed_cart_list: "postgresql-9.2|phpmyadmin-3.5|mongodb-2.2|10gen-mms-agent-0.1|haproxy-1.4|jenkins-client-1.4|mysql-5.1|cron-1.4"
+  operatingsystemrelease: "18"
+  osfamily: RedHat
+  path: "/sbin:/bin:/usr/sbin:/usr/bin"
+  physicalprocessorcount: 1
+  processor0: "Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz"
+  processorcount: "1"
+  ps: "ps -ef"
+  puppetversion: "3.1.1"
+  rubysitedir: /usr/local/share/ruby/site_ruby
+  rubyversion: "1.9.3"
+  selinux: "false"
+  timezone: EEST
+  uniqueid: "007f0100"
+  uptime: "8 days"
+  uptime_days: 8
+  uptime_hours: 200
+  uptime_seconds: 722896
+  virtual: vmware
+  is_virtual: "true"
+  mcollective: 1  

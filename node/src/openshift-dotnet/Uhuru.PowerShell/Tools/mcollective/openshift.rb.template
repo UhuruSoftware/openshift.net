@@ -1,1 +1,1 @@
-require '$devAgentCodeFile'
+require config.pluginconf["openshift.agent"]

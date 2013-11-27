@@ -20,7 +20,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 string manifestPath = Path.Combine(dir, "metadata", "manifest.yml");
                 if (File.Exists(manifestPath))
-                {
+                {   
                     string document = File.ReadAllText(manifestPath);
                     var input = new StringReader(document);
                     var deserializer = new Deserializer();

@@ -5,14 +5,32 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
     public class ApplicationRepository
     {
-        const string GIT = @"""C:\cygwin\installation\bin\git.exe""";
-        const string TAR = @"""C:\cygwin\installation\bin\tar.exe""";
+        string GIT 
+        {
+            get 
+            {
+                string gitPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe");
+
+                return String.Format("\"{0}\"", gitPath);
+            }
+        }
+
+        string TAR 
+        {
+            get
+            {
+                string tarPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\tar.exe");
+
+                return String.Format("\"{0}\"", tarPath);
+            }
+        }
 
         private const string GIT_INIT = @"{0} init
 {0} config user.email ""builder@example.com""

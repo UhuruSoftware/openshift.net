@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OO_Trap_User.cs" />
     <Compile Include="Gear.cs">
       <SubType>Code</SubType>
     </Compile>
