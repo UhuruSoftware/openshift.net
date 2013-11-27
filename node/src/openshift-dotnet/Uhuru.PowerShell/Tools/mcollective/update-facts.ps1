@@ -6,10 +6,10 @@ If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
-Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1') -DisableNameChecking
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
 
-Import-NodeLib
-Import-CommonLib
+Import-Module (Get-NodeLib)
+Import-Module (Get-CommonLib)
 
 Write-Host "Loading configuration values ..."
 

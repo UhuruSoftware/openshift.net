@@ -1,41 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using Uhuru.Openshift.Runtime.Config;
 
-namespace Uhuru.Openshift.Runtime
+namespace Uhuru.OpenShift.TrapUser
 {
     public class UserShellTrap
     {
-        private void GetGearEnvVariables()
+        private static void LoadEnv(string directory)
         {
-            Dictionary<string, string> envVariables = new Dictionary<string, string>()
+            if (!Directory.Exists(directory))
             {
-                { "OPENSHIFT_SECRET_TOKEN", "secret" },
-                { "OPENSHIFT_GEAR_MEMORY_MB", "512" },
-                { "OPENSHIFT_DEPLOYMENTS_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/app-deployments/" },
-                { "OPENSHIFT_TMP_DIR", "/tmp/" },
-                { "OPENSHIFT_REPO_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/app-root/runtime/repo/" },
-                { "OPENSHIFT_HOMEDIR", "/var/lib/openshift/528faca7ab631c9ea400000e/" },
-                { "OPENSHIFT_GEAR_NAME", "dietate" },
-                { "OPENSHIFT_APP_SSH_PUBLIC_KEY", "/var/lib/openshift/528faca7ab631c9ea400000e/.openshift_ssh/id_rsa.pub" },
-                { "OPENSHIFT_CLOUD_DOMAIN", "example.com" },
-                { "OPENSHIFT_BUILD_DEPENDENCIES_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/app-root/runtime/build-dependencies/" },
-                { "OPENSHIFT_APP_DNS", "dietate-uhuru.openshift.local" },
-                { "OPENSHIFT_PRIMARY_CARTRIDGE_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/ruby/" },
-                { "OPENSHIFT_GEAR_DNS", "dietate-uhuru.openshift.local" },
-                { "OPENSHIFT_CARTRIDGE_SDK_BASH", "/usr/lib/openshift/cartridge_sdk/bash/sdk" },
-                { "OPENSHIFT_APP_SSH_KEY", "/var/lib/openshift/528faca7ab631c9ea400000e/.openshift_ssh/id_rsa" },
-                { "OPENSHIFT_DEPENDENCIES_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/app-root/runtime/dependencies/" },
-                { "OPENSHIFT_APP_NAME", "dietate" },
-                { "OPENSHIFT_DATA_DIR", "/var/lib/openshift/528faca7ab631c9ea400000e/app-root/data/" },
-                { "OPENSHIFT_GEAR_UUID", "528faca7ab631c9ea400000e" },
-                { "OPENSHIFT_NAMESPACE", "uhuru" },
-                { "OPENSHIFT_BROKER_HOST", "localhost" },
-                { "OPENSHIFT_APP_UUID", "528faca7ab631c9ea400000e" },
-            };
+                return;
+            }
+
+            string[] envFiles = Directory.GetFiles(directory);
+
+            foreach (string envFile in envFiles)
+            {
+                string varValue = File.ReadAllText(envFile);
+                string varKey = Path.GetFileName(envFile);
+                Environment.SetEnvironmentVariable(varKey, varValue);
+            }
         }
 
+        public static void SetupGearEnv()
+        {
+            string globalEnv = Path.Combine(NodeConfig.ConfigDir, "env");
+            UserShellTrap.LoadEnv(globalEnv);
 
+            UserShellTrap.LoadEnv(".env");
+
+            string[] userHomeDirs = Directory.GetDirectories(".\\", "*", SearchOption.TopDirectoryOnly);
+
+            foreach (string userHomeDir in userHomeDirs)
+            {
+                LoadEnv(Path.Combine(userHomeDir, "env"));
+            }
+        }
+
+        public static void StartShell()
+        {
+            string assemblyLocation = Path.GetDirectoryName(typeof(UserShellTrap).Assembly.Location);
+            string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
+
+            ProcessStartInfo shellStartInfo = new ProcessStartInfo();
+            shellStartInfo.FileName = string.Format(@"bash", rcfile);
+            shellStartInfo.Arguments = string.Format(@"--rcfile ""{0}""", rcfile);
+            shellStartInfo.UseShellExecute = false;
+
+            Process shell = Process.Start(shellStartInfo);
+
+            shell.WaitForExit();
+        }
     }
 }

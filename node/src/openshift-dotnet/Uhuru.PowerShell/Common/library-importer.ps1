@@ -1,17 +1,8 @@
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 
-function Import-CommandletsLib {
-    $dllPath = Join-Path $currentDir "..\..\Uhuru.Openshift.Cmdlets.dll"
-    Import-Module $dllPath -DisableNameChecking
-}
+Import-Module (Join-Path $currentDir "..\..\Uhuru.Openshift.Cmdlets.dll") -DisableNameChecking
 
-function Import-CommonLib {
-    $dllPath = Join-Path $currentDir "..\..\Uhuru.Openshift.Common.dll"
-    Import-Module $dllPath -DisableNameChecking
-}
+Import-Module (Join-Path $currentDir "..\..\Uhuru.Openshift.Common.dll") -DisableNameChecking
 
-function Import-NodeLib {
-    $dllPath = Join-Path $currentDir "..\..\Uhuru.Openshift.Node.dll"
-    Import-Module $dllPath -DisableNameChecking
-}
+Import-Module (Join-Path $currentDir "..\..\Uhuru.Openshift.Node.dll") -DisableNameChecking

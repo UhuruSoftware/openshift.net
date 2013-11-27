@@ -1,7 +1,7 @@
 # Currently using the mcollective windows installer from kermit.fr
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
-Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1')
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
 
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
     [Security.Principal.WindowsBuiltInRole] "Administrator"))

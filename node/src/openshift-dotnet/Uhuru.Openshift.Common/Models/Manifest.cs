@@ -13,7 +13,7 @@ namespace Uhuru.Openshift.Runtime
         public string PublicPortName { get; set; }
         public string WebsocketPortName { get; set; }
         public int WebsocketPort { get; set; }        
-        public string RepositoryPath { get { return @"I:\_code\openshift.net\cartridges\openshift-origin-cartridge-dotnet"; } }
+        public string RepositoryPath { get { return @"C:\openshift\cartridges\openshift-origin-cartridge-dotnet"; } }
         public string Dir { get { return "dotnet"; } }
         public string CartridgeVendor { get { return "uhuru"; } }
         public string Name { get { return "openshift-origin-cartridge-dotnet"; } }

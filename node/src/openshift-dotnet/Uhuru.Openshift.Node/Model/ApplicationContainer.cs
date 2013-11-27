@@ -35,14 +35,6 @@ namespace Uhuru.Openshift.Runtime
         
         private Hourglass hourglass;
 
-        [Obsolete("Used only for testing")]
-        public ApplicationContainer() 
-        {
-            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
-            this.ApplicationName = "testnet";
-            this.ApplicationUuid = Guid.NewGuid().ToString();
-        }
-
         public ApplicationContainer(string applicationUuid, string containerUuid, string userId, string applicationName,
             string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
         {

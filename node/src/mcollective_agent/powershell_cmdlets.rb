@@ -10,7 +10,7 @@ module MCollective
       end
 
       def self.run_command(command ,args)
-        script = File.join(File.dirname(__FILE__), "cmdlets", "#{command.to_s.gsub('_', '-')}.ps1")
+        script = File.join(File.expand_path('../../powershell/oo-cmdlets', __FILE__), "#{command.to_s.gsub('_', '-')}.ps1")
         ps_args = args.to_json.gsub('"', '"""')
         cmd = "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} #{ps_args} 2>&1"
         output = ""

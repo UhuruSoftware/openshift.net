@@ -4,9 +4,8 @@
     $key = $( Read-Host "Public key - required" )
 )
 
-
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
-Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psm1')
+Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
 
 $targetDirectory = Get-NotEmpty $targetDirectory "c:\cygwin\installation\"
 $windowsUser = Get-NotEmpty $windowsUser "administrator"

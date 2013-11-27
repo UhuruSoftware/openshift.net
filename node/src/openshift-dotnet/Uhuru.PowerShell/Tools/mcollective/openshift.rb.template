@@ -1,1 +1,10 @@
-require config.pluginconf["openshift.agent"]
+module MCollective
+  module Agent
+    class Openshift < RPC::Agent
+      def initialize
+        super
+        require config.pluginconf["openshift.agent"]
+      end
+    end
+  end
+end

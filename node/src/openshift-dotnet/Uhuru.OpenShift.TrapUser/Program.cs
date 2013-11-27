@@ -11,13 +11,8 @@ namespace Uhuru.OpenShift.TrapUser
     {
         static void Main(string[] args)
         {
-            ProcessStartInfo shellStartInfo = new ProcessStartInfo();
-            shellStartInfo.FileName = @"bash";
-            shellStartInfo.UseShellExecute = false;
-            
-            Process shell = Process.Start(shellStartInfo);
-
-            shell.WaitForExit();
+            UserShellTrap.SetupGearEnv();
+            UserShellTrap.StartShell();
         }
     }
 }

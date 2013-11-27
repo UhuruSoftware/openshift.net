@@ -50,6 +50,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">
+      <Project>{d10a5a01-7a90-4c28-9c76-e2c5213592c9}</Project>
+      <Name>Uhuru.Openshift.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Openshift.Node\Uhuru.Openshift.Node.csproj">
+      <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
+      <Name>Uhuru.Openshift.Node</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
