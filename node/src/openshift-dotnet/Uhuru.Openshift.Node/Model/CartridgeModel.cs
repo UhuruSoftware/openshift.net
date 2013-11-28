@@ -143,71 +143,74 @@ namespace Uhuru.Openshift.Runtime
 
         public void DoControl(string action, Manifest cartridge, dynamic options)
         {
+            options["cartridgeDir"] = cartridge.Dir;
             DoControlWithDirectory(action, options);
         }
 
         public string DoControlWithDirectory(string action, dynamic options)
         {
-            string control = Path.Combine(this.container.ContainerDir, "dotnet", "bin", "control.ps1");
-
-            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.EnvironmentVariables.Add("OPENSHIFT_DOTNET_PORT", "80");
-            pi.UseShellExecute = false;
-            pi.CreateNoWindow = true;
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true; 
-            pi.FileName = "powershell.exe";
-            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
-            Process p = new Process();
-            p.StartInfo = pi;
-            StringBuilder stdout = new StringBuilder();
-            StringBuilder stderr = new StringBuilder();
-
-            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
-            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+            StringBuilder output = new StringBuilder();
+            string cartridgeDirectory = options["cartridgeDir"];
+            ProcessCartridges(cartridgeDirectory, delegate(string cartridgeDir)
             {
-                p.OutputDataReceived += (sender, e) =>
+                string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
+
+                ProcessStartInfo pi = new ProcessStartInfo();
+                pi.EnvironmentVariables["OPENSHIFT_DOTNET_PORT"] = "80";
+                pi.UseShellExecute = false;
+                pi.CreateNoWindow = true;
+                pi.RedirectStandardError = true;
+                pi.RedirectStandardOutput = true;
+                pi.FileName = "powershell.exe";
+                pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
+                Process p = new Process();
+                p.StartInfo = pi;
+
+                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
                 {
-                    if (e.Data == null)
+                    p.OutputDataReceived += (sender, e) =>
                     {
-                        outputWaitHandle.Set();
+                        if (e.Data == null)
+                        {
+                            outputWaitHandle.Set();
+                        }
+                        else
+                        {
+                            output.AppendLine(e.Data);
+                        }
+                    };
+                    p.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data == null)
+                        {
+                            errorWaitHandle.Set();
+                        }
+                        else
+                        {
+                            output.AppendLine(e.Data);
+                        }
+                    };
+
+                    p.Start();
+
+                    p.BeginOutputReadLine();
+                    p.BeginErrorReadLine();
+
+                    if (p.WaitForExit(10000) &&
+                        outputWaitHandle.WaitOne(10000) &&
+                        errorWaitHandle.WaitOne(10000))
+                    {
+                        // Process completed. Check process.ExitCode here.
                     }
                     else
                     {
-                        stdout.AppendLine(e.Data);
+                        // Timed out.
                     }
-                };
-                p.ErrorDataReceived += (sender, e) =>
-                {
-                    if (e.Data == null)
-                    {
-                        errorWaitHandle.Set();
-                    }
-                    else
-                    {
-                        stderr.AppendLine(e.Data);
-                    }
-                };
-
-                p.Start();
-
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
-
-                if (p.WaitForExit(10000) &&
-                    outputWaitHandle.WaitOne(10000) &&
-                    errorWaitHandle.WaitOne(10000))
-                {
-                    // Process completed. Check process.ExitCode here.
-                }
-                else
-                {
-                    // Timed out.
-                }
-            }
-
-            return stdout.ToString() + stderr.ToString(); ;
+                }                
+            });
+           
+            return output.ToString();
         }
 
         private string PopulateGearRepo(string cartName, string templateGitUrl)

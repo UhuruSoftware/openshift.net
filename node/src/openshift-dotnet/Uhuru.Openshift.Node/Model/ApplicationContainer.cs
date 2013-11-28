@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
@@ -74,21 +75,9 @@ namespace Uhuru.Openshift.Runtime
 
         public string PostConfigure()
         {
-            Dictionary<string, object> options = new Dictionary<string, object>();
-            options["init"] = true;
-            options["hotDeploy"] = true;
-            options["forceCleanBuild"] = true;
-            options["ref"] = "master";
-            
-            // call gear!!!
-
-            this.PreReceive(options);
-
-            options["all"] = true;
-            options["reportDeployment"] = true;
-
-            this.PostReceive(options);
-            return string.Empty;
+            string output = RunProcessInGearContext(this.ContainerDir, "gear -Prereceive -Init");
+            output += RunProcessInGearContext(this.ContainerDir, "gear -Postreceive -Init");
+            return output;
         }
 
         public string Start(string cartName, dynamic options = null)
@@ -285,5 +274,67 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar(key, value, false);
         }
 
+        private string RunProcessInGearContext(string gearDirectory, string cmd)
+        {
+            StringBuilder output = new StringBuilder();
+
+            output.AppendLine(gearDirectory);
+
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
+            pi.UseShellExecute = false;
+            pi.CreateNoWindow = true;
+            pi.RedirectStandardError = true;
+            pi.RedirectStandardOutput = true;
+            pi.WorkingDirectory = gearDirectory;
+            pi.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
+            pi.Arguments = string.Format(@"-c ""{0}""", cmd);
+            Process p = new Process();
+            p.StartInfo = pi;
+
+            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+            {
+                p.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        outputWaitHandle.Set();
+                    }
+                    else
+                    {
+                        output.AppendLine(e.Data);
+                    }
+                };
+                p.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        errorWaitHandle.Set();
+                    }
+                    else
+                    {
+                        output.AppendLine(e.Data);
+                    }
+                };
+
+                p.Start();
+
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+
+                if (p.WaitForExit(30000) &&
+                    outputWaitHandle.WaitOne(30000) &&
+                    errorWaitHandle.WaitOne(30000))
+                {
+                    // Process completed. Check process.ExitCode here.
+                }
+                else
+                {
+                    // Timed out.
+                }
+            }
+            return output.ToString();
+        }
     }
 }
