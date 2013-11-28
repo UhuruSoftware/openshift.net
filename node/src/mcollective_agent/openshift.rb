@@ -821,6 +821,9 @@ module MCollective
 
       def oo_start(args)
         print_to_debug "oo_start"
+		exitcode, output = Powershell.run_command(__method__, args)
+        print_to_debug exitcode
+        print_to_debug output
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|

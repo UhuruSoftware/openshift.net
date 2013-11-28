@@ -134,6 +134,13 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public string StartCartridge(string action, string cartridgeName, dynamic options)
+        {
+            Manifest manifest = GetCartridge(cartridgeName);
+            return StartCartridge(action, manifest, options);
+
+        }
+
         public void DoControl(string action, Manifest cartridge, dynamic options)
         {
             DoControlWithDirectory(action, options);

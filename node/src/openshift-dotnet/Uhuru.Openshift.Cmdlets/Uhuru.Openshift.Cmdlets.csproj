@@ -61,6 +61,7 @@
     <Compile Include="OO_Cartridge_List.cs" />
     <Compile Include="OO_Configure.cs" />
     <Compile Include="OO_Post_Configure.cs" />
+    <Compile Include="OO_Start.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
