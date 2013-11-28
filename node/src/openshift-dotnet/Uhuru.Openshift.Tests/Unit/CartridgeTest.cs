@@ -16,7 +16,7 @@ namespace Uhuru.Openshift.Tests
         [TestCategory("Unit")]
         public void Test_Cartridge()
         {
-            string cartridgePath = Path.Combine(CartridgeRepository.RepositoryPath, "openshift-origin-cartridge-dotnet");
+            string cartridgePath = Path.Combine(CartridgeRepository.RepositoryPath, "dotnet");
             string manifestPath = Path.Combine(cartridgePath, "metadata", "manifest.yml");
             string document = File.ReadAllText(manifestPath);
             var input = new StringReader(document);

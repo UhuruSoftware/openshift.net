@@ -91,6 +91,11 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public string Start(string cartName, dynamic options = null)
+        {
+            return this.Cartridge.StartCartridge("start", cartName, options);
+        }
+
         public string AddSshKey(string sshKey, string keyType, string comment)
         {
             string output = "";
@@ -159,6 +164,8 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
+
+
         private DateTime CreateDeploymentDir()
         {
             DateTime deploymentdateTime = DateTime.Now;
@@ -175,6 +182,8 @@ namespace Uhuru.Openshift.Runtime
         private void PruneDeployments()
         {}
 
+
+
         public void Activate(dynamic options)
         {
             Dictionary<string, object> opts = new Dictionary<string, object>();
@@ -188,6 +197,7 @@ namespace Uhuru.Openshift.Runtime
         {
             this.Cartridge.StartGear(options);
         }
+
 
         private void ActivateLocalGear(dynamic options)
         {

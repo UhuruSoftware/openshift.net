@@ -177,8 +177,9 @@ namespace Uhuru.Openshift.Cmdlets
             }
             else if (Prepare)
             {
-                
+                throw new NotImplementedException(); 
             }
+            
         }
         
     }
