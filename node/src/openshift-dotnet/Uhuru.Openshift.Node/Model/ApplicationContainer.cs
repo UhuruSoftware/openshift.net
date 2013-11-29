@@ -82,6 +82,10 @@ namespace Uhuru.Openshift.Runtime
 
         public string Start(string cartName, dynamic options = null)
         {
+            if (options == null)
+            {
+                options = new Dictionary<string,object>();
+            }
             return this.Cartridge.StartCartridge("start", cartName, options);
         }
 
@@ -203,6 +207,72 @@ namespace Uhuru.Openshift.Runtime
             return this.Cartridge.StopGear(options);
         }
 
+        public string RunProcessInGearContext(string gearDirectory, string cmd)
+        {
+            StringBuilder output = new StringBuilder();
+
+            output.AppendLine(gearDirectory);
+
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
+            pi.UseShellExecute = false;
+            pi.CreateNoWindow = true;
+            pi.RedirectStandardError = true;
+            pi.RedirectStandardOutput = true;
+            pi.WorkingDirectory = gearDirectory;
+            pi.EnvironmentVariables["OPENSHIFT_DOTNET_PORT"] = "80";
+            pi.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
+            pi.Arguments = "-c \"" + cmd.Replace('\\','/') + "\"";
+            
+            Process p = new Process();
+            p.StartInfo = pi;
+
+            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
+            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+            {
+                p.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        outputWaitHandle.Set();
+                    }
+                    else
+                    {
+                        output.AppendLine(e.Data);
+                    }
+                };
+                p.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        errorWaitHandle.Set();
+                    }
+                    else
+                    {
+                        output.AppendLine(e.Data);
+                    }
+                };
+
+                p.Start();
+
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+
+                if (p.WaitForExit(30000) &&
+                    outputWaitHandle.WaitOne(30000) &&
+                    errorWaitHandle.WaitOne(30000))
+                {
+                    // Process completed. Check process.ExitCode here.
+                }
+                else
+                {
+                    // Timed out.
+                }
+            }
+            return output.ToString();
+        }
+
+
         internal void SetRoPermissions(string hooks)
         {
         }
@@ -274,67 +344,6 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar(key, value, false);
         }
 
-        private string RunProcessInGearContext(string gearDirectory, string cmd)
-        {
-            StringBuilder output = new StringBuilder();
-
-            output.AppendLine(gearDirectory);
-
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
-            pi.UseShellExecute = false;
-            pi.CreateNoWindow = true;
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true;
-            pi.WorkingDirectory = gearDirectory;
-            pi.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
-            pi.Arguments = string.Format(@"-c ""{0}""", cmd);
-            Process p = new Process();
-            p.StartInfo = pi;
-
-            using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
-            using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
-            {
-                p.OutputDataReceived += (sender, e) =>
-                {
-                    if (e.Data == null)
-                    {
-                        outputWaitHandle.Set();
-                    }
-                    else
-                    {
-                        output.AppendLine(e.Data);
-                    }
-                };
-                p.ErrorDataReceived += (sender, e) =>
-                {
-                    if (e.Data == null)
-                    {
-                        errorWaitHandle.Set();
-                    }
-                    else
-                    {
-                        output.AppendLine(e.Data);
-                    }
-                };
-
-                p.Start();
-
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
-
-                if (p.WaitForExit(30000) &&
-                    outputWaitHandle.WaitOne(30000) &&
-                    errorWaitHandle.WaitOne(30000))
-                {
-                    // Process completed. Check process.ExitCode here.
-                }
-                else
-                {
-                    // Timed out.
-                }
-            }
-            return output.ToString();
-        }
+        
     }
 }

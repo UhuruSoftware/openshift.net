@@ -130,8 +130,7 @@ namespace Uhuru.Openshift.Runtime
 
         public string StartCartridge(string action, Manifest cartridge, dynamic options)
         {
-            DoControl(action, cartridge, options);
-            return string.Empty;
+            return DoControl(action, cartridge, options);
         }
 
         public string StartCartridge(string action, string cartridgeName, dynamic options)
@@ -141,75 +140,26 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        public void DoControl(string action, Manifest cartridge, dynamic options)
+        public string DoControl(string action, Manifest cartridge, dynamic options)
         {
             options["cartridgeDir"] = cartridge.Dir;
-            DoControlWithDirectory(action, options);
+            return DoControlWithDirectory(action, options);
         }
 
         public string DoControlWithDirectory(string action, dynamic options)
         {
             StringBuilder output = new StringBuilder();
             string cartridgeDirectory = options["cartridgeDir"];
+
+            
             ProcessCartridges(cartridgeDirectory, delegate(string cartridgeDir)
             {
                 string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
-
-                ProcessStartInfo pi = new ProcessStartInfo();
-                pi.EnvironmentVariables["OPENSHIFT_DOTNET_PORT"] = "80";
-                pi.UseShellExecute = false;
-                pi.CreateNoWindow = true;
-                pi.RedirectStandardError = true;
-                pi.RedirectStandardOutput = true;
-                pi.FileName = "powershell.exe";
-                pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
-                Process p = new Process();
-                p.StartInfo = pi;
-
-                using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
-                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
-                {
-                    p.OutputDataReceived += (sender, e) =>
-                    {
-                        if (e.Data == null)
-                        {
-                            outputWaitHandle.Set();
-                        }
-                        else
-                        {
-                            output.AppendLine(e.Data);
-                        }
-                    };
-                    p.ErrorDataReceived += (sender, e) =>
-                    {
-                        if (e.Data == null)
-                        {
-                            errorWaitHandle.Set();
-                        }
-                        else
-                        {
-                            output.AppendLine(e.Data);
-                        }
-                    };
-
-                    p.Start();
-
-                    p.BeginOutputReadLine();
-                    p.BeginErrorReadLine();
-
-                    if (p.WaitForExit(10000) &&
-                        outputWaitHandle.WaitOne(10000) &&
-                        errorWaitHandle.WaitOne(10000))
-                    {
-                        // Process completed. Check process.ExitCode here.
-                    }
-                    else
-                    {
-                        // Timed out.
-                    }
-                }                
+                string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
+                
+                output.AppendLine(container.RunProcessInGearContext(container.ContainerDir, cmd));               
             });
-           
+            File.WriteAllText(@"c:\loginfo.txt", " test " +  output.ToString()); 
             return output.ToString();
         }
 
@@ -253,7 +203,9 @@ namespace Uhuru.Openshift.Runtime
 
         public string CartridgeDirectory(string cartName)
         {
-            return string.Empty;
+            string name = cartName.Split('-')[0];
+            string version = cartName.Split('-')[1];
+            return Path.Combine(container.ContainerDir, name);
         }
 
         public Manifest GetCartridgeFromDirectory(string cartDir)
