@@ -72,17 +72,18 @@ namespace Uhuru.Openshift.Runtime
 
         public string StopGear(dynamic options)
         {
+            StringBuilder output = new StringBuilder();
             EachCartridge(delegate(Manifest cartridge)
             {
-                StopCartridge(cartridge, options);
-            });            
-            return string.Empty;
+                output.AppendLine(StopCartridge(cartridge, options));
+            });
+            return output.ToString();
         }
 
         public delegate void ProcessCartridgeCallback(string cartDir);
         public delegate void EachCartridgeCallback(Manifest cartridge);
 
-        private void EachCartridge(EachCartridgeCallback action)
+        public void EachCartridge(EachCartridgeCallback action)
         {
             ProcessCartridges(null,
                 delegate(string cartridgeDir)
@@ -90,6 +91,31 @@ namespace Uhuru.Openshift.Runtime
                     Manifest cartridge = GetCartridgeFromDirectory(cartridgeDir);
                     action(cartridge);
                 });
+        }
+
+        public string Destroy()
+        {
+            StringBuilder output = new StringBuilder();
+            EachCartridge(delegate(Manifest cartridge)
+                {
+                    output.AppendLine(CartridgeTeardown(cartridge.Dir, false));
+                });
+            return output.ToString();
+        }
+
+        private string CartridgeTeardown(string cartridgeName, bool removeCartridgeDir)
+        {
+            string cartridgeHome = Path.Combine(this.container.ContainerDir, cartridgeName);
+            Dictionary<string, string> env = Environ.ForGear(this.container.ContainerDir, cartridgeHome);
+            string teardown = Path.Combine(cartridgeHome, "bin", "teardown.ps1");
+            if (!File.Exists(teardown))
+            {
+                return string.Empty;
+            }
+
+            // run teardown script
+
+            return string.Empty;
         }
 
         private void ProcessCartridges(string cartridgeDir, ProcessCartridgeCallback action)
@@ -112,20 +138,19 @@ namespace Uhuru.Openshift.Runtime
             }
         }
 
-
         public string StartGear(dynamic options)
         {
+            StringBuilder output = new StringBuilder();
             EachCartridge(delegate(Manifest cartridge)
             {
-                StartCartridge("start", cartridge, options);
+                output.AppendLine(StartCartridge("start", cartridge, options));
             });
-            return string.Empty;
+            return output.ToString();
         }
 
         public string StopCartridge(Manifest cartridge, dynamic options)
         {
-            DoControl("stop", cartridge, options);
-            return string.Empty;
+            return DoControl("stop", cartridge, options);
         }
 
         public string StartCartridge(string action, Manifest cartridge, dynamic options)
@@ -150,7 +175,6 @@ namespace Uhuru.Openshift.Runtime
         {
             StringBuilder output = new StringBuilder();
             string cartridgeDirectory = options["cartridgeDir"];
-
             
             ProcessCartridges(cartridgeDirectory, delegate(string cartridgeDir)
             {
@@ -159,7 +183,6 @@ namespace Uhuru.Openshift.Runtime
                 
                 output.AppendLine(container.RunProcessInGearContext(container.ContainerDir, cmd));               
             });
-            File.WriteAllText(@"c:\loginfo.txt", " test " +  output.ToString()); 
             return output.ToString();
         }
 
