@@ -36,6 +36,7 @@ namespace Uhuru.Openshift.Runtime
         public Hourglass GetHourglass { get { return this.hourglass; } }
         public ApplicationState State { get; set; }
 
+        ContainerPlugin containerPlugin;
         NodeConfig config;
         private Hourglass hourglass;
 
@@ -54,18 +55,27 @@ namespace Uhuru.Openshift.Runtime
             this.hourglass = hourglass ?? new Hourglass(3600);
             this.State = new ApplicationState(this);
             this.BaseDir = this.config["GEAR_BASE_DIR"];
+            this.containerPlugin = new ContainerPlugin(this);
         }
 
         public string Create()
-        {
-            ContainerPlugin containerPlugin = new ContainerPlugin(this);
+        {            
             containerPlugin.Create();
             return string.Empty;
         }
 
         public string Destroy()
         {
-            return string.Empty;
+            StringBuilder output = new StringBuilder();
+            output.AppendLine(this.Cartridge.Destroy());
+            output.AppendLine(this.containerPlugin.Destroy());
+            return output.ToString();
+        }
+
+        public string KillProcs()
+        {
+            // TODO need to kill all user processes. stopping gear for now
+            return this.StopGear(new Dictionary<string, string>());
         }
 
         public string Configure(string cartName, string templateGitUrl, string manifest)        
@@ -219,8 +229,6 @@ namespace Uhuru.Openshift.Runtime
         public string RunProcessInGearContext(string gearDirectory, string cmd)
         {
             StringBuilder output = new StringBuilder();
-
-            output.AppendLine(gearDirectory);
 
             ProcessStartInfo pi = new ProcessStartInfo();
             pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");

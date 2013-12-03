@@ -61,7 +61,7 @@ namespace Uhuru.OpenShift.TrapUser
             string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
 
             ProcessStartInfo shellStartInfo = new ProcessStartInfo();
-            shellStartInfo.EnvironmentVariables.Add("CYGWIN", "nodosfilewarning");
+            shellStartInfo.EnvironmentVariables["CYGWIN"] = "nodosfilewarning";
             shellStartInfo.FileName = "bash";
             SetupGearEnv(shellStartInfo.EnvironmentVariables);
 

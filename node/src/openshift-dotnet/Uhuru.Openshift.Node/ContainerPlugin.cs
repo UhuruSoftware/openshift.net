@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Uhuru.Openshift.Runtime.Config;
@@ -22,6 +23,13 @@ namespace Uhuru.Openshift.Runtime
             // create user
 
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
+        }
+
+        public string Destroy()
+        {
+            string output = this.container.KillProcs();
+            Directory.Delete(this.container.ContainerDir, true);
+            return output;
         }
     }
 }
