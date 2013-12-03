@@ -89,6 +89,15 @@ namespace Uhuru.Openshift.Runtime
             return this.Cartridge.StartCartridge("start", cartName, options);
         }
 
+        public string Stop(string cartName, dynamic options = null)
+        {
+            if (options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
+            return this.Cartridge.StopCartridge(cartName, true, options);
+        }
+
         public string AddSshKey(string sshKey, string keyType, string comment)
         {
             string output = "";

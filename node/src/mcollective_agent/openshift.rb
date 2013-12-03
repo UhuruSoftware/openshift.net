@@ -833,7 +833,8 @@ module MCollective
       end
 
       def oo_stop(args)
-        print_to_debug "oo_stop"
+        print_to_debug "oo_stoping"
+        Powershell.run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|

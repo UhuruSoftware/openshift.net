@@ -70,6 +70,23 @@ namespace Uhuru.Openshift.Runtime
             return PopulateGearRepo(name, templateGitUrl);
         }
 
+        public Manifest GetPrimaryCartridge()
+        {
+            Dictionary<string,string> env = Environ.ForGear(container.ContainerDir);
+            string primaryCartDir = null;
+            if (env.ContainsKey("OPENSHIFT_PRIMARY_CARTRIDGE_DIR"))
+            {
+                primaryCartDir = env["OPENSHIFT_PRIMARY_CARTRIDGE_DIR"];
+            }
+            else
+            {
+                return null;
+            }
+
+            return GetCartridgeFromDirectory(primaryCartDir);
+        }
+
+
         public string StopGear(dynamic options)
         {
             EachCartridge(delegate(Manifest cartridge)
@@ -122,14 +139,98 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
-        public string StopCartridge(Manifest cartridge, dynamic options)
+
+        public string StopCartridge(string cartridgeName, bool userInitiated, dynamic options)
         {
-            DoControl("stop", cartridge, options);
-            return string.Empty;
+            Manifest manifest = GetCartridge(cartridgeName);
+            if (!options.ContainsKey("user_initiated"))
+            {
+                options.Add("user_initiated", userInitiated);
+            }
+            else
+            {
+                options["user_initiated"] = userInitiated;
+            }
+            return StopCartridge(manifest, options);
         }
 
+        public string StopCartridge(Manifest cartridge, dynamic options)
+        {
+            options = (Dictionary<string, object>)options;
+            if (!options.ContainsKey("user_initiated"))
+            {
+                options.Add("user_initiated", true);
+            }
+
+            if (!options.ContainsKey("hot_deploy"))
+            {
+                options.Add("hot_deploy", false);
+            }
+
+            if (options["hot_deploy"])
+            {
+                return string.Format("Not stopping cartridge {0} because hot deploy is enabled", cartridge.Name);
+            }
+
+            if (!options["user_initiated"] && StopLockExists)
+            {
+                return string.Format("Not stopping cartridge {0} because the application was explicitly stopped by the user", cartridge.Name);
+            }
+
+            Manifest primaryCartridge = GetPrimaryCartridge();
+            if (primaryCartridge != null)
+            {
+                if (cartridge.Name == primaryCartridge.Name)
+                {
+                    if (options["user_initiated"])
+                    {
+                        CreateStopLock();
+                    }
+                    state.Value(State.STOPPED);
+                }
+            }
+
+            return DoControl("stop", cartridge, options);
+        }
         public string StartCartridge(string action, Manifest cartridge, dynamic options)
         {
+            options = (Dictionary<string, object>)options;
+            if (!options.ContainsKey("user_initiated"))
+            {
+                options.Add("user_initiated", true);
+            }
+
+            if (!options.ContainsKey("hot_deploy"))
+            {
+                options.Add("hot_deploy", false);
+            }
+
+            if (!options["user_initiated"] && StopLockExists)
+            {
+                return string.Format("Not starting cartridge #{cartridge.name} because the application was explicitly stopped by the user", cartridge.Name);
+            }
+
+            Manifest primaryCartridge = GetPrimaryCartridge();
+
+            if (primaryCartridge != null)
+            {
+                if (primaryCartridge.Name == cartridge.Name)
+                {
+                    if (options["user_initiated"])
+                    {
+                        File.Delete(StopLock);
+                    }
+                    state.Value(State.STARTED);
+
+                //TODO : Unidle the application
+                }
+            }
+
+            if (options["hot_deploy"])
+            {
+                return string.Format("Not starting cartridge {0} because hot deploy is enabled", cartridge.Name);
+            }
+
             return DoControl(action, cartridge, options);
         }
 
@@ -259,6 +360,15 @@ namespace Uhuru.Openshift.Runtime
         private bool EmptyRepository()
         {
             return new ApplicationRepository(this.container).Empty();
+        }
+
+        private void CreateStopLock()
+        {
+            if (!StopLockExists)
+            {
+                File.Create(StopLock);
+                container.SetRWPermissions(StopLock);
+            }
         }
     }
 }
