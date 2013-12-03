@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OO_Connector_Execute.cs" />
     <Compile Include="Gear.cs">
       <SubType>Code</SubType>
     </Compile>

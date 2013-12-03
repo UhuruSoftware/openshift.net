@@ -42,6 +42,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Management.Automation" />
     <Reference Include="YamlDotNet, Version=2.0.1.17304, Culture=neutral, PublicKeyToken=2b53052c5884d7a1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\YamlDotNet.dll</HintPath>
@@ -55,6 +56,7 @@
     <Compile Include="Model\ApplicationRepository.cs" />
     <Compile Include="Model\CartridgeModel.cs" />
     <Compile Include="Model\DeploymentMetadata.cs" />
+    <Compile Include="Model\JObject.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ApplicationState.cs" />

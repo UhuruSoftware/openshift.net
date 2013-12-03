@@ -26,6 +26,23 @@
  - Location of ruby gems: **/usr/share/gems/gems/**
  - Application location: **/var/lib/openshift/**
 
-7. Disable avahi plugin for broker (it can cause problems when creating and deleting applications if not configured properly)
+7. Fix the iptables problem (for adding service cartridges)
+
+Add the following in `/etc/sysconfig/iptables`
+
+	*filter
+	
+	:INPUT ACCEPT [0:0]
+	:FORWARD ACCEPT [0:0]
+	:OUTPUT ACCEPT [0:0]
+	:rhc-app-table - [0:0]
+	:rhc-app-comm - [0:0]
+	-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	-A INPUT -p icmp -j ACCEPT
+	COMMIT
+
+
+8. Disable avahi plugin for broker (it can cause problems when creating and deleting applications if not configured properly)
 
 `mv /etc/openshift/plugins.d/openshift-origin-dns-avahi.conf /etc/openshift/plugins.d/openshift-origin-dns-avahi._conf` 
+ 

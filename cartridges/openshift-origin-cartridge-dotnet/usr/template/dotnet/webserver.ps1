@@ -2,9 +2,6 @@ $port = $env:OPENSHIFT_DOTNET_PORT
 $path = $env:OPENSHIFT_REPO_DIR + "\dotnet\"
 $vhost = $env:OPENSHIFT_APP_DNS
 
-#$port = 8080
-#$path = "D:\_code\openshift.net\src\cartridges\openshift-origin-cartridge-dotnet\usr\template\dotnet\"
-
 Write-Host "Starting a web server on port $port ..."
 
 $listener = New-Object System.Net.HttpListener
@@ -16,8 +13,6 @@ $stop = 0
 Write-Host 'Listening ...'
 try
 {
-    #while (($listener.IsListening) -and ($stop -eq 0)) {
-    #while ($stop -eq 0) {
     while (Test-Path  $env:HTTPD_PID_FILE) {
         $context = $listener.GetContext()
         $request = $context.Request
@@ -45,13 +40,22 @@ try
             $msg = Get-Content $filename -Encoding byte
         }
 
-            $response.ContentLength64 = $msg.Length
+        $envs = (Get-ChildItem Env: | ForEach-Object { $_.name + "---------------" + $_.value })
+        $msgEnv = [System.Text.ASCIIEncoding]::ASCII.GetBytes([string]::Join("<br/>", $envs))
+
+        $response.ContentLength64 = $msg.Length + $msgEnv.Length
 
         try
         {
             $stream = $response.OutputStream
             $stream.Write($msg, 0, $msg.Length)
-        } 
+            $stream.Write($msgEnv, 0, $msgEnv.Length)
+        }
+        catch
+        {
+            # TODO (vladi): we should log to a location based on openshift's best practices
+            $_.Exception.Message | Out-File (Join-Path $path "log.html")
+        }
         finally 
         {
             $stream.Dispose()
@@ -64,7 +68,7 @@ finally
     Write-Host "Exiting..." 
     $listener.Close()
     $listener.Dispose()
-    }
+}
 
 
 

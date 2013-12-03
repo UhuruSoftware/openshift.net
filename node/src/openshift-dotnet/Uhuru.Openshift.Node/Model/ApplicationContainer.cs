@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management.Automation;
 using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Runtime.Model;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -82,6 +85,43 @@ namespace Uhuru.Openshift.Runtime
         {
             return Cartridge.Configure(cartName, templateGitUrl, manifest);
         }
+
+        public string ConnectorExecute(string cartName, string hookName, string publishingCartName, string connectionType, string inputArgs)
+        {
+            // TODO: this method is not fully implemented - its Linux counterpart has extra functionality
+            
+            bool envVarHook = (connectionType.StartsWith("ENV:") && !string.IsNullOrEmpty(publishingCartName));
+
+            if (envVarHook)
+            {
+                SetConnectionHookEnvVars(cartName, publishingCartName, inputArgs);
+            }
+
+            return "";
+        }
+
+        private void SetConnectionHookEnvVars(string cartName, string pubCartName, string args)
+        {
+            string envPath = Path.Combine(this.ContainerDir, ".env", CartridgeModel.ShortNameFromFullCartName(pubCartName));
+
+
+            object[] argsObj = JsonConvert.DeserializeObject<object[]>(args);
+
+            string envVars = (string)((Newtonsoft.Json.Linq.JObject)argsObj[3]).Properties().ElementAt(0).Value;
+
+            string[] pairs = envVars.Split('\n');
+
+            Dictionary<string, string> variables = new Dictionary<string,string>();
+
+            foreach (string pair in pairs)
+            {
+                string[] keyAndValue = pair.Trim().Split('=');
+                this.AddEnvVar(keyAndValue[0], keyAndValue[1]);
+            }
+
+            CartridgeModel.WriteEnvironmentVariables(envPath, variables, false);
+        }
+
 
         public string PostConfigure()
         {

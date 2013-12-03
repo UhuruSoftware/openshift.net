@@ -33,67 +33,7 @@ module MCollective
       # Handles all incoming messages. Validates the input, executes the action, and constructs
       # a reply.
       def cartridge_do_action
-        validate :cartridge, /\A[a-zA-Z0-9\.\-\/_]+\z/
         validate :cartridge, :shellsafe
-        valid_actions = %w(
-          app-create
-          app-destroy
-          env-var-add
-          env-var-remove
-          broker-auth-key-add
-          broker-auth-key-remove
-          authorized-ssh-key-add
-          authorized-ssh-key-remove
-          ssl-cert-add
-          ssl-cert-remove
-          configure
-          post-configure
-          deconfigure
-          unsubscribe
-          tidy
-          deploy-httpd-proxy
-          remove-httpd-proxy
-          restart-httpd-proxy
-          info
-          post-install
-          post-remove
-          pre-install
-          reload
-          restart
-          start
-          status
-          stop
-          force-stop
-          add-alias
-          remove-alias
-          threaddump
-          cartridge-list
-          expose-port
-          frontend-backup
-          frontend-restore
-          frontend-create
-          frontend-destroy
-          frontend-update-name
-          frontend-connect
-          frontend-disconnect
-          frontend-connections
-          frontend-idle
-          frontend-unidle
-          frontend-check-idle
-          frontend-sts
-          frontend-no-sts
-          frontend-get-sts
-          aliases
-          ssl-cert-add
-          ssl-cert-remove
-          ssl-certs
-          frontend-to-hash
-          system-messages
-          connector-execute
-          get-quota
-          set-quota
-        )
-        validate :action, /\A#{valid_actions.join("|")}\Z/
         validate :action, :shellsafe
         cartridge                  = request[:cartridge]
         action                     = request[:action]
@@ -105,10 +45,14 @@ module MCollective
         print_to_debug "cartridge_do_action: action: '#{action}', cartridge: '#{cartridge}', args: '#{args.inspect}'"
 
         # Do the action execution
-        exitcode, output           = execute_action(action, args)
+        exitcode, output, addtl_params           = execute_action(action, args)
+
+        print_to_debug "!!!EXITCODE IS NIL!!! for action: '#{action}'" if exitcode == nil
+        print_to_debug "!!!OUTPUT IS NIL!!! for action: '#{action}'" if output == nil
 
         reply[:exitcode] = exitcode
         reply[:output]   = output
+        reply[:addtl_params] = addtl_params
 
         # if exitcode == 0
         # log.instance.info("cartridge_do_action reply (#{exitcode}):\n------\n#{cleanpwd(output)}\n------)")
@@ -138,7 +82,7 @@ module MCollective
         # # OpenShift::Runtime::NodeLogger.context[:request_id]    = request_id if request_id
         # # OpenShift::Runtime::NodeLogger.context[:action_method] = action_method if action_method
 
-        exitcode, output = self.send(action_method.to_sym, args)
+        exitcode, output, addtl_params = self.send(action_method.to_sym, args)
         # rescue => e
         # Log.instance.error("Unhandled action execution exception for action [#{action}]: #{e.message}")
         # Log.instance.error(e.backtrace)
@@ -152,7 +96,7 @@ module MCollective
         # end
 
         print_to_debug "execute_action - action: #{action}, #{args}"
-        return exitcode, output
+        return exitcode, output, addtl_params
       end
 
       # Executes a list of jobs sequentially, adding the exitcode and output
@@ -164,7 +108,7 @@ module MCollective
       #
       # BZ 876942: Disable threading until we can explore proper concurrency management
       def execute_parallel_action
-        print_to_debug "execute_parallel_action"
+        print_to_debug "execute_parallel_action - request: #{request}"
         # Log.instance.info("execute_parallel_action call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
 
         joblist = request[config.identity]
@@ -183,6 +127,7 @@ module MCollective
         end
 
         # Log.instance.info("execute_parallel_action call - #{joblist}")
+        print_to_debug "OUT execute_parallel_action - joblist: #{joblist}"
         reply[:output]   = joblist
         reply[:exitcode] = 0
       end
@@ -721,15 +666,17 @@ module MCollective
 
       def oo_connector_execute(args)
         print_to_debug "oo_connector_execute"
-        # cart_name        = args['--cart-name']
-        # pub_cart_name    = args['--publishing-cart-name']
-        # hook_name        = args['--hook-name']
-        # connection_type  = args['--connection-type']
-        # input_args       = args['--input-args']
+        #cart_name        = args['--cart-name']
+        #pub_cart_name    = args['--publishing-cart-name']
+        #hook_name        = args['--hook-name']
+        #connection_type  = args['--connection-type']
+        #input_args       = args['--input-args']
 
         # with_container_from_args(args) do |container, output|
         # output << container.connector_execute(cart_name, pub_cart_name, connection_type, hook_name, input_args)
         # end
+
+        Powershell.run_command(__method__, args)
       end
 
       def oo_configure(args)
@@ -1123,6 +1070,60 @@ module MCollective
         # Log.instance.info("cartridge_repository_action(#{action}): failed #{e.message}\n#{e.backtrace}")
         # reply.fail!("#{action} failed for #{path} #{e.message}", 4)
         # end
+      end
+
+      def oo_user_var_add(args)
+        variables = {}
+        if args['--with-variables']
+          JSON.parse(args['--with-variables']).each {|env| variables[env['name']] = env['value']}
+        end
+        gears = args['--with-gears'] ? args['--with-gears'].split(';') : []
+
+        if variables.empty? and gears.empty?
+          return -1, "In #{__method__} at least user environment variables or gears must be provided for #{args['--with-app-name']}"
+        end
+
+        print_to_debug "ENV_VARIABLES: #{variables}"
+
+        rc, output = 0, ''
+        #with_container_from_args(args) do |container|
+        #  rc, output = container.user_var_add(variables, gears)
+        #end
+        return rc, output
+      end
+
+      def oo_user_var_remove(args)
+        #unless args['--with-keys']
+        #  return -1, "In #{__method__} no user environment variable names provided for #{args['--with-app-name']}"
+        #end
+        #
+        #keys  = args['--with-keys'].split(' ')
+        #gears = args['--with-gears'] ? args['--with-gears'].split(';') : []
+        #
+        #rc, output = 0, ''
+        #with_container_from_args(args) do |container|
+        #  rc, output = container.user_var_remove(keys, gears)
+        #end
+        #return rc, output
+        return 0, ''
+      end
+
+      def oo_user_var_list(args)
+        #keys = args['--with-keys'] ? args['--with-keys'].split(' ') : []
+        #
+        #output = ''
+        #begin
+        #  container = get_app_container_from_args(args)
+        #  list      = container.user_var_list(keys)
+        #  output    = 'CLIENT_RESULT: ' + list.to_json
+        #rescue Exception => e
+        #  report_exception e
+        #  Log.instance.info "#{e.message}\n#{e.backtrace}"
+        #  return 1, e.message
+        #else
+        #  return 0, output
+        #end
+        return 0, ''
       end
     end
   end

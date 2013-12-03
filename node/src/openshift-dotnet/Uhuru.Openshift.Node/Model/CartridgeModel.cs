@@ -46,8 +46,8 @@ namespace Uhuru.Openshift.Runtime
         }
 
         public string Configure(string cartName, string templateGitUrl, string manifest)
-        {   
-            
+        {
+            this.CartridgeName = cartName;
             string name = cartName.Split('-')[0];
             string version = cartName.Split('-')[1];
             Manifest cartridge = null;
@@ -260,7 +260,7 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        private void WriteEnvironmentVariables(string path, Dictionary<string,string> envs, bool prefix)
+        public static void WriteEnvironmentVariables(string path, Dictionary<string,string> envs, bool prefix)
         {
             Directory.CreateDirectory(path);
             foreach (KeyValuePair<string, string> pair in envs)
@@ -274,7 +274,7 @@ namespace Uhuru.Openshift.Runtime
             }
         }
 
-        private void WriteEnvironmentVariables(string path, Dictionary<string, string> envs)
+        public static void WriteEnvironmentVariables(string path, Dictionary<string, string> envs)
         {
             WriteEnvironmentVariables(path, envs, true);
         }
@@ -282,6 +282,25 @@ namespace Uhuru.Openshift.Runtime
         private bool EmptyRepository()
         {
             return new ApplicationRepository(this.container).Empty();
+        }
+
+        public string CartridgeName { get; set; }
+
+        public static string ShortNameFromFullCartName(string pubCartName)
+        {
+            if (string.IsNullOrEmpty(pubCartName))
+            {
+                throw new ArgumentNullException("pubCartName");
+            }
+
+            if (!pubCartName.Contains('-'))
+            {
+                return pubCartName;
+            }
+
+            string[] tokens = pubCartName.Split('-');
+
+            return string.Join("-", tokens.Take(tokens.Length - 1));
         }
     }
 }
