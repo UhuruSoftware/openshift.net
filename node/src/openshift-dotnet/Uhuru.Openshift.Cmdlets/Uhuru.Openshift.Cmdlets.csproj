@@ -58,11 +58,13 @@
     </Compile>
     <Compile Include="OO_App_Create.cs" />
     <Compile Include="OO_App_Destroy.cs" />
+    <Compile Include="OO_App_State_Show.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Add.cs" />
     <Compile Include="OO_Cartridge_List.cs" />
     <Compile Include="OO_Configure.cs" />
     <Compile Include="OO_Post_Configure.cs" />
     <Compile Include="OO_Start.cs" />
+    <Compile Include="OO_Stop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

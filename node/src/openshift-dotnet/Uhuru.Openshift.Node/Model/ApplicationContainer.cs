@@ -78,7 +78,7 @@ namespace Uhuru.Openshift.Runtime
         public string KillProcs()
         {
             // TODO need to kill all user processes. stopping gear for now
-            return this.StopGear(new Dictionary<string, string>());
+            return this.StopGear(new Dictionary<string, object>());
         }
 
         public string Configure(string cartName, string templateGitUrl, string manifest)        
@@ -137,6 +137,15 @@ namespace Uhuru.Openshift.Runtime
                 options = new Dictionary<string,object>();
             }
             return this.Cartridge.StartCartridge("start", cartName, options);
+        }
+
+        public string Stop(string cartName, dynamic options = null)
+        {
+            if (options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
+            return this.Cartridge.StopCartridge(cartName, true, options);
         }
 
         public string AddSshKey(string sshKey, string keyType, string comment)
@@ -373,6 +382,8 @@ namespace Uhuru.Openshift.Runtime
             string repoDir = Path.Combine(gearAppDir, "runtime", "repo");
             AddEnvVar("REPO_DIR", repoDir, true);
             Directory.CreateDirectory(repoDir);
+
+            this.State.Value(Runtime.State.NEW);
         }
 
         private void AddEnvVar(string key, string value, bool prefixCloudName)
