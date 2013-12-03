@@ -24,8 +24,7 @@ function stop-cartridge
   Write-Host "Stopping"
   $jobid = [int](Get-Content $HTTPD_PID_FILE)
   Remove-Item $HTTPD_PID_FILE
-  Invoke-WebRequest -Uri "http://localhost:$env:OPENSHIFT_DOTNET_PORT"
-  Stop-Process $jobid
+  Stop-Process -Id $jobid -Force
   #need one more get request
   
 }
@@ -37,14 +36,14 @@ function status-cartridge
   if (Test-Path $HTTPD_PID_FILE)
   {
     $jobid = [int](Get-Content $HTTPD_PID_FILE)
-    $job = Get-Job $jobid
-    if ($job.State -eq "Running" )
+    $job =  Get-Process -Id jobid -ErrorAction SilentlyContinue
+    if ($job -eq $null)
     {
-        Write-Host "Application is running"
+		Write-Host "Application is either stopped or inaccessible"        
     }
     else
     {
-        Write-Host "Application is either stopped or inaccessible"
+        Write-Host "Application is running"
     }
   }
   else

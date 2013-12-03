@@ -36,19 +36,19 @@ namespace Uhuru.Openshift.Runtime.Utils
 
         public ApplicationState Value(State newState)
         {
-            File.WriteAllText(stateFile, newState.ToString());
+            File.WriteAllText(stateFile, newState.ToString().ToLower());
             this.container.SetRWPermissions(this.stateFile);
             return this;
         }
 
-        public State Value()
+        public string Value()
         {
             string state = File.ReadAllText(this.stateFile);
-            if (Enum.IsDefined(typeof(State), state))
+            if (Enum.IsDefined(typeof(State), state.ToUpper()))
             {
-                return (State)Enum.Parse(typeof(State), state);
+                return state.ToLower();
             }
-            return State.UNKNOWN;
+            return State.UNKNOWN.ToString().ToLower();
         }
     }
 }
