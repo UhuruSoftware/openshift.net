@@ -97,6 +97,19 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
+        public Manifest WebProxy()
+        {
+            Manifest result = null;
+            EachCartridge(delegate(Manifest cartridge)
+            {
+                if (cartridge.WebProxy)
+                {
+                    result = cartridge;
+                }
+            });
+            return result;
+        }
+
         public delegate void ProcessCartridgeCallback(string cartDir);
         public delegate void EachCartridgeCallback(Manifest cartridge);
 
@@ -270,8 +283,18 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        public string DoControl(string action, Manifest cartridge, dynamic options)
+        public string DoControl(string action, string cartridgeName, dynamic options = null)
         {
+            Manifest manifest = GetCartridge(cartridgeName);
+            return DoControl(action, manifest, options);
+        }
+
+        public string DoControl(string action, Manifest cartridge, dynamic options = null)
+        {
+            if (options == null)
+            {
+                options = new Dictionary<string, string>();
+            }
             options["cartridgeDir"] = cartridge.Dir;
             return DoControlWithDirectory(action, options);
         }

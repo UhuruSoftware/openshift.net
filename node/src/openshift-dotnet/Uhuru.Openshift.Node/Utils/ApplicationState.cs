@@ -48,7 +48,7 @@ namespace Uhuru.Openshift.Runtime.Utils
             {
                 return state.ToLower();
             }
-            return State.UNKNOWN.ToString().ToLower();
+            return State.UNKNOWN.ToString();
         }
     }
 }

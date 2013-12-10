@@ -7,8 +7,8 @@ using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
-    [Cmdlet("OO", "App-State-Show")]
-    public class OO_App_State_Show : System.Management.Automation.Cmdlet 
+    [Cmdlet("OO", "Reload")]
+    class OO_Reload : System.Management.Automation.Cmdlet 
     {
         [Parameter]
         public string WithAppUuid;
@@ -27,15 +27,32 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter]
         public string WithRequestId;
-        
+
+        [Parameter]
+        public string CartName;
+
+        [Parameter]
+        public string ComponentName;
+
+        [Parameter]
+        public string WithSoftwareVersion;
+
+        [Parameter]
+        public string CartridgeVendor;
+
+        [Parameter]
+        public SwitchParameter All;
+
+        [Parameter]
+        public SwitchParameter ParallelConcurrencyRatio;
+
         protected override void ProcessRecord()
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
+                WithContainerName, WithNamespace, null, null, null);            
             try
             {
-                string output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value().ToLower());
-                this.WriteObject(output);
+                this.WriteObject(container.Reload(CartName));
             }
             catch (Exception ex)
             {
