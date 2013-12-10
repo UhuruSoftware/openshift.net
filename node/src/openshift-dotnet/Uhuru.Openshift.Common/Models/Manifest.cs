@@ -52,7 +52,16 @@ namespace Uhuru.Openshift.Runtime
 
         public Dictionary<string, Uhuru.Openshift.Common.Models.Profile> ProfileMap { get; set; }
 
+        public bool WebProxy
+        {
+            get
+            {
+                return this.isWebProxy;
+            }
+        }
+
         dynamic manifest;
+        bool isWebProxy;
 
         public List<Uhuru.Openshift.Common.Models.Endpoint> Endpoints { get; set; }
 
@@ -97,6 +106,8 @@ namespace Uhuru.Openshift.Runtime
                     }
                 }
             }
+
+            this.isWebProxy = Categories.Contains("web_framework");
         }
 
         public static string BuildIdent(string vendor, string software, string softwareVersion, string cartridgeVersion)
@@ -112,5 +123,7 @@ namespace Uhuru.Openshift.Runtime
             dynamic spec = (dynamic)deserializer.Deserialize(input);
             return spec;
         }
+
+
     }
 }

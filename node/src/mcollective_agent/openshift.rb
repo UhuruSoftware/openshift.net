@@ -792,6 +792,7 @@ module MCollective
 
       def oo_restart(args)
         print_to_debug "oo_restart"
+        Powershell.run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -801,6 +802,7 @@ module MCollective
 
       def oo_reload(args)
         print_to_debug "oo_reload"
+        Powershell.run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|

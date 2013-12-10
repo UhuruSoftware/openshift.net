@@ -34,7 +34,7 @@ namespace Uhuru.Openshift.Cmdlets
                 WithContainerName, WithNamespace, null, null, null);
             try
             {
-                string output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value());
+                string output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value().ToLower());
                 this.WriteObject(output);
             }
             catch (Exception ex)
