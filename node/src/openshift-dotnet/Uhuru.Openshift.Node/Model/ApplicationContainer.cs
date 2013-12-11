@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Runtime.Model;
 
@@ -17,6 +18,11 @@ namespace Uhuru.Openshift.Runtime
 {
     public partial class ApplicationContainer
     {
+        public const double PARALLEL_CONCURRENCY_RATIO = 0.2;
+        public const int MAX_THREADS = 8;
+        public const string RESULT_SUCCESS = "success";
+        public const string RESULT_FAILURE = "failure";
+
         public string Uuid { get; set; }
         public string ApplicationUuid { get; set; }
         public string ContainerName { get; set; }
@@ -34,6 +40,18 @@ namespace Uhuru.Openshift.Runtime
                 return Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid);
             } 
         }
+
+        public GearRegistry GearRegist
+        {
+            get
+            {
+                if (this.gearRegistry == null && this.Cartridge.WebProxy() != null)
+                {
+                    this.gearRegistry = new GearRegistry(this);
+                }
+                return this.gearRegistry;
+            }
+        }
                 
         public CartridgeModel Cartridge { get; set; }
         public Hourglass GetHourglass { get { return this.hourglass; } }
@@ -42,6 +60,7 @@ namespace Uhuru.Openshift.Runtime
         ContainerPlugin containerPlugin;
         NodeConfig config;
         private Hourglass hourglass;
+        private GearRegistry gearRegistry;
 
         public ApplicationContainer(string applicationUuid, string containerUuid, string userId, string applicationName,
             string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
@@ -266,6 +285,97 @@ namespace Uhuru.Openshift.Runtime
             return this.Cartridge.StopGear(options);
         }
 
+        public string Restart(string cartName, dynamic options)
+        {
+            WithGearRotation(options,
+                (GearRotationCallback)delegate(string targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+                {
+                    RestartGear(targetGear, localGearEnv, cartName, opts);
+                });
+
+
+            return string.Empty;
+        }
+
+        public delegate void GearRotationCallback(string targetGear, Dictionary<string, string> localGearEnv, dynamic options);
+        public string WithGearRotation(dynamic options, GearRotationCallback action)
+        {
+            dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
+            Manifest proxyCart = this.Cartridge.WebProxy();
+            List<string> gears = new List<string>();
+            if (options.ContainsKey("all") && proxyCart != null)
+            {
+                if ((bool)options["all"])
+                {
+                    gears = (List<string>)this.GearRegist.Entries["web"];
+                }
+                else if (options.ContainsKey("gears"))
+                {
+                    List<string> g = (List<string>)options["gears"];
+                    gears = ((List<string>)this.GearRegist.Entries["web"]).Where(e => g.Contains(e)).ToList<string>();
+                }
+                else
+                {
+                    try
+                    {
+                        gears.Add(((Dictionary<string, object>)this.GearRegist.Entries["web"])[this.Uuid].ToString());
+                    }
+                    catch
+                    {
+                        gears.Add(this.Uuid);
+                    }
+                }
+            }
+            else
+            {
+                gears.Add(this.Uuid);
+            }
+
+            double parallelConcurrentRatio = PARALLEL_CONCURRENCY_RATIO;
+            if (options.ContainsKey("parallel_concurrency_ratio"))
+            {
+                parallelConcurrentRatio = (double)options["parallel_concurrency_ratio"];
+            }
+
+            int batchSize = CalculateBatchSize(gears.Count, parallelConcurrentRatio);
+
+            int threads = Math.Max(batchSize, MAX_THREADS);
+
+            // need to parallelizea
+            foreach (string targetGear in gears)
+            {
+                RotateAndYield(targetGear, localGearEnv, options, action);
+            }
+
+            return string.Empty;
+        }
+
+        public string RotateAndYield(string targetGear, Dictionary<string, string> localGearEnv, dynamic options, GearRotationCallback action)
+        {
+            StringBuilder output = new StringBuilder();
+
+            action(targetGear, localGearEnv, options);
+
+            return output.ToString();
+        }
+
+        public string RestartGear(string targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
+        {
+            return this.Cartridge.StartCartridge("restart", cartName, options);
+        }
+
+        public string Reload(string cartName)
+        {
+            if (this.State.Value() == Runtime.State.STARTED.ToString())
+            {
+                return this.Cartridge.DoControl("reload", cartName);
+            }
+            else
+            {
+                return this.Cartridge.DoControl("force-reload", cartName);
+            }
+        }
+
         public string RunProcessInGearContext(string gearDirectory, string cmd)
         {
             StringBuilder output = new StringBuilder();
@@ -403,6 +513,9 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar(key, value, false);
         }
 
-        
+        private int CalculateBatchSize(int count, double ratio)
+        {
+            return (int)(Math.Max(1 / ratio, count) * ratio);
+        }
     }
 }

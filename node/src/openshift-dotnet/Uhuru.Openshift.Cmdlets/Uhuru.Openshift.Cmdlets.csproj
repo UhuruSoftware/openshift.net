@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OO_Reload.cs" />
     <Compile Include="OO_Connector_Execute.cs" />
     <Compile Include="Gear.cs">
       <SubType>Code</SubType>
@@ -63,6 +64,7 @@
     <Compile Include="OO_Cartridge_List.cs" />
     <Compile Include="OO_Configure.cs" />
     <Compile Include="OO_Post_Configure.cs" />
+    <Compile Include="OO_Restart.cs" />
     <Compile Include="OO_Start.cs" />
     <Compile Include="OO_Stop.cs" />
     <Compile Include="OO_User_Var_List.cs" />
