@@ -87,6 +87,7 @@
     <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
     <Content Include="OO-Cmdlets\gear.ps1" />
     <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-user-var-list.ps1" />
     <Content Include="Tools\mcollective\any_validator.ddl" />
     <Content Include="Tools\mcollective\any_validator.rb" />
     <Content Include="Tools\mcollective\client.cfg.template" />

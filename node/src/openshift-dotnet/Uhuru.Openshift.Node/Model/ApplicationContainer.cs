@@ -15,7 +15,7 @@ using Uhuru.Openshift.Runtime.Model;
 
 namespace Uhuru.Openshift.Runtime
 {
-    public class ApplicationContainer
+    public partial class ApplicationContainer
     {
         public string Uuid { get; set; }
         public string ApplicationUuid { get; set; }

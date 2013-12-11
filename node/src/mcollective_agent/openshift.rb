@@ -1111,6 +1111,8 @@ module MCollective
       end
 
       def oo_user_var_list(args)
+        print_to_debug "oo_user_var_list"
+        print_to_debug "method is #{__method__.to_s}"
         #keys = args['--with-keys'] ? args['--with-keys'].split(' ') : []
         #
         #output = ''
@@ -1125,7 +1127,8 @@ module MCollective
         #else
         #  return 0, output
         #end
-        return 0, ''
+        exitcode, output = Powershell.run_command(__method__, args)
+        return exitcode, output
       end
     end
   end
