@@ -692,6 +692,22 @@ module MCollective
         Powershell.run_command(__method__, args)
       end
 
+      def oo_update_configuration(args)
+        #config  = args['--with-config']
+        #auto_deploy = config['auto_deploy']
+        #deployment_branch = config['deployment_branch']
+        #keep_deployments = config['keep_deployments']
+        #deployment_type = config['deployment_type']
+
+        #with_container_from_args(args) do |container|
+        #  container.set_auto_deploy(auto_deploy)
+        #  container.set_deployment_branch(deployment_branch)
+        #  container.set_keep_deployments(keep_deployments)
+        #  container.set_deployment_type(deployment_type)
+        #end
+        return 0, ''
+      end
+
       def oo_post_configure(args)
         print_to_debug "oo_post_configure"
         # cart_name = args['--cart-name']
