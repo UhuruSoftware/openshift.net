@@ -49,7 +49,7 @@ Write-Host $devKitPath -ForegroundColor Yellow
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 
-$mcollectiveSetupURL = http://kermit.fr/repo/windows/bin/mcollective_2_3_1_Setup.exe
+$mcollectiveSetupURL = "http://kermit.fr/repo/windows/bin/mcollective_2_3_1_Setup.exe"
 
 Write-Host "Downloading mcollective setup package from here: " -NoNewline
 Write-Host $mcollectiveSetupURL -ForegroundColor Yellow
