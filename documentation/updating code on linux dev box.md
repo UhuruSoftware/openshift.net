@@ -43,3 +43,19 @@ Then we have to run some devenv commands to complete our development environment
     ./build/devenv restart_services
     openssl rsa -in /etc/openshift/server_priv.pem -pubout >/var/www/openshift/broker/config/server_pub.pem
     service avahi-cname-manager start 
+
+## Manually updating the sources ##
+
+Clone the Uhuru origin-server repo somewhere (~/code/uhuru) and run this script:
+
+	#!/bin/bash
+	
+	\cp "./origin-server/controller/app/models/application.rb"                                                      "/usr/share/gems/gems/openshift-origin-controller-*/app/models/application.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/gear.rb"                                                             "/usr/share/gems/gems/openshift-origin-controller-*/app/models/gear.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/group_instance.rb"                                                   "/usr/share/gems/gems/openshift-origin-controller-*/app/models/group_instance.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/pending_ops/create_group_instance_op.rb"                             "/usr/share/gems/gems/openshift-origin-controller-*/app/models/pending_ops/create_group_instance_op.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/app/helpers/cartridge_cache.rb"                                                 "/usr/share/gems/gems/openshift-origin-controller-*/app/helpers/cartridge_cache.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/lib/openshift/application_container_proxy.rb"                                   "/usr/share/gems/gems/openshift-origin-controller-*/lib/openshift/application_container_proxy.rb" --backup=numbered -fr
+	\cp "./origin-server/plugins/msg-broker/mcollective/lib/openshift/mcollective_application_container_proxy.rb"   "/usr/share/gems/gems/openshift-origin-msg-broker-mcollective-*/lib/openshift/mcollective_application_container_proxy.rb" --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/pending_ops/init_gear_op.rb"                                         "/usr/share/gems/gems/openshift-origin-controller-*/app/models/pending_ops/init_gear_op.rb" --backup=numbered -fr
+  
