@@ -145,41 +145,47 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            string appUuid = Environment.GetEnvironmentVariable("OPENSHIFT_APP_UUID");
-            string gearUuid = Environment.GetEnvironmentVariable("OPENSHIFT_GEAR_UUID");
-            string appName = Environment.GetEnvironmentVariable("OPENSHIFT_APP_NAME");
-            string gearName = Environment.GetEnvironmentVariable("OPENSHIFT_GEAR_NAME");
-            string nmSpace = Environment.GetEnvironmentVariable("OPENSHIFT_NAMESPACE");
+            try
+            {
+                string appUuid = Environment.GetEnvironmentVariable("OPENSHIFT_APP_UUID");
+                string gearUuid = Environment.GetEnvironmentVariable("OPENSHIFT_GEAR_UUID");
+                string appName = Environment.GetEnvironmentVariable("OPENSHIFT_APP_NAME");
+                string gearName = Environment.GetEnvironmentVariable("OPENSHIFT_GEAR_NAME");
+                string nmSpace = Environment.GetEnvironmentVariable("OPENSHIFT_NAMESPACE");
 
-            container = new ApplicationContainer(appUuid, gearUuid, System.Security.Principal.WindowsIdentity.GetCurrent().Name, appName, gearName, nmSpace, null, null, null);
+                container = new ApplicationContainer(appUuid, gearUuid, System.Security.Principal.WindowsIdentity.GetCurrent().Name, appName, gearName, nmSpace, null, null, null);
 
-            if (Prereceive)
-            {
-                Dictionary<string, object> options = new Dictionary<string, object>();
-                options["init"] = Init;
-                options["hotDeploy"] = true;
-                options["forceCleanBuild"] = true;
-                options["ref"] = "master";
-                container.PreReceive(options);
+                if (Prereceive)
+                {
+                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    options["init"] = Init;
+                    options["hotDeploy"] = true;
+                    options["forceCleanBuild"] = true;
+                    options["ref"] = "master";
+                    container.PreReceive(options);
+                }
+                else if (Postreceive)
+                {
+                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    options["init"] = Init;
+                    options["all"] = true;
+                    options["reportDeployment"] = true;
+                    options["ref"] = "master";
+                    container.PostReceive(options);
+                }
+                else if (Build)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (Prepare)
+                {
+                    throw new NotImplementedException();
+                }
             }
-            else if (Postreceive)
+            catch (Exception ex)
             {
-                Dictionary<string, object> options = new Dictionary<string, object>();
-                options["init"] = Init;
-                options["all"] = true;
-                options["reportDeployment"] = true;
-                options["ref"] = "master";
-                container.PostReceive(options);
+                this.WriteObject(ex.ToString());
             }
-            else if (Build)
-            {
-                throw new NotImplementedException(); 
-            }
-            else if (Prepare)
-            {
-                throw new NotImplementedException(); 
-            }
-            
         }
         
     }

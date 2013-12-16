@@ -73,11 +73,11 @@ namespace Uhuru.Openshift.Runtime
             this.Namespace = namespaceName;
             this.QuotaBlocks = quotaBlocks;
             this.QuotaFiles = quotaFiles;
-            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
+            this.State = new ApplicationState(this);            
             this.hourglass = hourglass ?? new Hourglass(3600);
-            this.State = new ApplicationState(this);
             this.BaseDir = this.config["GEAR_BASE_DIR"];
             this.containerPlugin = new ContainerPlugin(this);
+            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
         }
 
         public string Create()
@@ -90,7 +90,8 @@ namespace Uhuru.Openshift.Runtime
         {
             StringBuilder output = new StringBuilder();
             output.AppendLine(this.Cartridge.Destroy());
-            output.AppendLine(this.containerPlugin.Destroy());
+            output.AppendLine(this.RemoveSshdUser());
+            output.AppendLine(this.containerPlugin.Destroy());            
             return output.ToString();
         }
 
@@ -107,40 +108,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string ConnectorExecute(string cartName, string hookName, string publishingCartName, string connectionType, string inputArgs)
         {
-            // TODO: this method is not fully implemented - its Linux counterpart has extra functionality
-            
-            bool envVarHook = (connectionType.StartsWith("ENV:") && !string.IsNullOrEmpty(publishingCartName));
-
-            if (envVarHook)
-            {
-                SetConnectionHookEnvVars(cartName, publishingCartName, inputArgs);
-            }
-
-            return "";
+            return Cartridge.ConnectorExecute(cartName, hookName, publishingCartName, connectionType, inputArgs);
         }
-
-        private void SetConnectionHookEnvVars(string cartName, string pubCartName, string args)
-        {
-            string envPath = Path.Combine(this.ContainerDir, ".env", CartridgeModel.ShortNameFromFullCartName(pubCartName));
-
-
-            object[] argsObj = JsonConvert.DeserializeObject<object[]>(args);
-
-            string envVars = (string)((Newtonsoft.Json.Linq.JObject)argsObj[3]).Properties().ElementAt(0).Value;
-
-            string[] pairs = envVars.Split('\n');
-
-            Dictionary<string, string> variables = new Dictionary<string,string>();
-
-            foreach (string pair in pairs)
-            {
-                string[] keyAndValue = pair.Trim().Split('=');
-                this.AddEnvVar(keyAndValue[0], keyAndValue[1]);
-            }
-
-            CartridgeModel.WriteEnvironmentVariables(envPath, variables, false);
-        }
-
 
         public string PostConfigure()
         {
@@ -165,6 +134,33 @@ namespace Uhuru.Openshift.Runtime
                 options = new Dictionary<string, object>();
             }
             return this.Cartridge.StopCartridge(cartName, true, options);
+        }
+
+        public string RemoveSshdUser()
+        {
+            string output = "";
+            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
+            string script = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\remove-sshd-user.ps1"));
+
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.UseShellExecute = false;
+            pi.RedirectStandardError = true;
+            pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
+
+            pi.Arguments = string.Format(
+@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser administrator -userHomeDir {3} -userShell {4}",
+                script,
+                this.ApplicationUuid,
+                NodeConfig.Values["SSHD_BASE_DIR"],
+                this.ContainerDir,
+                NodeConfig.Values["GEAR_SHELL"]);
+
+            Process p = Process.Start(pi);
+            p.WaitForExit(60000);
+            output += p.StandardError.ReadToEnd();
+            output += p.StandardOutput.ReadToEnd();
+
+            return output;
         }
 
         public string AddSshKey(string sshKey, string keyType, string comment)
@@ -297,6 +293,27 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public void SetAutoDeploy(bool autoDeploy)
+        {
+            AddEnvVar("AUTO_DEPLOY", autoDeploy.ToString().ToLower(), true);
+        }
+
+        public void SetKeepDeployments(int keepDeployments)
+        {
+            AddEnvVar("KEEP_DEPLOYMENTS", keepDeployments.ToString(), true);
+            // TODO Clean up any deployments over the limit
+        }
+
+        public void SetDeploymentBranch(string deploymentBranch)
+        {
+            AddEnvVar("DEPLOYMENT_BRANCH", deploymentBranch, true);
+        }
+
+        public void SetDeploymentType(string deploymentType)
+        {
+            AddEnvVar("DEPLOYMENT_TYPE", deploymentType, true);
+        }
+
         public delegate void GearRotationCallback(string targetGear, Dictionary<string, string> localGearEnv, dynamic options);
         public string WithGearRotation(dynamic options, GearRotationCallback action)
         {
@@ -366,7 +383,7 @@ namespace Uhuru.Openshift.Runtime
 
         public string Reload(string cartName)
         {
-            if (this.State.Value() == Runtime.State.STARTED.ToString())
+            if (string.Equals(this.State.Value(), Runtime.State.STARTED.ToString(), StringComparison.InvariantCultureIgnoreCase))
             {
                 return this.Cartridge.DoControl("reload", cartName);
             }

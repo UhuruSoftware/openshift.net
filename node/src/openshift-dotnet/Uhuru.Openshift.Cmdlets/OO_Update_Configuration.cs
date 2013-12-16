@@ -7,8 +7,8 @@ using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
-    [Cmdlet("OO", "Configure")]
-    public class OO_Configure : System.Management.Automation.Cmdlet 
+    [Cmdlet("OO", "Update-Configuration")]
+    public class OO_Update_Configuration : System.Management.Automation.Cmdlet
     {
         [Parameter]
         public string WithAppUuid;
@@ -29,25 +29,25 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithRequestId;
 
         [Parameter]
-        public string CartName;
+        public bool AutoDeploy;
 
         [Parameter]
-        public string ComponentName;
+        public string DeploymentBranch;
 
         [Parameter]
-        public string WithSoftwareVersion;
+        public int KeepDeployments;
 
         [Parameter]
-        public string CartridgeVendor;
-
-        [Parameter]
-        public string TemplateGitUrl;
+        public string DeploymentType;
 
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                WithNamespace, null, null, null);
-            this.WriteObject(container.Configure(CartName, TemplateGitUrl, null));
+            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                WithContainerName, WithNamespace, null, null, null);
+            container.SetAutoDeploy(AutoDeploy);
+            container.SetDeploymentBranch(DeploymentBranch);
+            container.SetKeepDeployments(KeepDeployments);
+            container.SetDeploymentType(DeploymentType);
         }
     }
 }

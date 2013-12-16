@@ -47,6 +47,14 @@ set GIT_DIR=./{1}.git
 {0} config core.logAllRefUpdates true
 {0} repack";
 
+        private const string GIT_URL_CLONE = @"{0} clone --bare --no-hardlinks '<%= OpenShift::Runtime::Utils.sanitize_url_argument(@url) %>' <%= @application_name %>.git;
+GIT_DIR=./<%= @application_name %>.git git config core.logAllRefUpdates true;
+<% if @commit && !@commit.empty? %>
+GIT_DIR=./<%= @application_name %>.git git reset --soft '<%= OpenShift::Runtime::Utils.sanitize_argument(@commit) %>';
+<% end %>
+GIT_DIR=./<%= @application_name %>.git git repack;
+";
+
         private const string GIT_ARHIVE = @"{0} archive --format=tar {1} | (cd {2} & {3} --warning=no-timestamp -xf -)";
 
         private const string GIT_DESCRIPTION = @"{0} application {1}";
@@ -75,6 +83,17 @@ git rev-parse --short {0}";
         {
             this.Container = container;
             this.RepositoryPath = path ?? Path.Combine(container.ContainerDir, "git", string.Format("{0}.git", container.ApplicationName));
+        }
+
+        public string PopulateFromUrl(string cartridgeBane, string templateUrl)
+        {
+            if (Exists())
+                return null;
+
+            string gitPath = Path.Combine(this.Container.ContainerDir, "git");
+            Directory.CreateDirectory(gitPath);
+
+            return string.Empty;
         }
 
         public string PopulateFromCartridge(string cartridgeName)

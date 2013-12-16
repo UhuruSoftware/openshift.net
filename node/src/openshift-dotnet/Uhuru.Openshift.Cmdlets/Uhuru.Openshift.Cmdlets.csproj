@@ -67,6 +67,7 @@
     <Compile Include="OO_Restart.cs" />
     <Compile Include="OO_Start.cs" />
     <Compile Include="OO_Stop.cs" />
+    <Compile Include="OO_Update_Configuration.cs" />
     <Compile Include="OO_User_Var_List.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

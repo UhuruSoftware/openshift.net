@@ -87,6 +87,7 @@
     <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
     <Content Include="OO-Cmdlets\gear.ps1" />
     <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-update-configuration.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-list.ps1" />
     <Content Include="OO-Cmdlets\oo-reload.ps1" />
     <Content Include="OO-Cmdlets\oo-restart.ps1" />
@@ -101,6 +102,7 @@
     <Content Include="Tools\openshift.net\install.ps1" />
     <Content Include="Tools\sshd\add-key.ps1" />
     <Content Include="Tools\sshd\configure-sshd.ps1" />
+    <Content Include="Tools\sshd\remove-sshd-user.ps1" />
     <Content Include="Tools\sshd\run-sshd.ps1" />
     <Content Include="Tools\sshd\setup-sshd.ps1" />
     <Content Include="Tools\sshd\sshd_config.template" />
