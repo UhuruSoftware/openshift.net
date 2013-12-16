@@ -2,28 +2,25 @@ param(
 [string]$command
 )
 
-#for testing
 
-
-
-$HTTPD_PID_FILE = $env:OPENSHIFT_DOTNET_DIR+"\run\httpd.pid"
-$env:HTTPD_PID_FILE = $HTTPD_PID_FILE
+$IISHWC_PID_FILE = $env:OPENSHIFT_DOTNET_DIR+"\run\iishwc.pid"
+$env:IISHWC_PID_FILE = $IISHWC_PID_FILE
 
 #Start the software the cartridge controls
 function start-cartridge
 {
   Write-Host "Starting"
-  "Starting" > $HTTPD_PID_FILE
-  $job = Start-Process powershell -argument "$env:OPENSHIFT_REPO_DIR\dotnet\webserver.ps1" -passthru -windowstyle hidden
-  $job.Id > $HTTPD_PID_FILE
+  "Starting" > $IISHWC_PID_FILE
+  $job = Start-Process powershell -argument "$env:OPENSHIFT_REPO_DIR\iishwc\start.bat" -passthru -windowstyle hidden
+  $job.Id > $IISHWC_PID_FILE
 }
 
 #Stop the software the cartridge controls
 function stop-cartridge
 {
   Write-Host "Stopping"
-  $jobid = [int](Get-Content $HTTPD_PID_FILE)
-  Remove-Item $HTTPD_PID_FILE
+  $jobid = [int](Get-Content $IISHWC_PID_FILE)
+  Remove-Item $IISHWC_PID_FILE
   Stop-Process -Id $jobid -Force
   #need one more get request
   
@@ -33,9 +30,9 @@ function stop-cartridge
 function status-cartridge
 {
   Write-Host "Retrieving cartridge"
-  if (Test-Path $HTTPD_PID_FILE)
+  if (Test-Path $IISHWC_PID_FILE)
   {
-    $jobid = [int](Get-Content $HTTPD_PID_FILE)
+    $jobid = [int](Get-Content $IISHWC_PID_FILE)
     $job =  Get-Process -Id jobid -ErrorAction SilentlyContinue
     if ($job -eq $null)
     {
