@@ -21,6 +21,7 @@ function stop-cartridge
   Write-Host "Stopping"
   $jobid = [int](Get-Content $IISHWC_PID_FILE)
   Remove-Item $IISHWC_PID_FILE
+  taskkill /F /T /PID $jobid
   Stop-Process -Id $jobid -Force
   #need one more get request
   

@@ -404,7 +404,7 @@ namespace Uhuru.Openshift.Runtime
             pi.RedirectStandardError = true;
             pi.RedirectStandardOutput = true;
             pi.WorkingDirectory = gearDirectory;
-            pi.EnvironmentVariables["OPENSHIFT_DOTNET_PORT"] = "80";
+
             pi.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
             pi.Arguments = "-c \"" + cmd.Replace('\\','/') + "\"";
             
@@ -513,7 +513,7 @@ namespace Uhuru.Openshift.Runtime
             this.State.Value(Runtime.State.NEW);
         }
 
-        private void AddEnvVar(string key, string value, bool prefixCloudName)
+        public void AddEnvVar(string key, string value, bool prefixCloudName)
         {
             string envDir = Path.Combine(this.ContainerDir, ".env");
             if (prefixCloudName)
@@ -525,7 +525,7 @@ namespace Uhuru.Openshift.Runtime
             SetRoPermissions(fileName);
         }
         
-        private void AddEnvVar(string key, string value)
+        public void AddEnvVar(string key, string value)
         {
             AddEnvVar(key, value, false);
         }

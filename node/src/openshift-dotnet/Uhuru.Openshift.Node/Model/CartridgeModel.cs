@@ -67,6 +67,10 @@ namespace Uhuru.Openshift.Runtime
                     }
                 }
             }
+
+            // TODO: endpoints should be added dynamically, like on Linux
+            this.container.AddEnvVar(string.Format("{0}_PORT", cartridge.ShortName), "80", true);
+
             CreateCartridgeDirectory(cartridge, version);
             return PopulateGearRepo(name, templateGitUrl);
         }

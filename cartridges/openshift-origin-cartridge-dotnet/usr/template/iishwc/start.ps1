@@ -154,18 +154,18 @@ $element.SetAttribute('key', "UHURU_ERROR_LOG_FILE")
 $element.SetAttribute('value', (Join-Path $script:logsDir iis.stderr.log))
 $null = $appSettings.AppendChild($element)
 
-$healthMonitoring = $webConfig.SelectSingleNode("/configuration/system.web/healthMonitoring")
-if($healthMonitoring -eq $null)
-{
-    $healthMonitoring = $webConfig.CreateElement("healthMonitoring")
-    $systemWeb = $webConfig.SelectSingleNode("/configuration/system.web")
-    $healthMonitoring.SetAttribute("configSource", "UhuruAspNetEventProvider.config")
-    $null = $systemWeb.AppendChild($healthMonitoring)
-}
+#$healthMonitoring = $webConfig.SelectSingleNode("/configuration/system.web/healthMonitoring")
+#if($healthMonitoring -eq $null)
+#{
+#    $healthMonitoring = $webConfig.CreateElement("healthMonitoring")
+#    $systemWeb = $webConfig.SelectSingleNode("/configuration/system.web")
+#    $healthMonitoring.SetAttribute("configSource", "UhuruAspNetEventProvider.config")
+#    $null = $systemWeb.AppendChild($healthMonitoring)
+#}
 
 $webConfig.Save($webConfigPath)
 
-$null = mkdir (Join-Path $env:TEMP "IIS Temporary Compressed Files")
+$null = mkdir (Join-Path $env:TEMP "IIS Temporary Compressed Files") -ErrorAction SilentlyContinue
 
 Write-Output("Starting IIS Process")
 

@@ -2,6 +2,7 @@ ENV["BUNDLE_GEMFILE"] = File.expand_path("../openshift/Gemfile", __FILE__)
 
 require 'bundler/setup'
 require 'sinatra'
+require 'json'
 require File.expand_path("../powershell_cmdlets", __FILE__)
 require File.expand_path("../openshift/web", __FILE__)
 
@@ -17,7 +18,7 @@ module MCollective
     class Openshift < RPC::Agent
 
       def print_to_debug(msg)
-        $dev_debug_msg << "#{msg} - #{Time.new}"
+        $dev_debug_msg << "<pre>#{msg} - #{Time.new}</pre>"
       end
 
       def echo_action
@@ -42,7 +43,7 @@ module MCollective
         rc                         = nil
         output                     = ""
 
-        print_to_debug "cartridge_do_action: action: '#{action}', cartridge: '#{cartridge}', args: '#{args.inspect}'"
+        print_to_debug "cartridge_do_action: action: '#{action}', cartridge: '#{cartridge}', args: '#{JSON.pretty_generate(args)}'"
 
         # Do the action execution
         exitcode, output, addtl_params           = execute_action(action, args)
@@ -95,7 +96,7 @@ module MCollective
         # Log.instance.info("Finished executing action [#{action}] (#{exitcode})")
         # end
 
-        print_to_debug "execute_action - action: #{action}, #{args}"
+        print_to_debug "execute_action - action: #{action}, #{JSON.pretty_generate(args)}"
         return exitcode, output, addtl_params
       end
 
@@ -127,7 +128,7 @@ module MCollective
         end
 
         # Log.instance.info("execute_parallel_action call - #{joblist}")
-        print_to_debug "OUT execute_parallel_action - joblist: #{joblist}"
+        print_to_debug "OUT execute_parallel_action - joblist: #{JSON.pretty_generate(joblist)}"
         reply[:output]   = joblist
         reply[:exitcode] = 0
       end
@@ -1148,6 +1149,19 @@ module MCollective
         #end
         exitcode, output = Powershell.run_command(__method__, args)
         return exitcode, output
+      end
+
+      def has_gear_action
+        validate :uuid, /^[a-zA-Z0-9]+$/
+        uuid = request[:uuid].to_s
+
+        # TODO: the path should be loaded from the node.config file
+        if Dir.exist?("c:/openshift/gears/#{uuid}")
+          reply[:output] = true
+        else
+          reply[:output] = false
+        end
+        reply[:exitcode] = 0
       end
     end
   end
