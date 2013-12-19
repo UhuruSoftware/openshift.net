@@ -11,7 +11,7 @@ function start-cartridge
 {
   Write-Host "Starting"
   "Starting" > $IISHWC_PID_FILE
-  $job = Start-Process powershell -argument "$env:OPENSHIFT_REPO_DIR\iishwc\start.bat" -passthru -windowstyle hidden
+  $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat" -passthru -windowstyle hidden
   $job.Id > $IISHWC_PID_FILE
 }
 

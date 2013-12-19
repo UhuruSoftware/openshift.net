@@ -47,7 +47,14 @@ namespace Uhuru.Openshift.Cmdlets
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                 WithNamespace, null, null, null);
-            this.WriteObject(container.Configure(CartName, TemplateGitUrl, null));
+            try
+            {
+                this.WriteObject(container.Configure(CartName, TemplateGitUrl, null));
+            }
+            catch (Exception ex)
+            {
+                this.WriteObject(ex.ToString());
+            }
         }
     }
 }
