@@ -80,7 +80,9 @@
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />
+    <Content Include="OO-Cmdlets\oo-authorized-ssh-key-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-add.ps1" />
+    <Content Include="OO-Cmdlets\oo-tidy.ps1" />
     <Content Include="OO-Cmdlets\oo-cartridge-list.ps1" />
     <Content Include="OO-Cmdlets\oo-connector-execute.ps1" />
     <Content Include="OO-Cmdlets\oo-configure.ps1" />
@@ -100,6 +102,7 @@
     <Content Include="Tools\mcollective\server.cfg.template" />
     <Content Include="Tools\mcollective\update-facts.ps1" />
     <Content Include="Tools\openshift.net\install.ps1" />
+    <Content Include="Tools\sshd\remove-key.ps1" />
     <Content Include="Tools\sshd\add-key.ps1" />
     <Content Include="Tools\sshd\configure-sshd.ps1" />
     <Content Include="Tools\sshd\remove-sshd-user.ps1" />

@@ -282,6 +282,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.remove_ssh_key(ssh_key, comment)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_authorized_ssh_keys_replace(args)
@@ -646,6 +647,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.tidy
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_expose_port(args)

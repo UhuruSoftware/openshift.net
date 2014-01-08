@@ -499,5 +499,15 @@ namespace Uhuru.Openshift.Runtime
                 container.SetRWPermissions(StopLock);
             }
         }
+
+        internal string Tidy()
+        {
+            StringBuilder output = new StringBuilder();
+            EachCartridge(delegate(Manifest cartridge)
+            {
+                output.AppendLine(DoControl("tidy", cartridge));
+            });
+            return output.ToString();
+        }
     }
 }

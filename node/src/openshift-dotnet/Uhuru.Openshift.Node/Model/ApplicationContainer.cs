@@ -13,6 +13,7 @@ using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Runtime.Model;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -80,7 +81,7 @@ namespace Uhuru.Openshift.Runtime
             this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
         }
 
-        public string Create()
+        public string Create(string secretToken = null)
         {            
             containerPlugin.Create();
             return string.Empty;
@@ -399,6 +400,7 @@ namespace Uhuru.Openshift.Runtime
 
             ProcessStartInfo pi = new ProcessStartInfo();
             pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
+            pi.EnvironmentVariables["HOME"] = this.ContainerDir;
             pi.UseShellExecute = false;
             pi.CreateNoWindow = true;
             pi.RedirectStandardError = true;
@@ -534,5 +536,54 @@ namespace Uhuru.Openshift.Runtime
         {
             return (int)(Math.Max(1 / ratio, count) * ratio);
         }
+
+        public string Tidy()
+        {
+            StringBuilder output = new StringBuilder();
+
+            Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+            
+            string gearDir = env["OPENSHIFT_HOMEDIR"];
+            string appName = env["OPENSHIFT_APP_NAME"];
+
+            string gearRepoDir = Path.Combine(gearDir, "git", string.Format("{0}.git", appName));
+            string gearTmpDir = Path.Combine(gearDir, ".tmp");
+
+            output.Append(StopGear(new Dictionary<string, object>() { { "user_initiated", false } }));
+            try
+            {
+                GearLevelTidyTmp(gearTmpDir);
+                output.AppendLine(this.Cartridge.Tidy());
+                output.AppendLine(GearLevelTidyGit(gearRepoDir));
+            }
+            catch (Exception ex)
+            {
+                output.AppendLine(ex.ToString());
+            }
+            finally
+            {
+                StartGear(new Dictionary<string, object>() { { "user_initiated", false } });
+            }
+            return output.ToString();
+        }
+
+        private void GearLevelTidyTmp(string gearTmpDir)
+        {
+            DirectoryUtil.EmptyDirectory(gearTmpDir);
+        }
+
+        private string GearLevelTidyGit(string gearRepoDir)
+        {
+            StringBuilder output = new StringBuilder();
+            string gitPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe");
+            string cmd = string.Format("{0} prune", gitPath);
+            output.AppendLine(RunProcessInGearContext(gearRepoDir, cmd));
+
+            cmd = string.Format("{0} gc --aggressive", gitPath);
+            output.AppendLine(RunProcessInGearContext(gearRepoDir, cmd));
+            return output.ToString();
+        }
+
+
     }
 }
