@@ -50,6 +50,9 @@ describe 'Windows App' do
       $options[:git] = false
       app.create(name, ['uhuru-dotnet-4.5'])
       url = /http:\/\/[^\s]+/.match(output.string)[0]
+
+      sleep(10)
+
       open(url) do |html|
         html_content = html.read
         html_content.should match /Welcome to OpenShift with \.Net support/
@@ -142,6 +145,8 @@ describe 'Windows App' do
         `git commit -a -m 'test'`
         `git push`
       end
+
+      sleep(10)
 
       open(url) do |html|
         html_content = html.read
