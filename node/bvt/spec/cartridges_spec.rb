@@ -1,6 +1,6 @@
 require File.expand_path('../../rspec_helper', __FILE__)
 
-describe 'Windows Cartridge' do
+describe 'Windows Cartridges' do
   it 'should be listed in the list of OpenShift cartridges' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
@@ -9,5 +9,6 @@ describe 'Windows Cartridge' do
     cartridge.list
 
     output.string.should match /uhuru-dotnet-4\.5/
+    output.string.should match /uhuru-winsample-1\.0/
   end
 end
