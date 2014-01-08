@@ -79,6 +79,8 @@ describe 'Windows App' do
       puts `ssh-keyscan -H #{name}-#{$options[:domain_name]}.#{$cloud_host}`
       `ssh-keyscan -H #{name}-#{$options[:domain_name]}.#{$cloud_host} >> #{$known_hosts_file}`
 
+      sleep(10)
+
       git_clone = RHC::Commands::GitClone.new $options, RHC::Config.new
       git_clone.run(name)
 
@@ -132,6 +134,8 @@ describe 'Windows App' do
       url = /http:\/\/[^\s]+/.match(output.string)[0]
 
       $options[:app] = name
+
+      sleep(10)
 
       `ssh-keyscan -H #{name}-#{$options[:domain_name]}.#{$cloud_host} >> #{$known_hosts_file}`
 
