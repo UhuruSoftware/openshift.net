@@ -1105,7 +1105,7 @@ module MCollective
 
         print_to_debug "ENV_VARIABLES: #{variables}"
 
-        rc, output = 0, ''
+        rc, output = Powershell.run_command(__method__, args)
         #with_container_from_args(args) do |container|
         #  rc, output = container.user_var_add(variables, gears)
         #end
@@ -1113,9 +1113,14 @@ module MCollective
       end
 
       def oo_user_var_remove(args)
-        #unless args['--with-keys']
-        #  return -1, "In #{__method__} no user environment variable names provided for #{args['--with-app-name']}"
-        #end
+        print_to_debug "method is #{__method__.to_s}"
+
+        unless args['--with-keys']
+          return -1, "In #{__method__} no user environment variable names provided for #{args['--with-app-name']}"
+        end
+
+        exitcode, output = Powershell.run_command(__method__, args)
+        return exitcode, output
         #
         #keys  = args['--with-keys'].split(' ')
         #gears = args['--with-gears'] ? args['--with-gears'].split(';') : []

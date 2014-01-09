@@ -50,6 +50,7 @@ namespace Uhuru.Openshift.Common.Models
         public dynamic ToDescriptor()
         {
             Dictionary<object, object> p = new Dictionary<object, object>();
+            
             foreach (Connector v in this.Publishes)
             {
                 p[v.Name] = v.ToDescriptor();
