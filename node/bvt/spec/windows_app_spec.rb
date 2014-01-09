@@ -6,7 +6,7 @@ describe 'Windows App' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
 
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
 
     app = RHC::Commands::App.new $options, RHC::Config.new
 
@@ -22,7 +22,7 @@ describe 'Windows App' do
   end
 
   it 'is listed properly using rhc apps' do
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
     $options[:git] = false
 
@@ -43,7 +43,7 @@ describe 'Windows App' do
   it 'is accessible via http' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
 
     begin
@@ -67,7 +67,7 @@ describe 'Windows App' do
   it 'can be cloned via Git' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
 
     begin
@@ -96,7 +96,7 @@ describe 'Windows App' do
   it 'works with a Linux service cartridge' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
     $options[:git] = false
     app.create(name, ['uhuru-dotnet-4.5'])
@@ -120,7 +120,7 @@ describe 'Windows App' do
   it 'can be updated via Git' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
     $options[:repo] = File.join(Dir.tmpdir, name)
 
@@ -167,7 +167,7 @@ describe 'Windows App' do
   it 'accepts ssh to the Windows gear' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
 
     begin
@@ -191,7 +191,7 @@ describe 'Windows App' do
   it 'gets deleted properly' do
     output = StringIO.new
     $terminal.instance_variable_set "@output", output
-    name = "test#{(0...8).map { (65 + rand(26)).chr }.join.downcase }"
+    name = "testapp"
     app = RHC::Commands::App.new $options, RHC::Config.new
 
     $options[:git] = false
