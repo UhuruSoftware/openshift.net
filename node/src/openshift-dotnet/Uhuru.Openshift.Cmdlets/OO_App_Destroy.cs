@@ -42,9 +42,16 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-               WithNamespace, null, null, null);
-            this.WriteObject(container.Destroy());
+            try
+            {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+                   WithNamespace, null, null, null);
+                this.WriteObject(container.Destroy());
+            }
+            catch (Exception ex)
+            {
+                this.WriteObject(ex.ToString());
+            }
         }
     }
 }

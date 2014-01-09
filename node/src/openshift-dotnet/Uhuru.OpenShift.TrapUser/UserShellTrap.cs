@@ -42,12 +42,19 @@ namespace Uhuru.OpenShift.TrapUser
             }
   
             string globalEnv = Path.Combine(NodeConfig.ConfigDir, "env");
-           
+
+            string homeDir = Environment.GetEnvironmentVariable("HOME");
+
             UserShellTrap.LoadEnv(globalEnv, targetList);
 
-            UserShellTrap.LoadEnv(".env", targetList);
+            UserShellTrap.LoadEnv(Path.Combine(homeDir, ".env"), targetList);
 
-            string[] userHomeDirs = Directory.GetDirectories(".\\", "*", SearchOption.TopDirectoryOnly);
+            foreach (string dir in Directory.GetDirectories(Path.Combine(homeDir, ".env"), "*"))
+            {
+                LoadEnv(dir, targetList);
+            }
+
+            string[] userHomeDirs = Directory.GetDirectories(homeDir, "*", SearchOption.TopDirectoryOnly);
 
             foreach (string userHomeDir in userHomeDirs)
             {

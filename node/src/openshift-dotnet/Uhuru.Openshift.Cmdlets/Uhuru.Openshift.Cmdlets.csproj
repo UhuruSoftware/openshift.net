@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OO_Authorized_Ssh_Key_Remove.cs" />
+    <Compile Include="OO_Tidy.cs" />
     <Compile Include="OO_Reload.cs" />
     <Compile Include="OO_Connector_Execute.cs" />
     <Compile Include="Gear.cs">
@@ -68,9 +70,11 @@
     <Compile Include="OO_Start.cs" />
     <Compile Include="OO_Stop.cs" />
     <Compile Include="OO_User_Var_Add.cs" />
+    <Compile Include="OO_Update_Configuration.cs" />
     <Compile Include="OO_User_Var_List.cs" />
     <Compile Include="OO_User_Var_Remove.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReturnStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">

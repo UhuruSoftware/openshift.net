@@ -8,7 +8,7 @@ using Uhuru.Openshift.Runtime;
 namespace Uhuru.Openshift.Cmdlets
 {
     [Cmdlet("OO", "Restart")]
-    class OO_Restart : System.Management.Automation.Cmdlet 
+    public class OO_Restart : System.Management.Automation.Cmdlet 
     {
         [Parameter]
         public string WithAppUuid;

@@ -1,0 +1,3 @@
+Contains two files:
+* managed_files.yml -  file provides an array of files or strings that are managed or used during different stages of your cartridge lifecycle. The keys for the entries (such as locked_files) can be specified as either strings or Ruby symbols.
+* manifest.yml -  is used by OpenShift to determine what features your cartridge requires and in turn publishes. OpenShift also uses fields in the manifest.yml to determine what data to present to the cartridge user about your cartridge.

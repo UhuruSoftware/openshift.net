@@ -31,11 +31,17 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string CartName;
 
+        [Parameter]
+        public string WithSecretToken;
+
         protected override void ProcessRecord()
         {
+            string token = null;
+            if (!string.IsNullOrEmpty(WithSecretToken))
+                token = WithSecretToken;
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                 WithContainerName, WithNamespace, null, null, null);
-            this.WriteObject(container.Create());
+            this.WriteObject(container.Create(token));
         }
     }
 }

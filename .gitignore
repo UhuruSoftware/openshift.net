@@ -3,5 +3,7 @@ lib/mcollective/mcollective_setup.log
 *.suo
 bin/
 !cartridges/openshift-origin-cartridge-dotnet/bin/
+!cartridges/openshift-origin-cartridge-winsample/bin/
+!node/bvt/assets/aspnet_app/bin/
 obj/
 TestResults/

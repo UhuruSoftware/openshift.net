@@ -46,5 +46,18 @@ namespace Uhuru.Openshift.Utilities
                 }
             }
         }
+
+        public static void EmptyDirectory(string directory)
+        {
+            DirectoryInfo dir = new DirectoryInfo(directory);
+            foreach (FileInfo fi in dir.GetFiles())
+            {
+                fi.Delete();
+            }
+            foreach (DirectoryInfo di in dir.GetDirectories())
+            {
+                di.Delete(true);
+            }
+        }
     }
 }

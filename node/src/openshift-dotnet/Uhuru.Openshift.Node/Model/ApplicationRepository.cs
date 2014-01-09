@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Utilities;
 
@@ -47,6 +48,14 @@ set GIT_DIR=./{1}.git
 {0} config core.logAllRefUpdates true
 {0} repack";
 
+        private const string GIT_URL_CLONE = @"{0} clone --bare --no-hardlinks '{1}' {2}.git
+set GIT_DIR=./{2}.git 
+{0} config core.logAllRefUpdates true
+{3}
+{0} repack";
+
+        private const string GIT_URL_CLONE_RESET = @"git reset --soft {0}";
+
         private const string GIT_ARHIVE = @"{0} archive --format=tar {1} | (cd {2} & {3} --warning=no-timestamp -xf -)";
 
         private const string GIT_DESCRIPTION = @"{0} application {1}";
@@ -75,6 +84,42 @@ git rev-parse --short {0}";
         {
             this.Container = container;
             this.RepositoryPath = path ?? Path.Combine(container.ContainerDir, "git", string.Format("{0}.git", container.ApplicationName));
+        }
+
+        public string PopulateFromUrl(string cartridgeName, string templateUrl)
+        {            
+            if (Exists())
+                return null;
+            string repoSpec;
+            string commit;
+            try
+            {
+                Git.SafeCloneSpec(templateUrl, out repoSpec, out commit, Git.ALLOWED_SCHEMES);
+            }
+            catch
+            {
+                throw new Exception("CLIENT_ERROR: The provided source code repository URL is not valid");
+            }
+            if (repoSpec == null)
+            {
+                throw new Exception(string.Format("CLIENT_ERROR: Source code repository URL protocol must be one of: {0}", string.Join(", ", Git.ALLOWED_SCHEMES)));
+            }
+
+            string gitPath = Path.Combine(this.Container.ContainerDir, "git");
+            Directory.CreateDirectory(gitPath);
+
+            this.cartridgeName = cartridgeName;
+            this.applicationName = this.Container.ApplicationName;
+
+            string reset = string.Empty;
+            if(!string.IsNullOrEmpty(commit))
+            {
+                reset = string.Format(GIT_URL_CLONE_RESET, commit);
+            }
+            string script = string.Format(GIT_URL_CLONE, GIT, repoSpec, this.applicationName, reset);
+            RunCmd(script, gitPath);
+            Configure();
+            return string.Empty;
         }
 
         public string PopulateFromCartridge(string cartridgeName)
@@ -171,19 +216,21 @@ git rev-parse --short {0}";
         }
 
         private void RunCmd(string cmd, string dir)
-        {
-            string tempfile = Path.GetTempFileName() + ".bat";
-            File.WriteAllText(tempfile, cmd);
+        {            
+            string tempfile = Path.GetTempFileName();
+            string batfile = tempfile + ".bat";
+            File.WriteAllText(batfile, cmd);
             ProcessStartInfo pi = new ProcessStartInfo();
             pi.WorkingDirectory = dir;
             pi.UseShellExecute = true;
             pi.CreateNoWindow = true;
             pi.WindowStyle = ProcessWindowStyle.Hidden;
             pi.FileName = "cmd.exe";
-            pi.Arguments = "/c " + tempfile;
+            pi.Arguments = "/c " + batfile;
             Process p = Process.Start(pi);
-            p.WaitForExit(30000);
+            p.WaitForExit(30000);            
             File.Delete(tempfile);
+            File.Delete(batfile);
         }
     }
 }

@@ -6,7 +6,7 @@ module MCollective
     class Powershell
 
       def self.print_to_debug(msg)
-        $dev_debug_msg << "#{msg} - #{Time.new}"
+        $dev_debug_msg << "<pre>#{msg} - #{Time.new}</pre>"
       end
 
       def self.run_command(command ,args)
@@ -20,8 +20,15 @@ module MCollective
           output = stdout.read
           exitcode = wait_thr.value.exitstatus
 
-          print_to_debug "OUT #{command}: ARGS :#{args} STDOUT: #{output} EXITCODE: #{exitcode}"
 
+          debug_output = output.gsub(/exception/i, '<span style="color:red">exception</span>')
+          debug_output = debug_output.gsub(/~~/i, '<span style="color:red">~~</span>')
+
+          if exitcode != 0
+            print_to_debug "<div style='color:red'>OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{debug_output}</div>"
+          else
+            print_to_debug "<div style='color:green'>OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{debug_output}</div>"
+          end
         end
         return exitcode, output
       end

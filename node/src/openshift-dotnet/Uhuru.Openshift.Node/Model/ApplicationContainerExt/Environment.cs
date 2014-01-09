@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using Uhuru.Openshift.Runtime.Config;
+
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -40,6 +44,7 @@ namespace Uhuru.Openshift.Runtime
             }
             return output;
         }
+
 
         /// <summary>
         /// Addes a environment variables.
@@ -121,6 +126,29 @@ namespace Uhuru.Openshift.Runtime
         public string UserVarPush(List<string> gears, bool envAdd =false)
         {
             throw new NotImplementedException();
+		}
+		
+        public string RemoveSshKey(string sshKey, string keyType, string comment)
+        {
+            string output = "";
+
+            string key = string.Format("{0} {1} {2}", keyType, sshKey, comment);
+            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
+            string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\remove-key.ps1"));
+
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.UseShellExecute = false;
+            pi.RedirectStandardError = true;
+            pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
+
+            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser administrator -key ""{1}""", addKeyScript, key, NodeConfig.Values["SSHD_BASE_DIR"]);
+            Process p = Process.Start(pi);
+            p.WaitForExit(60000);
+            output += p.StandardError.ReadToEnd();
+            output += p.StandardOutput.ReadToEnd();
+
+            return output;
+
         }
     }
 }

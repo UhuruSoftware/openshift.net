@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -66,6 +67,10 @@ namespace Uhuru.Openshift.Runtime
                     }
                 }
             }
+
+            // TODO: endpoints should be added dynamically, like on Linux
+            this.container.AddEnvVar(string.Format("{0}_PORT", cartridge.ShortName), "80", true);
+
             CreateCartridgeDirectory(cartridge, version);
             return PopulateGearRepo(name, templateGitUrl);
         }
@@ -252,7 +257,7 @@ namespace Uhuru.Openshift.Runtime
                 return string.Format("Not starting cartridge #{cartridge.name} because the application was explicitly stopped by the user", cartridge.Name);
             }
 
-            Manifest primaryCartridge = GetPrimaryCartridge();
+            Manifest primaryCartridge = GetPrimaryCartridge();            
 
             if (primaryCartridge != null)
             {
@@ -317,7 +322,14 @@ namespace Uhuru.Openshift.Runtime
         private string PopulateGearRepo(string cartName, string templateGitUrl)
         {
             ApplicationRepository repo = new ApplicationRepository(this.container);
-            repo.PopulateFromCartridge(cartName);
+            if (string.IsNullOrEmpty(templateGitUrl))
+            {
+                repo.PopulateFromCartridge(cartName);
+            }
+            else
+            {
+                repo.PopulateFromUrl(cartName, templateGitUrl);
+            }
             if (repo.Exists())
             {
                 repo.Archive(Path.Combine(this.container.ContainerDir, "app-root", "runtime", "repo"), "master");
@@ -385,7 +397,15 @@ namespace Uhuru.Openshift.Runtime
                 envs["namespace"] = this.container.Namespace;
             }
 
-
+            Dictionary<string, string> currentGearEnv = Environ.ForGear(this.container.ContainerDir);
+            if (!currentGearEnv.ContainsKey("OPENSHIFT_PRIMARY_CARTRIDGE_DIR"))
+            {
+                envs["PRIMARY_CARTRIDGE_DIR"] = target + Path.DirectorySeparatorChar;
+            }
+            if (envs.Count > 0)
+            {
+                WriteEnvironmentVariables(Path.Combine(this.container.ContainerDir, ".env"), envs);
+            }
         }
 
         public static void WriteEnvironmentVariables(string path, Dictionary<string,string> envs, bool prefix)
@@ -412,6 +432,46 @@ namespace Uhuru.Openshift.Runtime
             return new ApplicationRepository(this.container).Empty();
         }
 
+        public string ConnectorExecute(string cartName, string hookName, string publishingCartName, string connectionType, string inputArgs)
+        {
+            // TODO: this method is not fully implemented - its Linux counterpart has extra functionality
+            Manifest cartridge = GetCartridge(cartName);
+            
+            bool envVarHook = (connectionType.StartsWith("ENV:") && !string.IsNullOrEmpty(publishingCartName));
+
+            if (envVarHook)
+            {
+                SetConnectionHookEnvVars(cartName, publishingCartName, inputArgs);
+            }
+
+            return "";
+        }
+
+        private void SetConnectionHookEnvVars(string cartName, string pubCartName, string args)
+        {
+            string envPath = Path.Combine(this.container.ContainerDir, ".env", ShortNameFromFullCartName(pubCartName));
+
+            object[] argsObj = JsonConvert.DeserializeObject<object[]>(args);
+
+            string envVars = (string)((Newtonsoft.Json.Linq.JObject)argsObj[3]).Properties().ElementAt(0).Value;
+
+            string[] pairs = envVars.Split('\n');
+
+            Dictionary<string, string> variables = new Dictionary<string, string>();
+
+            foreach (string pair in pairs)
+            {
+                if (!string.IsNullOrEmpty(pair))
+                {
+                    string[] keyAndValue = pair.Trim().Split('=');
+                    variables[keyAndValue[0]] = keyAndValue[1];
+                }
+            }
+
+            WriteEnvironmentVariables(envPath, variables, false);
+        }
+
+
         public string CartridgeName { get; set; }
 
         public static string ShortNameFromFullCartName(string pubCartName)
@@ -435,9 +495,19 @@ namespace Uhuru.Openshift.Runtime
         {
             if (!StopLockExists)
             {
-                File.Create(StopLock);
+                File.Create(StopLock).Dispose();
                 container.SetRWPermissions(StopLock);
             }
+        }
+
+        internal string Tidy()
+        {
+            StringBuilder output = new StringBuilder();
+            EachCartridge(delegate(Manifest cartridge)
+            {
+                output.AppendLine(DoControl("tidy", cartridge));
+            });
+            return output.ToString();
         }
     }
 }

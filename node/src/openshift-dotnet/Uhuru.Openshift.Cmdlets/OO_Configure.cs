@@ -40,11 +40,21 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string CartridgeVendor;
 
+        [Parameter]
+        public string TemplateGitUrl;
+
         protected override void ProcessRecord()
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                 WithNamespace, null, null, null);
-            this.WriteObject(container.Configure(CartName, null, null));
+            try
+            {
+                this.WriteObject(container.Configure(CartName, TemplateGitUrl, null));
+            }
+            catch (Exception ex)
+            {
+                this.WriteObject(ex.ToString());
+            }
         }
     }
 }

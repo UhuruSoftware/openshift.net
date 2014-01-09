@@ -11,15 +11,6 @@ We need to add a dependency repo to yum and clone Uhuru's origin-server fork and
     yum install -y git vim rubygem-thor rubygem-parseconfig tito make rubygem-aws-sdk tig mlocate bash-completion rubygem-yard rubygem-redcarpet ruby-devel redhat-lsb
     mkdir ~/code
     cd ~/code
-
-
-
-
-wget http://silverdire.com/files/repo/el6/x86_64/haproxy-1.5-dev19.el6.x86_64.rpm
-rpm install haproxy-1.5-dev19.el6.x86_64.rpm
-yum-config-manager --add-repo http://mirror.pnl.gov/epel/6/x86_64/
-
-
     git clone git@github.com:UhuruSoftware/origin-server.git
     git clone git@github.com:openshift/origin-dev-tools.git
 
@@ -43,3 +34,19 @@ Then we have to run some devenv commands to complete our development environment
     ./build/devenv restart_services
     openssl rsa -in /etc/openshift/server_priv.pem -pubout >/var/www/openshift/broker/config/server_pub.pem
     service avahi-cname-manager start 
+
+## Manually updating the sources ##
+
+Clone the Uhuru origin-server repo somewhere (~/code/uhuru) and run this script:
+
+	#!/bin/bash
+	
+	\cp "./origin-server/controller/app/models/application.rb"                                                      `ls /usr/share/gems/gems/openshift-origin-controller-*/app/models/application.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/gear.rb"                                                             `ls /usr/share/gems/gems/openshift-origin-controller-*/app/models/gear.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/group_instance.rb"                                                   `ls /usr/share/gems/gems/openshift-origin-controller-*/app/models/group_instance.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/pending_ops/create_group_instance_op.rb"                             `ls /usr/share/gems/gems/openshift-origin-controller-*/app/models/pending_ops/create_group_instance_op.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/app/helpers/cartridge_cache.rb"                                                 `ls /usr/share/gems/gems/openshift-origin-controller-*/app/helpers/cartridge_cache.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/lib/openshift/application_container_proxy.rb"                                   `ls /usr/share/gems/gems/openshift-origin-controller-*/lib/openshift/application_container_proxy.rb` --backup=numbered -fr
+	\cp "./origin-server/plugins/msg-broker/mcollective/lib/openshift/mcollective_application_container_proxy.rb"   `ls /usr/share/gems/gems/openshift-origin-msg-broker-mcollective-*/lib/openshift/mcollective_application_container_proxy.rb` --backup=numbered -fr
+	\cp "./origin-server/controller/app/models/pending_ops/init_gear_op.rb"                                         `ls /usr/share/gems/gems/openshift-origin-controller-*/app/models/pending_ops/init_gear_op.rb` --backup=numbered -fr
+  

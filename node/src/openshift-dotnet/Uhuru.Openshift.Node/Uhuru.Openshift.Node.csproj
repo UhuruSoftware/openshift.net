@@ -51,6 +51,8 @@
   <ItemGroup>
     <Compile Include="Config\NodeConfig.cs" />
     <Compile Include="ContainerPlugin.cs" />
+    <Compile Include="Exceptions\UserCreationException.cs" />
+    <Compile Include="Exceptions\UserDeletionException.cs" />
     <Compile Include="Model\ApplicationContainer.cs" />
     <Compile Include="Model\ApplicationContainerExt\Environment.cs" />
     <Compile Include="Model\CartridgeRepository.cs" />
