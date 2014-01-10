@@ -19,6 +19,7 @@ namespace Uhuru.Openshift.Tests.Unit
             container.Create();
             container.Configure("dotnet-4.5", null, null);
             container.PostConfigure();
+            container.Deconfigure("dotnet-4.5");
         }
 
         [TestMethod]

@@ -54,6 +54,7 @@
     <Compile Include="Exceptions\UserCreationException.cs" />
     <Compile Include="Exceptions\UserDeletionException.cs" />
     <Compile Include="Model\ApplicationContainer.cs" />
+    <Compile Include="Model\ApplicationContainerExt\CartridgeActions.cs" />
     <Compile Include="Model\ApplicationContainerExt\Environment.cs" />
     <Compile Include="Model\CartridgeRepository.cs" />
     <Compile Include="Model\ApplicationRepository.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Utils\ApplicationState.cs" />
     <Compile Include="Utils\Environ.cs" />
     <Compile Include="Utils\Hourglass.cs" />
+    <Compile Include="Utils\Sdk.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">

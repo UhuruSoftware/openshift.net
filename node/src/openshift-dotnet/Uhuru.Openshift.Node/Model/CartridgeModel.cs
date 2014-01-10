@@ -509,5 +509,70 @@ namespace Uhuru.Openshift.Runtime
             });
             return output.ToString();
         }
+
+        internal string Deconfigure(string cartName)
+        {
+            StringBuilder output = new StringBuilder();
+            Manifest cartridge = null;
+            try
+            {
+                cartridge = GetCartridge(cartName);
+            }
+            catch
+            {
+                output.AppendLine(string.Format("CLIENT_ERROR: Corrupted cartridge {0} removed. There may be extraneous data left on system.", cartName));
+                string name = cartName.Split('-')[0];
+                string version = cartName.Split('-')[1];
+                try
+                {
+                    cartridge = GetCartridgeFallback(cartName);
+                }
+                catch
+                {
+                    foreach (Cartridge cart in CartridgeRepository.Instance.LatestVersions)
+                    {
+                        if (cart.OriginalName == name && cart.Version == version)
+                        {
+                            cartridge = new Manifest(cart.Spec, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+                            break;
+                        }
+                    }
+                }
+
+                string ident = Manifest.BuildIdent(cartridge.CartridgeVendor, cartridge.Name, version, cartridge.CartridgeVersion);
+                WriteEnvironmentVariables(Path.Combine(this.container.ContainerDir, cartridge.Dir, "env"),
+                    new Dictionary<string, string>() { { string.Format("{0}_IDENT", cartridge.ShortName), ident } });
+            }
+
+            try
+            {
+                StopCartridge(cartridge, new Dictionary<string, object>() { { "user_initiated", true } });
+                output.AppendLine(CartridgeTeardown(cartridge.Dir, true));
+            }
+            catch(Exception e)
+            {
+                output.AppendLine(Utils.Sdk.TranslateOutForClient(e.Message, Utils.Sdk.ERROR));
+            }
+            finally
+            {
+                DeleteCartridgeDirectory(cartridge);
+            }
+            return output.ToString();
+        }
+
+        private void DeleteCartridgeDirectory(Manifest cartridge)
+        {
+            Directory.Delete(Path.Combine(this.container.ContainerDir, cartridge.Dir), true);
+        }
+
+        private Manifest GetCartridgeFallback(string cartName)
+        {
+            string directory = CartridgeDirectory(cartName);
+            string version = cartName.Split('-')[1];
+            string cartridgePath = Path.Combine(this.container.ContainerDir, directory);
+            string manifestPath = Path.Combine(cartridgePath, "metadata", "manifest.yml");
+            string manifest = File.ReadAllText(manifestPath);
+            return new Manifest(manifest, version, null, this.container.ContainerDir, true);
+        }
     }
 }
