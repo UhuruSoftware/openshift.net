@@ -657,6 +657,7 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.create_public_endpoints(cart_name)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_conceal_port(args)
@@ -666,6 +667,7 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.delete_public_endpoints(cart_name)
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_connector_execute(args)

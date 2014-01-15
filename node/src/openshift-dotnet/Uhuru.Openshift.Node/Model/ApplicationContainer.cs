@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
-using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Utilities;
+using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Common.Utils;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -114,8 +115,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string PostConfigure()
         {
-            string output = RunProcessInGearContext(this.ContainerDir, "gear -Prereceive -Init");
-            output += RunProcessInGearContext(this.ContainerDir, "gear -Postreceive -Init");
+            string output = RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init");
+            output += RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init");
             return output;
         }
 
@@ -232,8 +233,6 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-
-
         private DateTime CreateDeploymentDir()
         {
             DateTime deploymentdateTime = DateTime.Now;
@@ -250,8 +249,6 @@ namespace Uhuru.Openshift.Runtime
         private void PruneDeployments()
         {}
 
-
-
         public void Activate(dynamic options)
         {
             Dictionary<string, object> opts = new Dictionary<string, object>();
@@ -265,7 +262,6 @@ namespace Uhuru.Openshift.Runtime
         {
             this.Cartridge.StartGear(options);
         }
-
 
         private void ActivateLocalGear(dynamic options)
         {
@@ -359,7 +355,7 @@ namespace Uhuru.Openshift.Runtime
 
             int threads = Math.Max(batchSize, MAX_THREADS);
 
-            // need to parallelizea
+            // need to parallelize
             foreach (string targetGear in gears)
             {
                 RotateAndYield(targetGear, localGearEnv, options, action);
@@ -394,7 +390,7 @@ namespace Uhuru.Openshift.Runtime
             }
         }
 
-        public string RunProcessInGearContext(string gearDirectory, string cmd)
+        public string RunProcessInContainerContext(string gearDirectory, string cmd)
         {
             StringBuilder output = new StringBuilder();
 
@@ -457,7 +453,6 @@ namespace Uhuru.Openshift.Runtime
             }
             return output.ToString();
         }
-
 
         internal void SetRoPermissions(string hooks)
         {
@@ -577,13 +572,11 @@ namespace Uhuru.Openshift.Runtime
             StringBuilder output = new StringBuilder();
             string gitPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe");
             string cmd = string.Format("{0} prune", gitPath);
-            output.AppendLine(RunProcessInGearContext(gearRepoDir, cmd));
+            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd));
 
             cmd = string.Format("{0} gc --aggressive", gitPath);
-            output.AppendLine(RunProcessInGearContext(gearRepoDir, cmd));
+            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd));
             return output.ToString();
         }
-
-
     }
 }

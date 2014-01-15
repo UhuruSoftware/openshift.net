@@ -7,8 +7,8 @@ using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
 {
-    [Cmdlet("OO", "Connector-Execute")]
-    public class OO_Connector_Execute : System.Management.Automation.Cmdlet 
+    [Cmdlet("OO", "Expose-Port")]
+    public class OO_Expose_Port : System.Management.Automation.Cmdlet 
     {
         [Parameter]
         public string WithAppUuid;
@@ -40,18 +40,6 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string CartridgeVendor;
 
-        [Parameter]
-        public string HookName;
-
-        [Parameter]
-        public string PublishingCartName;
-
-        [Parameter]
-        public string ConnectionType;
-
-        [Parameter]
-        public string InputArgs;
-
         protected override void ProcessRecord()
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
@@ -59,7 +47,7 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
-                this.WriteObject(container.ConnectorExecute(CartName, HookName, PublishingCartName, ConnectionType, InputArgs));
+                this.WriteObject(container.CreatePublicEndpoints(this.CartName)); 
             }
             catch (Exception ex)
             {

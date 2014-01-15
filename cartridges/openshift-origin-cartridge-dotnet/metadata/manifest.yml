@@ -82,7 +82,7 @@ Endpoints:
     #generates OPENSHIFT_DOTNET_IP
     Private-Port-Name: PORT
     #generates OPENSHIFT_DOTNET_PORT
-    Private-Port:      8080
+    Private-Port:      80
     Public-Port-Name:  PROXY_PORT
     #generates OPENSHIFT_DOTNET_PROXY_PORT
     Mappings:

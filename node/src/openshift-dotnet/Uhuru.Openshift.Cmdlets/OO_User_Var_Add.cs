@@ -47,11 +47,16 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
-                JArray varsArray = (JArray)JsonConvert.DeserializeObject(WithVariables);
-                List<NameValuePair> vars = varsArray.ToObject<List<NameValuePair>>();
+                List<NameValuePair> vars = new List<NameValuePair>();
+
+                if (!string.IsNullOrWhiteSpace(WithVariables))
+                {
+                    JArray varsArray = (JArray)JsonConvert.DeserializeObject(WithVariables);
+                    vars = varsArray.ToObject<List<NameValuePair>>();
+                }
 
                 Dictionary<string, string> variables = new Dictionary<string, string>();
-                List<string> gears = null;
+                List<string> gears = new List<string>();
 
                 foreach (var varObj in vars)
                 {
@@ -60,14 +65,9 @@ namespace Uhuru.Openshift.Cmdlets
 
                 if (!string.IsNullOrEmpty(WithGears))
                 {
-                    gears = new List<string>();
-                    JArray gearsObj = (JArray)JsonConvert.DeserializeObject(WithGears);
-                    foreach (var gearObj in gearsObj)
-                    {
-                        gears.Add(gearObj.ToString());
-                    }
+                    gears = this.WithGears.Split(';').ToList();
                 }
-               
+          
                 WriteObject(container.AddUserVar(variables, gears));
             }
             catch (Exception ex)

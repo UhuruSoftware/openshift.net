@@ -12,7 +12,6 @@ module MCollective
       def self.run_command(command ,args)
         script = File.join(File.expand_path('../../powershell/oo-cmdlets', __FILE__), "#{command.to_s.gsub('_', '-')}.ps1")
         ps_args = args.to_json.gsub('"', '"""')
-        ps_args.gsub!('\\', '\\\\\\')
         cmd = "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} \"#{ps_args}\" 2>&1"
         output = ""
         exitcode = 0
@@ -20,12 +19,14 @@ module MCollective
           output = stdout.read
           exitcode = wait_thr.value.exitstatus
 
+          debug_output = output.gsub(/exception/i, '<span style="background-color:red">exception</span>')
+          debug_output = debug_output.gsub(/~~/i, '<span style="background-color:red">~~</span>')
 
-          debug_output = output.gsub(/exception/i, '<span style="color:red">exception</span>')
-          debug_output = debug_output.gsub(/~~/i, '<span style="color:red">~~</span>')
+
+          print_to_debug "<div style='background-color:gray'>EXECUTED COMMAND: #{cmd}</div>"
 
           if exitcode != 0
-            print_to_debug "<div style='color:red'>OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{debug_output}</div>"
+            print_to_debug "<div style='background-color:red'>OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{debug_output}</div>"
           else
             print_to_debug "<div style='color:green'>OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{debug_output}</div>"
           end

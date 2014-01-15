@@ -5,10 +5,13 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Uhuru.Openshift.Common.Models;
+using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Runtime
@@ -68,8 +71,7 @@ namespace Uhuru.Openshift.Runtime
                 }
             }
 
-            // TODO: endpoints should be added dynamically, like on Linux
-            this.container.AddEnvVar(string.Format("{0}_PORT", cartridge.ShortName), "80", true);
+            this.CreatePrivateEndpoints(cartridge);
 
             CreateCartridgeDirectory(cartridge, version);
             return PopulateGearRepo(name, templateGitUrl);
@@ -182,7 +184,6 @@ namespace Uhuru.Openshift.Runtime
             });
             return output.ToString();
         }
-
 
         public string StopCartridge(string cartridgeName, bool userInitiated, dynamic options)
         {
@@ -314,7 +315,7 @@ namespace Uhuru.Openshift.Runtime
                 string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
                 string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
                 
-                output.AppendLine(container.RunProcessInGearContext(container.ContainerDir, cmd));               
+                output.AppendLine(container.RunProcessInContainerContext(container.ContainerDir, cmd));               
             });
             return output.ToString();
         }
@@ -444,7 +445,41 @@ namespace Uhuru.Openshift.Runtime
                 SetConnectionHookEnvVars(cartName, publishingCartName, inputArgs);
             }
 
-            return "";
+            PubSubConnector connector = new PubSubConnector(connectionType, hookName);
+
+            if (connector.Reserved)
+            {
+                MethodInfo action = this.GetType().GetMethod(connector.ActioName);
+
+                if (action != null)
+                {
+                    return action.Invoke(this, new object[] { cartridge, inputArgs }).ToString();
+                }
+                else
+                {
+                    // TODO: log debug info
+                }
+            }
+
+            string cartridgeHome = Path.Combine(this.container.ContainerDir, cartridge.Dir);
+            string script = Path.Combine(cartridgeHome, "hooks", string.Format("{0}.bat", connector.Name));
+
+            if (!File.Exists(script))
+            {
+                if (envVarHook)
+                {
+                    return "Set environment variables successfully";
+                }
+                else
+                {
+                    throw new InvalidOperationException(string.Format("ERROR: action '{0}' not found", hookName));
+                }
+            }
+
+            // TODO: RunProcessInContainerContext should return exit code so we can validate return code
+            string output = this.container.RunProcessInContainerContext(this.container.ContainerDir, string.Format("cd {0} ; {1} {2}", cartridgeHome, script, inputArgs));
+
+            return output;
         }
 
         private void SetConnectionHookEnvVars(string cartName, string pubCartName, string args)
@@ -470,7 +505,6 @@ namespace Uhuru.Openshift.Runtime
 
             WriteEnvironmentVariables(envPath, variables, false);
         }
-
 
         public string CartridgeName { get; set; }
 
@@ -573,6 +607,34 @@ namespace Uhuru.Openshift.Runtime
             string manifestPath = Path.Combine(cartridgePath, "metadata", "manifest.yml");
             string manifest = File.ReadAllText(manifestPath);
             return new Manifest(manifest, version, null, this.container.ContainerDir, true);
+        }
+
+        public void CreatePrivateEndpoints(Manifest cartridge)
+        {
+            if (cartridge == null)
+            {
+                throw new ArgumentNullException("cartridge");
+            }
+
+            if (cartridge.Endpoints == null || cartridge.Endpoints.Count == 0)
+            {
+                return;
+            }
+
+            foreach (Endpoint endpoint in cartridge.Endpoints)
+            {
+                string privateIp = "0.0.0.0";
+                container.AddEnvVar(endpoint.PrivateIpName, privateIp);
+
+                string port = endpoint.PrivatePort == "0" ? Network.GrabEphemeralPort().ToString() : endpoint.PrivatePort;
+                container.AddEnvVar(endpoint.PrivatePortName, port);
+
+                if (!string.IsNullOrWhiteSpace(endpoint.WebsocketPortName) && !string.IsNullOrWhiteSpace(endpoint.WebsocketPort))
+                {
+                    string websocketPort = endpoint.WebsocketPort == "0" ? Network.GrabEphemeralPort().ToString() : endpoint.WebsocketPort;
+                    container.AddEnvVar(endpoint.WebsocketPortName, websocketPort);
+                }
+            }
         }
     }
 }

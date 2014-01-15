@@ -102,7 +102,7 @@ namespace Uhuru.Openshift.Runtime
                 {
                     foreach (dynamic ep in manifest["Endpoints"])
                     {
-                        this.Endpoints.Add(Endpoint.FromDescriptor(ep));
+                        this.Endpoints.Add(Endpoint.FromDescriptor(ep, this.ShortName.ToUpper()));
                     }
                 }
             }

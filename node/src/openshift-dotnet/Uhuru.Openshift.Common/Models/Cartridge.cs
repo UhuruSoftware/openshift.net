@@ -149,7 +149,7 @@ namespace Uhuru.Openshift.Common.Models
                 {
                     foreach (dynamic ep in spec["Endpoints"])
                     {
-                        cart.Endpoints.Add(Endpoint.FromDescriptor(ep));
+                        cart.Endpoints.Add(Endpoint.FromDescriptor(ep, string.Empty));
                     }
                 }
             }

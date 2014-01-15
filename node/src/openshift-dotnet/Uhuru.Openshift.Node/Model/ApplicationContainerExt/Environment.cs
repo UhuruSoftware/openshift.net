@@ -42,6 +42,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 output.Add(variable, env[variable]);
             }
+
             return output;
         }
 
@@ -120,14 +121,16 @@ namespace Uhuru.Openshift.Runtime
             {
                 return UserVarPush(gears, true);
             }
+
             return string.Empty;
         }
 
         public string UserVarPush(List<string> gears, bool envAdd =false)
         {
-            throw new NotImplementedException();
-		}
-		
+            // TODO: implement this
+            return string.Empty;
+        }
+        
         public string RemoveSshKey(string sshKey, string keyType, string comment)
         {
             string output = "";
