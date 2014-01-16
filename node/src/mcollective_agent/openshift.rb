@@ -1016,6 +1016,33 @@ module MCollective
         # }
         # reply[:output]   = gear_map
         # reply[:exitcode] = 0
+        print_to_debug "get_all_gears_action"
+        gear_map = {}
+
+        uid_map          = {}
+        uids             = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line|
+          uid               = line.split(":")[2]
+          username          = line.split(":")[0]
+          uid_map[username] = uid
+        }
+        dir              = "C:/openshift/gears/"
+        filelist         = Dir.foreach(dir) { |file|
+          if File.directory?(dir+file) and not File.symlink?(dir+file) and not file[0]=='.'
+            if uid_map.has_key?(file)
+              if request[:with_broker_key_auth]
+                next unless File.exists?(File.join(dir, file, ".auth/token"))
+              end
+
+              print_to_debug "file is #{file}"
+              print_to_debug "uid_map is #{uid_map[file]}"
+
+              gear_map[file] = uid_map[file]
+            end
+          end
+        }
+
+        reply[:output]   = gear_map
+        reply[:exitcode] = 0
       end
 
       #
