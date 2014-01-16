@@ -76,10 +76,9 @@ It follows that we need a mechanism that allows filtering the node network based
 
 ### Node Configuration
 
-In order to be able to tell what cartridges are supported on which nodes, a new fact named "Platform" will be added for both Windows and Linux nodes. This will require code changes to origin (specifically the part that generates the facts.yaml file for nodes). The fact itself should be generated as follows:
+In order to be able to tell what cartridges are supported on which nodes, a new fact named "Platform" will be added for both Windows and Linux nodes. This will require code changes to origin (specifically the part that generates the facts.yaml file for nodes). The fact itself should be 'linux' for Redhat and Fedora, and 'windows' for Windows. 
 
-- On Linux: using the `lsb_release -a` command, having the format [Distributor ID]-[Release] (e.g. RedHatEnterpriseServer-6.5, Fedora-19, LinuxMint-13)
-- On Windows: the 'Distributor ID' part of the platform name will always be 'Windows', and the 'Release' part will be given by the windows kernel version; e.g. Windows-6.3 (Windows 2012 R2), Windows-6.0 (Windows 2008 SP1)
+These facts will be generated based on a 'NODE_PLATFORM' configuration setting in node.conf, both on Windows and Linux.
 
 ### Cartridges ###
 
@@ -87,23 +86,37 @@ In order to properly understand the OS requirements for a cartridge, we will add
 
 Examples:
 
-- a Windows cartridge
+**Windows cartridge:**
 
 	Name: dotnet
-	Platform: ['Windows-6.3']
+	Platform: ['windows']
 
-- a Linux cartridge
+**Linux cartridge:**
 
 	Name: ruby
-	Platform: ['Fedora-19', 'RedHatEnterpriseServer-6.5']
+	Platform: ['linux']
 
 Platform matching should be case insensitive.
-We may want to consider allowing wildcards for the version part of the platform string.    
 
 ### Broker Code Changes
 
-We need the broker to build a list of platforms available in the network. This will be required when listing cartridges. We also need the MCollective proxy to accept a new filtering option when looking up nodes, named 'Platform'.
+The broker needs to be aware of what platforms are available in the network. Brokers will be configured with a list of platforms in the broker.conf file (configuration name CLOUD_PLATFORMS with a comma separated list of platforms). This is required when listing cartridges.
 
+The MCollective proxy classes also have to be modified to accept filtering using the 'Platform' fact. 
+
+The broker has to be modified so it does not allow moving gears between Linux and Windows nodes.
+
+Example:
+
+	# Domain suffix to use for applications (Must match node config)
+	CLOUD_DOMAIN="openshift.local"
+	# Comma seperted list of valid gear sizes
+	VALID_GEAR_SIZES="small,medium"
+
+	# Comma separated list of available node platforms 
+	CLOUD_PLATFORMS="windows,linux"	
+	...
+ 
 Modified files (in the PoC):
 
 - [`./origin-server/controller/lib/openshift/application_container_proxy.rb`](https://github.com/UhuruSoftware/origin-server/blob/master/controller/lib/openshift/application_container_proxy.rb)
@@ -116,7 +129,7 @@ Modified files (in the PoC):
 
 ## Listing cartridges
 
-Previously, any node was selected for listing cartridges - a homogeneous network was assumed. Since this is no longer the case, the broker should keep a list of the available platforms in the node network, and query a node for each type of platform - this will compile a complete list of all available cartridges.  
+The broker will use a list of available platforms and query a node for each type of platform - this will compile a complete list of all available cartridges.  
 
 Modified files (in the PoC):
 
@@ -126,7 +139,7 @@ Modified files (in the PoC):
 
 ## Creating Gears
 
-Based on what type of cartridge will be placed in a gear, an appropriate node is selected (using the Platform attribute of the cartridge). The desired changes to origin should be similar to what we have implemented in the PoC, as described below (we will have to use the new 'Platform' attribute instead of looking for a 'windows' category).
+Based on what type of cartridge will be placed in a gear, an appropriate node is selected (using the Platform attribute of the cartridge). The desired changes to origin should be similar to what we have implemented in the PoC, as described below (we will have to use the new 'Platform' attribute instead of looking for a 'windows' category). The entity that is currently (in the PoC) tied to the Platform attribute is the 'GroupInstance'. Even though group instances can contain multiple gears, no group instance will be able to contain gears with different platforms.  
 
 Modified files (in the PoC):
 
@@ -148,9 +161,17 @@ Modified files (in the PoC):
 
 ## Creating applications with a windows web cartridge
 
-If an application is created using a Windows Web Cartridge, it will automatically be created as a scalable app.
+Applications that involve Windows will always need to be marked as scalable. The user will be informed by the broker via an error message if his application is not consistent with the scalable flag.
 
-An error will be thrown if a Windows Addon Cartridge is added to an application that has a Linux Web Cartridge and the app is not scalable.
+<table>
+    <tr><td><strong>Web Cartridge</strong></td><td><strong>Addon Cartrige</strong></td><td><strong>Scalable</strong></td></tr>
+    <tr><td>Windows</td><td>None</td><td>Required</td></tr>
+    <tr><td>Windows</td><td>Linux</td><td>Required</td></tr>
+    <tr><td>Windows</td><td>Windows</td><td>Required</td></tr>
+    <tr><td>Linux</td><td>None</td><td>Optional</td></tr>
+    <tr><td>Linux</td><td>Linux</td><td>Optional</td></tr>
+    <tr><td>Linux</td><td>Windows</td><td>Required</td></tr>
+</table>
 
 Modified files (in the PoC):
 
@@ -166,8 +187,8 @@ Modified files (in the PoC):
  - On number 8, the HAProxy cartridge will run the commands on the designated gear via ssh (this should work out of the box, since authorized keys are shared on the Windows gears just like on the Linux gears)
  - On number 9, just like number 8, the commands will be run remotely via ssh; when this is complete, the build artifacts will be downloaded from the designated gear to the HAProxy gear via scp
 
-# Notes
+# Jenkins
 
-It doesn't seem to make sense to support Windows builds on a Linux Jenkins cartridge.
-The Linux Jenkins cartridge will not be able to support building/testing Windows source code (C/C++/.Net/etc.).
-We will have to build a Jenkins cartridge for Windows.  
+The Jenkins server cartridge will be hosted on Linux for Windows apps as well. When a Windows application has to be built the Jenkins server will use a Windows Jenkins slave for the build. This means that the Jenkins Server will have to be aware of the Platform of the application's web cartridge and create slaves accordingly. 
+
+We assume that the Jenkins client cartridge will be compatible with Windows.

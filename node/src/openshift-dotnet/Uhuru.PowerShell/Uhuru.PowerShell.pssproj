@@ -115,6 +115,9 @@
     <Content Include="Tools\sshd\sshd_config.template" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OO-Cmdlets\oo-accept-node.ps1" />
+    <Compile Include="OO-Cmdlets\oo-admin-ctl-gears.ps1" />
+    <Compile Include="OO-Cmdlets\oo-idler-stats.ps1" />
     <Compile Include="OO-Cmdlets\oo-start.ps1" />
     <Compile Include="OO-Cmdlets\oo-stop.ps1" />
     <Compile Include="Tools\mcollective\setup-mcollective.ps1" />

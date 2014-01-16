@@ -10,10 +10,11 @@ namespace Uhuru.Openshift.Cmdlets
     [Cmdlet("OO", "Admin-Ctl-Gears")]
     public class OO_Admin_Ctl_Gears : System.Management.Automation.Cmdlet
     {
-        [Parameter]
+        [Parameter(Position = 1, Mandatory = true)]
+        [ValidateSet("startall", "stopall", "forcestopall", "status", "restartall", "waited-startall", "condrestartall", "startgear")]
         public string Operation;
 
-        [Parameter]
+        [Parameter(Position=2)]
         public decimal UUID;
 
         protected override void ProcessRecord()
