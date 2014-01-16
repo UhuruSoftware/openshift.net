@@ -59,7 +59,8 @@ function client_debug($text)
 function client_out($type, $output) 
 {
     $output -split "`r`n" | ForEach-Object {
-        echo "$type : $_"
+		$text = "{0}: $_" -f $type
+        Write-Host $text
     }
 }
 

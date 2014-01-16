@@ -56,6 +56,7 @@
     <Compile Include="OO_Expose_Port.cs" />
     <Compile Include="OO_Deconfigure.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Remove.cs" />
+    <Compile Include="OO_Status.cs" />
     <Compile Include="OO_Tidy.cs" />
     <Compile Include="OO_Reload.cs" />
     <Compile Include="OO_Connector_Execute.cs" />

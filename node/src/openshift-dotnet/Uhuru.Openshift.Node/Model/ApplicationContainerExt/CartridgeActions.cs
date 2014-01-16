@@ -92,5 +92,14 @@ namespace Uhuru.Openshift.Runtime
             return string.Format("NOTIFY_ENDPOINT_CREATE: {0}\n", JsonConvert.SerializeObject(endpointCreateHash));
         }
 
+        public string GetStatus(string cartName)
+        {
+            string output = StoppedStatusAttr();
+
+            //TODO: we need to implement the windows prison to get the disk quota for the user
+
+            output += this.Cartridge.DoControl("status", cartName);
+            return output;
+        }
     }
 }

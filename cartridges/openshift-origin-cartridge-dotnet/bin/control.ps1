@@ -2,6 +2,7 @@ param(
 [string]$command
 )
 
+. $env:OPENSHIFT_CARTRIDGE_SDK_POWERSHELL
 
 $IISHWC_PID_FILE = $env:OPENSHIFT_DOTNET_DIR+"\run\iishwc.pid"
 $env:IISHWC_PID_FILE = $IISHWC_PID_FILE
@@ -33,22 +34,30 @@ function status-cartridge
   Write-Host "Retrieving cartridge"
   if (Test-Path $IISHWC_PID_FILE)
   {
-    $jobid = [int](Get-Content $IISHWC_PID_FILE)
-    $job =  Get-Process -Id jobid -ErrorAction SilentlyContinue
-    if ($job -eq $null)
+    $processId = [int](Get-Content $HTTPD_PID_FILE)
+    $exists = $true
+    Try
     {
-		Write-Host "Application is either stopped or inaccessible"        
+        $process = Get-Process -Id $processId -ErrorAction Stop
+    }
+    Catch  [System.Management.Automation.ActionPreferenceStopException]
+    {
+        $exists = $false
+    }
+    if (($exists) -and ($process.HasExited -eq $false))
+    {
+		client_result "Application is running"
     }
     else
     {
-        Write-Host "Application is running"
+		client_result "Application is either stopped or inaccessible"
     }
+    
   }
   else
   {
-    Write-Host "Application is either stopped or inaccessible"
+    client_result "Application is either stopped or inaccessible"
   }
-  
 }
 
 #The cartridge and the packaged software needs to re-read their configuration information 

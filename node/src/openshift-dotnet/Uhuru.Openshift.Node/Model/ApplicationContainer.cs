@@ -578,5 +578,24 @@ namespace Uhuru.Openshift.Runtime
             output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd));
             return output.ToString();
         }
+
+        private string StoppedStatusAttr()
+        {
+            if (this.State.Value() == Uhuru.Openshift.Runtime.State.STARTED.ToString() || this.Cartridge.StopLockExists)
+            {
+                return "ATTR: status=ALREADY_STOPPED" + Environment.NewLine;
+            }
+            else
+            {
+                if (this.State.Value() == Uhuru.Openshift.Runtime.State.IDLE.ToString())
+                {
+                    return "ATTR: status=ALREADY_IDLED" + Environment.NewLine;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+        }
     }
 }

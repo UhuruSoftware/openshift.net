@@ -83,6 +83,7 @@
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-add.ps1" />
     <Content Include="OO-Cmdlets\oo-expose-port.ps1" />
+    <Content Include="OO-Cmdlets\oo-status.ps1" />
     <Content Include="OO-Cmdlets\oo-tidy.ps1" />
     <Content Include="OO-Cmdlets\oo-cartridge-list.ps1" />
     <Content Include="OO-Cmdlets\oo-connector-execute.ps1" />
