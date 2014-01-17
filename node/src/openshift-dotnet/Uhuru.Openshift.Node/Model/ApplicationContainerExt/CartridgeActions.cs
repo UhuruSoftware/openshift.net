@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Uhuru.Openshift.Common.Models;
@@ -100,6 +101,52 @@ namespace Uhuru.Openshift.Runtime
 
             output += this.Cartridge.DoControl("status", cartName);
             return output;
+        }
+
+        public string PreReceive(dynamic options)
+        {
+            options["excludeWebProxy"] = true;
+            options["userInitiated"] = true;
+            StopGear(options);
+            CreateDeploymentDir();
+
+            return string.Empty;
+        }
+
+        public void PostReceive(dynamic options)
+        {
+
+            Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+            
+            string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
+
+            Directory.CreateDirectory(repoDir);
+
+            ApplicationRepository applicationRepository = new ApplicationRepository(this);
+            applicationRepository.Archive(repoDir, options["ref"]);
+
+            Distribute(options);
+            Activate(options);
+        }
+
+        public string Deploy(dynamic options)
+        {
+            StringBuilder output = new StringBuilder();
+            if (!((Dictionary<string, object>)options).ContainsKey("artifact_url"))
+            {
+                output.AppendLine(PreReceive(options));
+                PostReceive(options);
+            }
+            else
+            {
+                output.AppendLine(DeployBinaryArtifact(options));
+            }
+            return output.ToString();
+        }
+
+        private string DeployBinaryArtifact(dynamic options)
+        {
+            throw new NotImplementedException();
         }
     }
 }

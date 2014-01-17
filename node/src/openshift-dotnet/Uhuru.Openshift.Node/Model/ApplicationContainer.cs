@@ -203,31 +203,6 @@ namespace Uhuru.Openshift.Runtime
             return output;
         }
 
-        public string PreReceive(dynamic options)
-        {
-            options["excludeWebProxy"] = true;
-            options["userInitiated"] = true;
-            StopGear(options);
-            CreateDeploymentDir();
-
-            return string.Empty;
-        }
-
-        public void PostReceive(dynamic options)
-        {
-            Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
-
-            string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
-
-            Directory.CreateDirectory(repoDir);
-
-            ApplicationRepository applicationRepository = new ApplicationRepository(this);
-            applicationRepository.Archive(repoDir, "master");
-
-            Distribute(options);
-            Activate(options);
-        }
-
         public void Distribute(dynamic options)
         {
 
