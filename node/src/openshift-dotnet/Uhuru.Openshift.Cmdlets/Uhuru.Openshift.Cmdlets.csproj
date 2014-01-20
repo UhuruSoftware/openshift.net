@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OO_Env_Var_Add.cs" />
+    <Compile Include="OO_Authorized_Ssh_Keys_Replace.cs" />
     <Compile Include="OO_Accept_Node.cs" />
     <Compile Include="OO_Admin_Ctl_Gears.cs" />
     <Compile Include="OO_Broker_Auth_Key_Add.cs" />
