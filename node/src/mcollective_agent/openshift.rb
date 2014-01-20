@@ -309,7 +309,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.add_broker_auth(iv, token)
         # end
-        return 0, ''
+        return Powershell.run_command(__method__, args)
       end
 
       def oo_broker_auth_key_remove(args)
@@ -317,6 +317,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.remove_broker_auth
         # end
+        return Powershell.run_command(__method__, args)
       end
 
       def oo_env_var_add(args)
@@ -327,6 +328,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.add_env_var(key, value)
         # end
+        return Powershell.run_command(__method__, args)
       end
 
       def oo_env_var_remove(args)
@@ -336,6 +338,7 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.remove_env_var(key)
         # end
+        return Powershell.run_command(__method__, args)
       end
 
       def oo_cartridge_list(args)
@@ -902,16 +905,17 @@ module MCollective
       #
       def has_app_action
         print_to_debug "has_app_action"
-        # validate :uuid, /^[a-zA-Z0-9]+$/
-        # validate :application, /^[a-zA-Z0-9]+$/
-        # uuid = request[:uuid].to_s if request[:uuid]
-        # app_name = request[:application]
-        # if File.exist?("/var/lib/openshift/#{uuid}/#{app_name}")
-        # reply[:output] = true
-        # else
-        # reply[:output] = false
-        # end
-        # reply[:exitcode] = 0
+         validate :uuid, /^[a-zA-Z0-9]+$/
+         validate :application, /^[a-zA-Z0-9]+$/
+         uuid = request[:uuid].to_s if request[:uuid]
+         app_name = request[:application]
+        if File.exist?("C:/openshift/gears/#{uuid}/#{app_name}")
+         #if File.exist?("/var/lib/openshift/#{uuid}/#{app_name}")
+         reply[:output] = true
+         else
+         reply[:output] = false
+         end
+         reply[:exitcode] = 0
       end
 
       #
@@ -919,16 +923,16 @@ module MCollective
       #
       def has_embedded_app_action
         print_to_debug "has_embedded_app_action"
-        # validate :uuid, /^[a-zA-Z0-9]+$/
-        # validate :embedded_type, /^.+$/
-        # uuid = request[:uuid].to_s if request[:uuid]
-        # embedded_type = request[:embedded_type]
-        # if File.exist?("/var/lib/openshift/#{uuid}/#{embedded_type}")
-        # reply[:output] = true
-        # else
-        # reply[:output] = false
-        # end
-        # reply[:exitcode] = 0
+         validate :uuid, /^[a-zA-Z0-9]+$/
+         validate :embedded_type, /^.+$/
+         uuid = request[:uuid].to_s if request[:uuid]
+         embedded_type = request[:embedded_type]
+         if File.exist?("C:/openshift/gears/#{uuid}/#{embedded_type}")
+         reply[:output] = true
+         else
+         reply[:output] = false
+         end
+         reply[:exitcode] = 0
       end
 
       #
@@ -951,16 +955,18 @@ module MCollective
         # validate :uid, /^[0-9]+$/
         # uid  = request[:uid].to_i
 
-        # # FIXME: Etc.getpwuid() and Etc.getgrgid() would be much faster
-        # uids = IO.readlines("/etc/passwd").map { |line| line.split(":")[2].to_i }
-        # gids = IO.readlines("/etc/group").map { |line| line.split(":")[2].to_i }
 
-        # if uids.include?(uid) || gids.include?(uid)
-        # reply[:output] = true
-        # else
-        # reply[:output] = false
-        # end
-        # reply[:exitcode] = 0
+        # # FIXME: Etc.getpwuid() and Etc.getgrgid() would be much faster
+        #TODO get path from config
+         uids = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
+         gids = IO.readlines("C:/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
+
+         if uids.include?(uid) || gids.include?(uid)
+         reply[:output] = true
+         else
+         reply[:output] = false
+         end
+         reply[:exitcode] = 0
       end
 
       #
@@ -1051,27 +1057,26 @@ module MCollective
       #
       def get_all_gears_sshkeys_action
         print_to_debug "get_all_gears_sshkeys_action"
-        # gear_map = {}
-
-        # dir              = "/var/lib/openshift/"
-        # filelist         = Dir.foreach(dir) do |gear_file|
-        # if File.directory?(dir + gear_file) and not File.symlink?(dir + gear_file) and not gear_file[0] == '.'
-        # gear_map[gear_file] = {}
-        # authorized_keys_file = File.join(dir, gear_file, ".ssh", "authorized_keys")
-        # if File.exists?(authorized_keys_file) and not File.directory?(authorized_keys_file)
-        # File.open(authorized_keys_file, File::RDONLY) do |key_file|
-        # key_file.each_line do |line|
-        # begin
-        # gear_map[gear_file][Digest::MD5.hexdigest(line.split[-2].chomp)] = line.split[-1].chomp
-        # rescue
-        # end
-        # end
-        # end
-        # end
-        # end
-        # end
-        # reply[:output]   = gear_map
-        # reply[:exitcode] = 0
+        gear_map = {}
+        dir              = "c:/openshift/gears/"
+        filelist         = Dir.foreach(dir) do |gear_file|
+          if File.directory?(dir + gear_file) and not File.symlink?(dir + gear_file) and not gear_file[0] == '.'
+            gear_map[gear_file] = {}
+            authorized_keys_file = File.join(dir, gear_file, ".ssh", "authorized_keys")
+            if File.exists?(authorized_keys_file) and not File.directory?(authorized_keys_file)
+              File.open(authorized_keys_file, File::RDONLY) do |key_file|
+                key_file.each_line do |line|
+                  begin
+                    gear_map[gear_file][Digest::MD5.hexdigest(line.split[-2].chomp)] = line.split[-1].chomp
+                  rescue
+                  end
+                end
+              end
+            end
+          end
+        end
+        reply[:output]   = gear_map
+        reply[:exitcode] = 0
       end
 
       #
@@ -1079,20 +1084,20 @@ module MCollective
       #
       def get_all_active_gears_action
         print_to_debug "get_all_active_gears_action"
-        # active_gears     = {}
-        # dir              = "/var/lib/openshift/"
-        # filelist         = Dir.foreach(dir) { |file|
-        # if File.directory?(dir+file) and not File.symlink?(dir+file) and not file[0]=='.'
-        # state_file = File.join(dir, file, 'app-root', 'runtime', '.state')
-        # if File.exist?(state_file)
-        # state  = File.read(state_file).chomp
-        # active = !('idle' == state || 'stopped' == state)
-        # active_gears[file] = nil if active
-        # end
-        # end
-        # }
-        # reply[:output]   = active_gears
-        # reply[:exitcode] = 0
+        active_gears     = {}
+        dir              = "c:/openshift/gears/"
+        filelist         = Dir.foreach(dir) { |file|
+          if File.directory?(dir+file) and not File.symlink?(dir+file) and not file[0]=='.'
+            state_file = File.join(dir, file, 'app-root', 'runtime', '.state')
+            if File.exist?(state_file)
+              state  = File.read(state_file).chomp
+              active = !('idle' == state || 'stopped' == state)
+              active_gears[file] = nil if active
+            end
+          end
+        }
+        reply[:output]   = active_gears
+        reply[:exitcode] = 0
       end
 
       ## Perform operation on CartridgeRepository

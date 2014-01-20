@@ -52,9 +52,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OO_Env_Var_Add.cs" />
     <Compile Include="OO_Accept_Node.cs" />
     <Compile Include="OO_Admin_Ctl_Gears.cs" />
+    <Compile Include="OO_Broker_Auth_Key_Add.cs" />
+    <Compile Include="OO_Broker_Auth_Key_Remove.cs" />
     <Compile Include="OO_Conceal_Port.cs" />
+    <Compile Include="OO_Env_Var_Remove.cs" />
     <Compile Include="OO_Expose_Port.cs" />
     <Compile Include="OO_Deconfigure.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Remove.cs" />

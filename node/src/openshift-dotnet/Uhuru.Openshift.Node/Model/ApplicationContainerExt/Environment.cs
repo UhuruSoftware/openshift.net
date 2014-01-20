@@ -153,5 +153,114 @@ namespace Uhuru.Openshift.Runtime
             return output;
 
         }
+
+        /// <summary>
+        /// Add broker authorization keys so gear can communicate with broker.
+        /// </summary>
+        /// <param name="iv">A String value for the IV file.</param>
+        /// <param name="token">A String value for the token file.</param>
+        /// <returns>Returns An Array of Strings for the newly created auth files</returns>
+        public string AddBrokerAuth(string iv, string token)
+        {
+            string brokerAuthDir = Path.Combine(ContainerDir, ".auth");
+            StringBuilder output = new StringBuilder();
+
+            Directory.CreateDirectory(brokerAuthDir);
+
+            string ivFile = Path.Combine(brokerAuthDir, "iv");
+            string tokenFile = Path.Combine(brokerAuthDir, "tolen");
+
+            if (!File.Exists(ivFile))
+            {
+                output.AppendLine(ivFile);
+            }
+            if (!File.Exists(tokenFile))
+            {
+                output.AppendLine(tokenFile);
+            }
+
+            File.WriteAllText(ivFile, iv);
+            File.WriteAllText(tokenFile, token);
+
+            SetRWPermissions(brokerAuthDir);
+
+            // TODO: Change permissions
+
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Removes the broker authentication keys from gear.
+        /// </summary>
+        /// <returns> Returns nil on Success and false on Failure</returns>
+        public string RemoveBrokerAuth()
+        {
+            string brokerAuthDir = Path.Combine(ContainerDir, ".auth");
+            try
+            {
+                Directory.Delete(brokerAuthDir, true);
+            }
+            catch (Exception ex)
+            {
+                //TODO: Logging
+            }
+
+            if (Directory.Exists(brokerAuthDir))
+            {
+                return "false";
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+
+        /// <summary>
+        ///Remove an environment variable from a given gear.
+        /// </summary>
+        /// <param name="key">String name of the environment variable to remove.</param>
+        /// <returns></returns>
+        public string RemoveEnvVar(string key)
+        {
+            return RemoveEnvVar(key, null);
+        }
+
+        /// <summary>
+        /// Remove an environment variable from a given gear.
+        /// </summary>
+        /// <param name="key">String name of the environment variable to remove.</param>
+        /// 
+        /// <returns>Returns string empty on success and false on failure.</returns>
+        public string RemoveEnvVar(string key, string prefixCloudName)
+        {
+            string envDir = Path.Combine(ContainerDir, ".env");
+            string userEnvDir = Path.Combine(ContainerDir, ".env", ".uservars");
+            string status = string.Empty;
+
+            if (!string.IsNullOrEmpty(prefixCloudName))
+            {
+                key = string.Format("OPENSHIFT_{0}", key);
+            }
+
+            string envFilePath = Path.Combine(envDir, key);
+
+            try
+            {
+                File.Delete(envFilePath);
+            }
+            catch (Exception ex)
+            {
+                //TODO logging
+                status = "false";
+            }
+
+            if (File.Exists(envFilePath))
+            {
+                status = "false";
+            }
+
+            return status;
+        }
     }
 }

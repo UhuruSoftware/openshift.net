@@ -82,6 +82,10 @@
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-add.ps1" />
+    <Content Include="OO-Cmdlets\oo-broker-auth-key-add.ps1" />
+    <Content Include="OO-Cmdlets\oo-broker-auth-key-remove.ps1" />
+    <Content Include="OO-Cmdlets\oo-env-var-add.ps1" />
+    <Content Include="OO-Cmdlets\oo-env-var-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-expose-port.ps1" />
     <Content Include="OO-Cmdlets\oo-status.ps1" />
     <Content Include="OO-Cmdlets\oo-tidy.ps1" />
@@ -125,28 +129,24 @@
     <Compile Include="OO-Cmdlets\oo-stop.ps1" />
     <Compile Include="Tools\mcollective\setup-mcollective.ps1" />
   </ItemGroup>
-
   <Target Name="Build">
     <!-- Copying everything (except 'bin', 'obj', *pssproj*, .idea). Also including the mcollective ruby node agent. -->
     <Message Text="Copying powershell scripts to output directory '$(OutputDirectory)' ..." Importance="high" />
-
     <CreateItem Include=".\**" Exclude=".\obj\**;.\bin\**;.\*pssproj*;">
       <Output TaskParameter="Include" ItemName="AllFiles" />
     </CreateItem>
-
     <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(OutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
     <CreateItem Include="..\..\mcollective_agent\**" Exclude="..\..\mcollective_agent\.idea\**">
       <Output TaskParameter="Include" ItemName="MCollectiveFiles" />
     </CreateItem>
-
     <Copy SourceFiles="@(MCollectiveFiles)" DestinationFiles="@(MCollectiveFiles->'$(MCollectiveOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
-
   <Target Name="Clean">
     <Message Text="Deleting the output directory '$(OutputDirectory)' ..." Importance="high" />
-    <RemoveDir Directories="$(OutputDirectory)"></RemoveDir>
+    <RemoveDir Directories="$(OutputDirectory)">
+    </RemoveDir>
     <Message Text="Deleting the output directory '$(MCollectiveOutputDirectory)' ..." Importance="high" />
-    <RemoveDir Directories="$(MCollectiveOutputDirectory)"></RemoveDir>
+    <RemoveDir Directories="$(MCollectiveOutputDirectory)">
+    </RemoveDir>
   </Target>
 </Project>
