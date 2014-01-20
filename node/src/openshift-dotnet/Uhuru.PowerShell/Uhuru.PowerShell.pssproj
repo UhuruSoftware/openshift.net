@@ -31,8 +31,8 @@
     <TypesToProcess />
     <VariablesToExport />
     <CodeSigningCert />
-    <OutputDirectory>
-    </OutputDirectory>
+    <OutputDirectory>$(SolutionDir)\..\..\..\output\powershell</OutputDirectory>
+    <MCollectiveOutputDirectory>$(SolutionDir)\..\..\..\output\mcollective</MCollectiveOutputDirectory>
     <SignOutput>False</SignOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -105,7 +105,10 @@
     <Content Include="Tools\mcollective\openshift.rb.template" />
     <Content Include="Tools\mcollective\server.cfg.template" />
     <Content Include="Tools\mcollective\update-facts.ps1" />
+    <Content Include="Tools\openshift.net\setup-helpers.ps1" />
+    <Content Include="Tools\openshift.net\validation-helpers.ps1" />
     <Content Include="Tools\openshift.net\install.ps1" />
+    <Content Include="Tools\openshift.net\node.conf.template" />
     <Content Include="Tools\sshd\remove-key.ps1" />
     <Content Include="Tools\sshd\add-key.ps1" />
     <Content Include="Tools\sshd\configure-sshd.ps1" />
@@ -122,6 +125,28 @@
     <Compile Include="OO-Cmdlets\oo-stop.ps1" />
     <Compile Include="Tools\mcollective\setup-mcollective.ps1" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Target Name="Build" />
+
+  <Target Name="Build">
+    <!-- Copying everything (except 'bin', 'obj', *pssproj*, .idea). Also including the mcollective ruby node agent. -->
+    <Message Text="Copying powershell scripts to output directory '$(OutputDirectory)' ..." Importance="high" />
+
+    <CreateItem Include=".\**" Exclude=".\obj\**;.\bin\**;.\*pssproj*;">
+      <Output TaskParameter="Include" ItemName="AllFiles" />
+    </CreateItem>
+
+    <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(OutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <CreateItem Include="..\..\mcollective_agent\**" Exclude="..\..\mcollective_agent\.idea\**">
+      <Output TaskParameter="Include" ItemName="MCollectiveFiles" />
+    </CreateItem>
+
+    <Copy SourceFiles="@(MCollectiveFiles)" DestinationFiles="@(MCollectiveFiles->'$(MCollectiveOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <Target Name="Clean">
+    <Message Text="Deleting the output directory '$(OutputDirectory)' ..." Importance="high" />
+    <RemoveDir Directories="$(OutputDirectory)"></RemoveDir>
+    <Message Text="Deleting the output directory '$(MCollectiveOutputDirectory)' ..." Importance="high" />
+    <RemoveDir Directories="$(MCollectiveOutputDirectory)"></RemoveDir>
+  </Target>
 </Project>

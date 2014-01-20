@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3fb09695-e9ac-489d-8214-14b23e0ba8aa}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>openshift-origin-cartridge-mssql</Name>
+    <ManifestFileName />
+    <AliasesToExport />
+    <Author />
+    <ClrVersion />
+    <CmdletsToExport />
+    <CompanyName />
+    <Copyright />
+    <Description />
+    <FormatsToProcess />
+    <FunctionsToProcess />
+    <Guid />
+    <ModuleList />
+    <ModuleToProcess />
+    <NestedModules />
+    <PowerShellHostVersion />
+    <PowerShellVersion />
+    <ProcessorArchitecture />
+    <RequiredAssemblies />
+    <RequiredModules />
+    <ScriptsToProcess />
+    <TypesToProcess />
+    <VariablesToExport />
+    <CartridgeDestinationDir>$(SolutionDir)\..\output\cartridges\mssql</CartridgeDestinationDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="bin" />
+    <Folder Include="env" />
+    <Folder Include="hooks" />
+    <Folder Include="metadata" />
+    <Folder Include="run" />
+    <Folder Include="usr" />
+    <Folder Include="usr\template\" />
+    <Folder Include="usr\template\.openshift" />
+    <Folder Include="usr\template\.openshift\action_hooks\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="bin\control.ps1" />
+    <Compile Include="bin\README.md" />
+    <Compile Include="bin\setup.ps1" />
+    <Compile Include="bin\sqlserver.reg" />
+    <Compile Include="bin\sqlserver.reg.template" />
+    <Compile Include="bin\start.bat" />
+    <Compile Include="bin\start.ps1" />
+    <Compile Include="env\OPENSHIFT_DOTNET_LOG_DIR.erb" />
+    <Compile Include="env\README.md" />
+    <Compile Include="hooks\publish-db-connection-info.bat" />
+    <Compile Include="hooks\README.md" />
+    <Compile Include="metadata\managed_files.yml" />
+    <Compile Include="metadata\manifest.yml" />
+    <Compile Include="metadata\README.md" />
+    <Compile Include="run\.gitkeep" />
+    <Compile Include="usr\template\.openshift\action_hooks\README.md" />
+  </ItemGroup>
+
+  <Target Name="Build">
+
+    <!-- Copying everything (except the 'obj' dir that gets created by Visual Studio), then removing items that are not needed. 
+    This approach will keep empty directories that are required in the cartridge.
+    Using exclude patterns will remove empty directories.-->
+    <Message Text="Copying cartridge files to output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+
+    <CreateItem Include=".\**" Exclude=".\obj\**">
+      <Output TaskParameter="Include" ItemName="AllFiles" />
+    </CreateItem>
+
+    <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(CartridgeDestinationDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <Target Name="AfterBuild" AfterTargets="Build">
+    <Message Text="Removing unneeded files from output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+
+    <CreateItem Include="$(CartridgeDestinationDir)\**\README.md;$(CartridgeDestinationDir)\*pssproj*;$(CartridgeDestinationDir)\**\.gitkeep">
+      <Output TaskParameter="Include" ItemName="UnneededFiles"/>
+    </CreateItem>
+
+    <Delete Files="@(UnneededFiles)"></Delete>
+  </Target>
+
+  <Target Name="Clean">
+    <Message Text="Deleting the cartridge's output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+    <RemoveDir Directories="$(CartridgeDestinationDir)"></RemoveDir>
+  </Target>  
+</Project>

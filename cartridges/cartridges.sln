@@ -1,25 +1,72 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cartridge-dotnet", "cartridge-dotnet", "{2A2EA689-46B6-4E66-B2E0-C687B297D5C9}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openshift-origin-cartridge-dotnet", "openshift-origin-cartridge-dotnet", "{D41B88E1-5255-4ECF-8E3A-9529063FEB43}"
 EndProject
-Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "openshift-origin-cartridge-dotnet", "openshift-origin-cartridge-dotnet.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openshift-origin-cartridge-mssql", "openshift-origin-cartridge-mssql", "{C01BE436-7991-46FA-9D73-D901166D0AD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openshift-origin-cartridge-winsample", "openshift-origin-cartridge-winsample", "{804A808E-EC68-4EA7-9D17-B70FE7318E74}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "openshift-origin-cartridge-winsample", "openshift-origin-cartridge-winsample\openshift-origin-cartridge-winsample.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "openshift-origin-cartridge-mssql", "openshift-origin-cartridge-mssql\openshift-origin-cartridge-mssql.pssproj", "{3FB09695-E9AC-489D-8214-14B23E0BA8AA}"
+EndProject
+Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "openshift-origin-cartridge-dotnet", "openshift-origin-cartridge-dotnet\openshift-origin-cartridge-dotnet.pssproj", "{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6} = {D577C3D6-9046-40BF-B414-FEECA8FD6EB6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iishwc", "openshift-origin-cartridge-dotnet\bin\iishwc_src\iishwc.vcxproj", "{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1195827-6F51-430D-B227-05F8929E914B}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|Win32.Build.0 = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Debug|x64.Build.0 = Debug|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|Win32.ActiveCfg = Release|Any CPU
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}.Release|x64.ActiveCfg = Release|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Debug|Win32.Build.0 = Debug|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Debug|x64.Build.0 = Debug|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Release|Win32.ActiveCfg = Release|Any CPU
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA}.Release|x64.ActiveCfg = Release|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Debug|Win32.Build.0 = Debug|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Debug|x64.Build.0 = Debug|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Release|Win32.ActiveCfg = Release|Any CPU
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6}.Release|x64.ActiveCfg = Release|Any CPU
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Debug|Win32.Build.0 = Debug|Win32
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Debug|x64.ActiveCfg = Debug|x64
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Debug|x64.Build.0 = Debug|x64
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|Win32.ActiveCfg = Release|Win32
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|Win32.Build.0 = Release|Win32
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|x64.ActiveCfg = Release|x64
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51} = {2A2EA689-46B6-4E66-B2E0-C687B297D5C9}
+		{1B461CA5-E38F-4C31-970A-CEA07B67EEA6} = {D41B88E1-5255-4ECF-8E3A-9529063FEB43}
+		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6} = {D41B88E1-5255-4ECF-8E3A-9529063FEB43}
+		{3FB09695-E9AC-489D-8214-14B23E0BA8AA} = {C01BE436-7991-46FA-9D73-D901166D0AD6}
+		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51} = {804A808E-EC68-4EA7-9D17-B70FE7318E74}
 	EndGlobalSection
 EndGlobal

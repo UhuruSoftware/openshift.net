@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\bin\</OutputPath>
+    <OutputPath>..\..\..\..\output\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\bin\</OutputPath>
+    <OutputPath>..\..\..\..\output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -81,20 +81,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>:: Copy PowerShell scripts to target directory
-rmdir /S /Q "$(TargetDir)\powershell"
-mkdir "$(TargetDir)\powershell"
-robocopy "$(SolutionDir)\Uhuru.PowerShell" "$(TargetDir)\powershell" * /E /XF *.pssproj *.user /XD bin obj 
-if not %25errorlevel%25==1 (exit 1)
-
-:: Copy Ruby MCollective scripts to target directory
-rmdir /S /Q "$(TargetDir)\mcollective"
-mkdir "$(TargetDir)\mcollective"
-pushd "$(SolutionDir)\..\mcollective_agent"
-set AGENT_PATH=%25CD%25
-popd
-robocopy "%25AGENT_PATH%25" "$(TargetDir)\mcollective" * /E /XD .idea
-if %25errorlevel%25==1 (exit 0) else (exit 1)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

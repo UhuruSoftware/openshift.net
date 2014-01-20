@@ -1,0 +1,7 @@
+@echo off
+
+set PATH=${rubyPath}\bin;${rubyDevkit}\bin;${rubyDevkit}\mingw\bin;%PATH%
+
+cd /D ${directory}
+
+${command}

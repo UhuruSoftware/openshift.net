@@ -1,0 +1,25 @@
+# These should not be left at default values, even for a demo.
+# "PUBLIC" networking values are ones that end-users should be able to reach.
+PUBLIC_HOSTNAME="${publicHostname}"                         # The node host's public hostname
+PUBLIC_IP="${publicIp}"                              # The node host's public IP address
+BROKER_HOST="${brokerHost}"                     # IP or DNS name of broker server for REST API
+
+# The location of the Cygwin SSHD installation
+SSHD_BASE_DIR=${sshBaseDir}
+
+# Usually (unless in a demo) this should be changed to the domain for your installation:
+CLOUD_DOMAIN="${cloudDomain}"                        # Domain suffix to use for applications (Must match broker config)
+
+EXTERNAL_ETH_DEV="${externalEthDev}"                                 # Specify the internet facing public ethernet device
+INTERNAL_ETH_DEV="${internalEthDev}"                                 # Specify the internal cluster facing ethernet device
+
+# Generally the following should not be changed:
+GEAR_BASE_DIR="${gearBaseDir}"                        # gear root directory
+GEAR_SHELL="${gearShell}"                        # shell to use for the gear
+GEAR_GECOS="${gearGecos}"                              # Gecos information to populate for the gear user
+CARTRIDGE_BASE_PATH="${cartridgeBasePath}"   # Locations where cartridges are installed
+
+PLATFORM_LOG_FILE="${platformLogFile}"
+PLATFORM_LOG_LEVEL=${platformLogLevel}
+
+CONTAINERIZATION_PLUGIN=${containerizationPlugin}

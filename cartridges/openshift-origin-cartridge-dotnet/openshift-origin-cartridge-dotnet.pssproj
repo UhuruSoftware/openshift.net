@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1b461ca5-e38f-4c31-970a-cea07b67eea6}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>
+    <Name>openshift-origin-cartridge-dotnet</Name>
+    <CartridgeDestinationDir>$(SolutionDir)\..\output\cartridges\dotnet</CartridgeDestinationDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="bin" />
+    <Folder Include="bin\iishwc" />
+    <Folder Include="env" />
+    <Folder Include="hooks" />
+    <Folder Include="metadata" />
+    <Folder Include="run" />
+    <Folder Include="usr" />
+    <Folder Include="usr\template\" />
+    <Folder Include="usr\template\.openshift" />
+    <Folder Include="usr\template\.openshift\action_hooks\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="bin\control.ps1" />
+    <Compile Include="bin\iishwc\applicationHostTemplate.config" />
+    <Compile Include="bin\iishwc\detectVersion.ps1" />
+    <Compile Include="bin\iishwc\rootWeb2064.config" />
+    <Compile Include="bin\iishwc\rootWeb2086.config" />
+    <Compile Include="bin\iishwc\rootWeb4064.config" />
+    <Compile Include="bin\iishwc\rootWeb4086.config" />
+    <Compile Include="bin\iishwc\start.bat" />
+    <Compile Include="bin\iishwc\start.ps1" />
+    <Compile Include="bin\README.md" />
+    <Compile Include="bin\setup.ps1" />
+    <Compile Include="env\OPENSHIFT_DOTNET_LOG_DIR.erb" />
+    <Compile Include="env\README.md" />
+    <Compile Include="hooks\README.md" />
+    <Compile Include="metadata\managed_files.yml" />
+    <Compile Include="metadata\manifest.yml" />
+    <Compile Include="metadata\README.md" />
+    <Compile Include="run\.gitkeep" />
+    <Compile Include="usr\template\Default.aspx" />
+    <Compile Include="usr\template\README.md" />
+    <Compile Include="usr\template\UhuruAspNetEventProvider.config" />
+    <Compile Include="usr\template\Web.config" />
+    <Compile Include="usr\template\.openshift\action_hooks\README.md" />
+  </ItemGroup>
+
+  <!-- Before 'packaging' the .NET cartridge we have to build iishwc.exe (we build it here because we need both x64 and x86) -->
+  <Target Name="BeforeBuild" BeforeTargets="Build">
+    <MSBuild Properties="Platform=x64;PlatFormTarget=x64" Projects=".\bin\iishwc_src\iishwc.vcxproj"></MSBuild>
+    <MSBuild Properties="Platform=x86;PlatFormTarget=x86" Projects=".\bin\iishwc_src\iishwc.vcxproj"></MSBuild>
+  </Target>
+  
+  <Target Name="Build">
+
+    <!-- Copying everything (except the 'obj' dir and the iishwc_src dir), then removing items that are not needed. 
+    This approach will keep empty directories that are required in the cartridge.
+    Using exclude patterns will remove empty directories.-->
+    <Message Text="Copying cartridge files to output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+
+    <CreateItem Include=".\**" Exclude=".\obj\**;.\bin\iishwc_src\**">
+      <Output TaskParameter="Include" ItemName="AllFiles" />
+    </CreateItem>
+
+    <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(CartridgeDestinationDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+  <Target Name="AfterBuild" AfterTargets="Build">
+    <Message Text="Removing unneeded files from output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+
+    <CreateItem Include="$(CartridgeDestinationDir)\**\*.ilk;
+                $(CartridgeDestinationDir)\**\*.pdb;
+                $(CartridgeDestinationDir)\**\README.md;
+                $(CartridgeDestinationDir)\*pssproj*;
+                $(CartridgeDestinationDir)\**\.gitkeep">
+      <Output TaskParameter="Include" ItemName="UnneededFiles"/>
+    </CreateItem>
+
+    <Delete Files="@(UnneededFiles)"></Delete>
+    
+    <!-- After all the scripts are where they should be, we can copy the IISHWC binaries -->
+    <Copy SourceFiles=".\bin\iishwc_src\bin\iishwcx64.exe" DestinationFiles="$(CartridgeDestinationDir)\bin\iishwc\iishwcx64.exe" />
+    <Copy SourceFiles=".\bin\iishwc_src\bin\iishwcx86.exe" DestinationFiles="$(CartridgeDestinationDir)\bin\iishwc\iishwcx86.exe" />
+  </Target>
+
+  <Target Name="Clean">
+    <Message Text="Deleting the cartridge's output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
+    <RemoveDir Directories="$(CartridgeDestinationDir)"></RemoveDir>
+  </Target>
+</Project>
