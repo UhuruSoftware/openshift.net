@@ -203,6 +203,10 @@ namespace Uhuru.Openshift.Runtime
 
         public string StopCartridge(Manifest cartridge, dynamic options)
         {
+            if (options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
             options = (Dictionary<string, object>)options;
             if (!options.ContainsKey("user_initiated"))
             {

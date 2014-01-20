@@ -97,10 +97,10 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        public string KillProcs()
+        public string KillProcs(dynamic options = null)
         {
             // TODO need to kill all user processes. stopping gear for now
-            return this.StopGear(new Dictionary<string, object>());
+            return this.StopGear(options);
         }
 
         public string Configure(string cartName, string templateGitUrl, string manifest)        
@@ -500,6 +500,12 @@ namespace Uhuru.Openshift.Runtime
         public void AddEnvVar(string key, string value)
         {
             AddEnvVar(key, value, false);
+        }
+
+        public string ForceStop(Dictionary<string, object> options = null)
+        {
+            this.State.Value(Uhuru.Openshift.Runtime.State.STOPPED);
+            return this.containerPlugin.Stop();
         }
 
         private int CalculateBatchSize(int count, double ratio)

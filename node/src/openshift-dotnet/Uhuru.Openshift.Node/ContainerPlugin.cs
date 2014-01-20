@@ -31,5 +31,10 @@ namespace Uhuru.Openshift.Runtime
             Directory.Delete(this.container.ContainerDir, true);
             return output;
         }
+
+        public string Stop(dynamic options = null)
+        {
+            return this.container.KillProcs(options);
+        }
     }
 }

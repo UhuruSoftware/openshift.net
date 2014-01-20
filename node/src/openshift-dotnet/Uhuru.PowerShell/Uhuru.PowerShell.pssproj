@@ -89,6 +89,7 @@
     <Content Include="OO-Cmdlets\oo-env-var-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-expose-port.ps1" />
     <Content Include="OO-Cmdlets\oo-status.ps1" />
+    <Content Include="OO-Cmdlets\oo-force-stop.ps1" />
     <Content Include="OO-Cmdlets\oo-tidy.ps1" />
     <Content Include="OO-Cmdlets\oo-cartridge-list.ps1" />
     <Content Include="OO-Cmdlets\oo-connector-execute.ps1" />
