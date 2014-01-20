@@ -54,6 +54,7 @@
     <Compile Include="Exceptions\UserCreationException.cs" />
     <Compile Include="Exceptions\UserDeletionException.cs" />
     <Compile Include="Model\ApplicationContainer.cs" />
+    <Compile Include="Model\ApplicationContainerExt\AuthorizedKeysFile.cs" />
     <Compile Include="Model\ApplicationContainerExt\CartridgeActions.cs" />
     <Compile Include="Model\ApplicationContainerExt\Deployments.cs" />
     <Compile Include="Model\ApplicationContainerExt\Environment.cs" />

@@ -299,6 +299,7 @@ module MCollective
         # else
         # return 0, ""
         # end
+        Powershell.run_command(__method__, args)
       end
 
       def oo_broker_auth_key_add(args)

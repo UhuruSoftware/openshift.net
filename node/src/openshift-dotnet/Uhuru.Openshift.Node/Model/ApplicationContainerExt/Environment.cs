@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Model.ApplicationContainerExt;
 
 
 namespace Uhuru.Openshift.Runtime
@@ -153,7 +154,7 @@ namespace Uhuru.Openshift.Runtime
             return output;
 
         }
-
+        
         /// <summary>
         /// Add broker authorization keys so gear can communicate with broker.
         /// </summary>
@@ -261,6 +262,43 @@ namespace Uhuru.Openshift.Runtime
             }
 
             return status;
+        }
+        
+        public void ReplaceSshKeys(List<SshKey> sshKeys)
+        {
+            if (!ValidateSshKeys(sshKeys))
+            {
+                throw new Exception("The provided ssh keys do not have the required attributes");
+            }
+
+            List<SshKey> authorizedKeys = sshKeys.Where(item => item.Type != "krb5-principal").ToList<SshKey>();
+            List<SshKey> krb5Principals = sshKeys.Where(item => item.Type == "krb5-principal").ToList<SshKey>();
+
+            if (authorizedKeys.Count > 0)
+            {
+                new AuthorizedKeysFile(this).ReplaceKeys(sshKeys);
+            }
+
+            // TODO replace kerberos keys
+        }
+
+        public bool ValidateSshKeys(List<SshKey> sshKeys)
+        {
+            foreach (SshKey key in sshKeys)
+            {
+                try
+                {
+                    if (key.Comment == null || key.Key == null || key.Type == null)
+                    {
+                        return false;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

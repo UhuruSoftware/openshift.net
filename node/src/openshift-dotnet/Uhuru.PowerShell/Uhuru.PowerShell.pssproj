@@ -80,6 +80,7 @@
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />
+    <Content Include="OO-Cmdlets\oo-authorized-ssh-keys-replace.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-remove.ps1" />
     <Content Include="OO-Cmdlets\oo-authorized-ssh-key-add.ps1" />
     <Content Include="OO-Cmdlets\oo-broker-auth-key-add.ps1" />
