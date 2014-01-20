@@ -198,6 +198,7 @@ git rev-parse --short {0}";
             {
                 return;
             }
+            DirectoryUtil.EmptyDirectory(destination);
             Directory.CreateDirectory(destination);
             string command = string.Format(GIT_ARHIVE, GIT, refId, destination, TAR);
             RunCmd(command, RepositoryPath);

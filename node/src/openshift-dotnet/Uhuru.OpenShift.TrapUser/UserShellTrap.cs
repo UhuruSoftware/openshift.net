@@ -62,7 +62,7 @@ namespace Uhuru.OpenShift.TrapUser
             }
         }
 
-        public static void StartShell()
+        public static int StartShell()
         {
             string assemblyLocation = Path.GetDirectoryName(typeof(UserShellTrap).Assembly.Location);
             string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
@@ -88,6 +88,7 @@ namespace Uhuru.OpenShift.TrapUser
             Process shell = Process.Start(shellStartInfo);
 
             shell.WaitForExit();
+            return shell.ExitCode;
         }
     }
 }

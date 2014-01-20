@@ -9,9 +9,9 @@ namespace Uhuru.OpenShift.TrapUser
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            UserShellTrap.StartShell();
+            return UserShellTrap.StartShell();
         }
     }
 }

@@ -55,6 +55,7 @@
     <Compile Include="Exceptions\UserDeletionException.cs" />
     <Compile Include="Model\ApplicationContainer.cs" />
     <Compile Include="Model\ApplicationContainerExt\CartridgeActions.cs" />
+    <Compile Include="Model\ApplicationContainerExt\Deployments.cs" />
     <Compile Include="Model\ApplicationContainerExt\Environment.cs" />
     <Compile Include="Model\CartridgeRepository.cs" />
     <Compile Include="Model\ApplicationRepository.cs" />

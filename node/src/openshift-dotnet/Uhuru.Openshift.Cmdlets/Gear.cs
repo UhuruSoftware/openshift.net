@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using Uhuru.Openshift.Runtime;
+using Uhuru.Openshift.Runtime.Config;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -72,6 +75,9 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter(HelpMessage = "Perform a clean build", ParameterSetName = "Deploy")]
         public SwitchParameter ForceCleanBuild { get; set; }
+
+        [Parameter(HelpMessage = "Deploy Reference ID", ParameterSetName = "Deploy")]
+        public string DeployRefId { get; set; }
 
         [Parameter(HelpMessage = "Deploy a binary artifact", ParameterSetName = "BinaryDeploy" )]
         public SwitchParameter BinaryDeploy { get; set; }
@@ -142,9 +148,11 @@ namespace Uhuru.Openshift.Cmdlets
         public SwitchParameter RotateIn { get; set; }
 
         ApplicationContainer container = null;
+        ApplicationRepository repo = null;
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
             try
             {
                 string appUuid = Environment.GetEnvironmentVariable("OPENSHIFT_APP_UUID");
@@ -154,6 +162,7 @@ namespace Uhuru.Openshift.Cmdlets
                 string nmSpace = Environment.GetEnvironmentVariable("OPENSHIFT_NAMESPACE");
 
                 container = new ApplicationContainer(appUuid, gearUuid, System.Security.Principal.WindowsIdentity.GetCurrent().Name, appName, gearName, nmSpace, null, null, null);
+                repo = new ApplicationRepository(container);
 
                 if (Prereceive)
                 {
@@ -161,7 +170,7 @@ namespace Uhuru.Openshift.Cmdlets
                     options["init"] = Init;
                     options["hotDeploy"] = true;
                     options["forceCleanBuild"] = true;
-                    options["ref"] = "master";
+                    options["ref"] = container.DetermineDeploymentRef();
                     container.PreReceive(options);
                 }
                 else if (Postreceive)
@@ -170,7 +179,7 @@ namespace Uhuru.Openshift.Cmdlets
                     options["init"] = Init;
                     options["all"] = true;
                     options["reportDeployment"] = true;
-                    options["ref"] = "master";
+                    options["ref"] = container.DetermineDeploymentRef();
                     container.PostReceive(options);
                 }
                 else if (Build)
@@ -181,12 +190,48 @@ namespace Uhuru.Openshift.Cmdlets
                 {
                     throw new NotImplementedException();
                 }
+                else if (Deploy)
+                {
+                    if (Environment.GetEnvironmentVariable("OPENSHIFT_DEPLOYMENT_TYPE") == "binary")
+                    {
+                        throw new Exception("OPENSHIFT_DEPLOYMENT_TYPE is 'binary' - git-based deployments are disabled.");
+                    }
+                    string refToDeploy = container.DetermineDeploymentRef(this.DeployRefId);
+                    if (!ValidGitRef(refToDeploy))
+                    {
+                        throw new Exception("Git ref " + refToDeploy + " is not valid");
+                    }
+                    Dictionary<string, object> options = new Dictionary<string,object>();
+                    options["hot_deploy"] = this.HotDeploy;
+                    options["force_clean_build"] = this.ForceCleanBuild;
+                    options["ref"] = this.DeployRefId;
+                    options["report_deployments"] = true;
+                    options["all"] = true;
+                    container.Deploy(options);
+                }
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                status.Output = ex.Message;
+                status.ExitCode = 255;
             }
+            this.WriteObject(status);
         }
         
+        private bool ValidGitRef(string refId)
+        {
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.WorkingDirectory = repo.RepositoryPath;
+            pi.FileName = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe");
+            pi.Arguments = string.Format("rev-parse --quiet --verify {0}", refId);
+            pi.WindowStyle = ProcessWindowStyle.Hidden;
+            Process p = Process.Start(pi);
+            p.WaitForExit();
+            if (p.ExitCode == 0)
+                return true;
+            else
+                return false;
+        }
     }
 }
