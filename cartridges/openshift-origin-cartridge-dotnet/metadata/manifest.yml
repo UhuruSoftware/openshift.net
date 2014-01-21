@@ -21,6 +21,7 @@ License: "??"
 License-Url: "http://www.uhurusoftware.com"
 Vendor: "Microsoft Corporation"
 Categories:
+  - service
   - web_framework
   - windows
 Website: http://www.microsoft.com/
@@ -72,7 +73,7 @@ Subscribes:
     #ENV:* pulls in environment variables from all add-on cartridges within an application
 Scaling:
   Min: 1
-  Max: 1
+  Max: -1
 Group-Overrides:
   - components:
     - web-proxy

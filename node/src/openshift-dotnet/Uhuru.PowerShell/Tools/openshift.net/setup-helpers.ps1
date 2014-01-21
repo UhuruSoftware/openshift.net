@@ -3,6 +3,10 @@ function Cleanup-Directory($directory)
     if (Test-Path -Path $directory)
     {
         Write-Verbose "Directory '${directory}' exists, cleaning it up."
+        takeown /f $directory /r
+        $userDomain = [Environment]::UserDomainName
+        $userName = [Environment]::UserName
+        Start-Process -Wait -NoNewWindow -PassThru 'icacls' """${directory}"" /grant ${userDomain}\${userName}:F /t"
         Remove-Item -Path $directory -Force -Recurse
     }
 }
@@ -26,6 +30,8 @@ function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActi
 
 function Setup-SSHD($cygwinDir, $listenAddress, $port)
 {
+    Cleanup-Directory $cygwinDir
+
     $sshdSetupScript = (Join-Path $currentDir '..\sshd\setup-sshd.ps1')
 
     $arguments = "-File ${sshdSetupScript} -cygwinDir ${cygwinDir} -listenAddress ${listenAddress} -port ${port}"
