@@ -14,5 +14,5 @@ PubkeyAuthentication yes
 AuthorizedKeysFile .ssh/authorized_keys
 PasswordAuthentication no
 UsePrivilegeSeparation no
-PidFile sshd.pid
+PidFile /var/run/sshd.pid
 Subsystem	sftp	/usr/sbin/sftp-server

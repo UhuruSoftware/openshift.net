@@ -1,8 +1,6 @@
-topicprefix = /topic/
-main_collective = mcollective
 collectives = mcollective
-libdir = /mcollective/plugins
-logfile = /mcollective/mcollective_client.log
+libdir = /openshift/mcollective/plugins
+logfile = /openshift/mcollective/mcollective_client.log
 loglevel = debug
 direct_addressing = 1
 
@@ -19,4 +17,4 @@ plugin.activemq.pool.1.password = $activemqPassword
 
 # Facts
 factsource = yaml
-plugin.yaml = /mcollective/etc/facts.yaml
+plugin.yaml = /openshift/mcollective/etc/facts.yaml

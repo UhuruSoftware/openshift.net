@@ -71,9 +71,9 @@ $facts = @{
     mcollective = 1  
 }
 
-Write-Host "Writing facts to 'c:\mcollective\etc\facts.yaml' ..."
+Write-Host "Writing facts to 'c:\openshift\mcollective\etc\facts.yaml' ..."
 
 $factCreator = New-Object Uhuru.Openshift.Common.FactCreator($facts)
 
-echo $factCreator.GetYaml() | Out-File "c:\mcollective\etc\facts.yaml" -Encoding ascii
+echo $factCreator.GetYaml() | Out-File "c:\openshift\mcollective\etc\facts.yaml" -Encoding ascii
 

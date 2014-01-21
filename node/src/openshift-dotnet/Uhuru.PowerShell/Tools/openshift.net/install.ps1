@@ -80,6 +80,20 @@
 .PARAMETER sshdPort
     SSHD listening port.
 
+.PARAMETER skipRuby
+    This is a switch parameter that allows the user to skip downloading and installing Ruby. 
+    This is useful for testing, when the caller is sure Ruby is already installed in the directory specified by the -rubyInstallLocation parameter.
+
+.PARAMETER skipCygwin
+    This is a switch parameter that allows the user to skip downloading and installing Cygwin. 
+    This is useful for testing, when the caller is sure Cygwin is present in the directory specified by the -sshdCygwinDir parameter.
+    Note that sshd will NOT be re-configured if you skip this step.
+
+.PARAMETER skipMCollective
+    This is a switch parameter that allows the user to skip downloading and installing MCollective.
+    This is useful for testing, when the caller is sure MCollective is already present in c:\openshift\mcollective. 
+    Configuration of MCollective will still happen, even if this parameter is present.
+
 .NOTES
     Author: Vlad Iovanov
     Date:   January 17, 2014
@@ -123,7 +137,11 @@ param (
     # parameters used for setting up sshd
     [string] $sshdCygwinDir = 'c:\openshift\cygwin',
     [string] $sshdListenAddress = '0.0.0.0',
-    [int] $sshdPort = 22
+    [int] $sshdPort = 22,
+    # parameters used for skipping some installation steps
+    [Switch] $skipRuby = $false,
+    [Switch] $skipCygwin = $false,
+    [Switch] $skipMCollective = $false
 )
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
@@ -133,10 +151,14 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 . (Join-Path $currentDir 'validation-helpers.ps1')
 . (Join-Path $currentDir 'setup-helpers.ps1')
 . (Join-Path $currentDir 'ruby-helpers.ps1')
+. (Join-Path $currentDir 'service-helpers.ps1')
 
 
 Write-Host 'Installation logs will be written in the c:\openshift\setup_logs'
 New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
+
+
+# TODO: stop existing services?
 
 
 # Be verbose and print all settings
@@ -184,8 +206,6 @@ Check-SQLServer2008
 
 # TODO: stop all services, gears, etc., or tell the user to do it
 
-# TODO: decide what to do, if anything should be skipped
-
 Write-Host 'Generating node.conf file ...'
 Write-Verbose 'Creating directory c:\openshift ...'
 New-Item -path 'C:\openshift\' -type directory -Force | Out-Null
@@ -215,25 +235,33 @@ $sourceItems = (Join-Path $currentDir '..\..\..\*')
 Copy-Item -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -Exclude 'cartridges' -Path $sourceItems $binLocation
 
 # setup ruby
-Setup-Ruby $rubyDownloadLocation $rubyInstallLocation
-Setup-RubyDevkit $rubyDevKitDownloadLocation $rubyDevKitInstallLocation
+if ($skipRuby -eq $false)
+{
+    Setup-Ruby $rubyDownloadLocation $rubyInstallLocation
+}
+# Setup-RubyDevkit $rubyDevKitDownloadLocation $rubyDevKitInstallLocation
 
 # setup agent - run bundler
-Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'gem install bundler' $rubyInstallLocation
-Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'bundle install' (Join-Path $binLocation 'mcollective\openshift')
-Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'exit 1' (Join-Path $binLocation 'mcollective\openshift')
-
-
-Write-Host 'Setting up MCollective ...'
-#Setup-MCollective
-#Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword $binLocation 
-#TODO: do something about facts
+#Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'gem install bundler' $rubyInstallLocation
+#Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'bundle install' (Join-Path $binLocation 'mcollective\openshift')
 
 
 Write-Host 'Setting up SSHD ...'
-#Setup-SSHD $sshdCygwinDir  $sshdListenAddress $sshdPort
+if ($skipCygwin -eq $false)
+{
+    Setup-SSHD $sshdCygwinDir  $sshdListenAddress $sshdPort
+}
 $cygpath = (Join-Path $sshdCygwinDir 'installation\bin\cygpath.exe')
 $chmod = (Join-Path $sshdCygwinDir 'installation\bin\chmod.exe')
+
+
+Write-Host 'Setting up MCollective ...'
+if ($skipMCollective -eq $false)
+{
+    Setup-MCollective 'c:\openshift\mcollective' (Join-Path $sshdCygwinDir 'installation') $rubyInstallLocation
+}
+Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $rubyInstallLocation
+#TODO: do something about facts
 
 
 # setup cartridges
@@ -252,8 +280,20 @@ Setup-OOAliases $binLocation
 # setup env vars in c:\openshift\env
 Setup-GlobalEnv
 
+Remove-Service 'openshift.mcollectived' $sshdCygwinDir
+Remove-Service 'openshift.sshd' $sshdCygwinDir
 
-# setup sshd & mcollective as a service
-# start sshd
-# start mcollectived
+$mcollectivePath = 'c:\openshift\mcollective\'
+
+$mcollectiveLib = (Join-Path $mcollectivePath 'lib').Replace("\", "/")
+$mcollectiveBin = (Join-Path $mcollectivePath 'bin\mcollectived')
+$mcollectiveConfig = (Join-Path $mcollectivePath 'etc\server.cfg')
+
+Create-Service 'openshift.mcollectived' (Join-Path $rubyInstallLocation 'bin\ruby.exe') "-I'${mcollectiveLib};' -- '${mcollectiveBin}' --config '${mcollectiveConfig}'" "OpenShift Windows Node MCollective Service" $sshdCygwinDir
+
+$runSSHDScript = (Join-Path $binLocation 'powershell\tools\sshd\run-sshd.ps1')
+$cygwinInstallationPath = (Join-Path $sshdCygwinDir 'installation')
+
+Create-Service 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
+
 

@@ -111,6 +111,8 @@
     <Content Include="Tools\mcollective\openshift.rb.template" />
     <Content Include="Tools\mcollective\server.cfg.template" />
     <Content Include="Tools\mcollective\update-facts.ps1" />
+    <Content Include="Tools\openshift.net\service-helpers.ps1" />
+    <Content Include="Tools\openshift.net\openshift-node-service.ps1" />
     <Content Include="Tools\openshift.net\setup-helpers.ps1" />
     <Content Include="Tools\openshift.net\validation-helpers.ps1" />
     <Content Include="Tools\openshift.net\install.ps1" />
@@ -130,6 +132,8 @@
     <Compile Include="OO-Cmdlets\oo-start.ps1" />
     <Compile Include="OO-Cmdlets\oo-stop.ps1" />
     <Compile Include="Tools\mcollective\setup-mcollective.ps1" />
+    <Compile Include="Tools\openshift.net\ruby-helpers.ps1" />
+    <Compile Include="Tools\openshift.net\rubycmd.bat.template" />
   </ItemGroup>
   <Target Name="Build">
     <!-- Copying everything (except 'bin', 'obj', *pssproj*, .idea). Also including the mcollective ruby node agent. -->

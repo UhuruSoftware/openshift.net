@@ -1,10 +1,9 @@
-topicprefix = /topic/
 main_collective = mcollective
 collectives = mcollective
-libdir = /mcollective/plugins
-logfile = /mcollective/mcollective_server.log
+libdir = /openshift/mcollective/plugins
+logfile = /openshift/mcollective/mcollective_server.log
 loglevel = debug
-daemonize = 1
+daemonize = 0
 # Logger type should be 'console' when running from command line
 logger_type = file
 
@@ -23,9 +22,10 @@ plugin.activemq.pool.1.password = $activemqPassword
 
 # Facts
 factsource = yaml
-plugin.yaml = /mcollective/etc/facts.yaml
+plugin.yaml = /openshift/mcollective/etc/facts.yaml
 
 
 # Windows MCollective Agent Settings
 plugin.openshift.winbin = $binDir
 plugin.openshift.agent = $(Join-Path $binDir "mcollective\openshift.rb")
+plugin.openshift.devlog = $devLogFile

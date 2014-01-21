@@ -1,8 +1,12 @@
+require 'logger'
+
 module MCollective
   module Agent
     class Openshift < RPC::Agent
       def initialize
         super
+        @logger = ::Logger.new(config.pluginconf["openshift.devlog"])
+        @logger.level = ::Logger::DEBUG
         require config.pluginconf["openshift.agent"]
       end
     end

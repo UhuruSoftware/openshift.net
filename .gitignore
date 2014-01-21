@@ -6,6 +6,7 @@ bin/
 !cartridges/openshift-origin-cartridge-winsample/bin/
 !cartridges/openshift-origin-cartridge-mssql/bin/
 !node/bvt/assets/aspnet_app/bin/
+cartridges/openshift-origin-cartridge-dotnet/bin/iishwc_src/bin
 cartridges/openshift-origin-cartridge-dotnet/bin/iishwc_src/debug
 cartridges/openshift-origin-cartridge-dotnet/bin/iishwc_src/x64
 cartridges/openshift-origin-cartridge-dotnet/bin/iishwc_src/x86

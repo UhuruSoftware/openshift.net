@@ -3,6 +3,7 @@ param (
     $userActivemqPort = $(Read-Host "ActiveMQ Port (default is 61613)"),
     $userActivemqUser = $(Read-Host "ActiveMQ Username (default is mcollective)"),
     $userActivemqPassword = $(Read-Host "ActiveMQ Password (default is marionette)"),
+    $mcollectivePath = $(Read-Host "Path to mcollective installation (default is c:\openshift\mcollective\)"),
     $binDir = $(Read-Host "Binary directory (required)")
     )
 
@@ -19,6 +20,7 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 $userActivemqPort = Get-NotEmpty $userActivemqPort "61613"
 $userActivemqUser = Get-NotEmpty $userActivemqUser "mcollective"
 $userActivemqPassword = Get-NotEmpty $userActivemqPassword "marionette"
+$mcollectivePath = Get-NotEmpty $mcollectivePath "c:\openshift\mcollective"
 
 if ([string]::IsNullOrEmpty($userActivemqServer))
 {
@@ -36,11 +38,11 @@ Write-Host "This script will configure a local mcollective service.`n" -Foregrou
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 
-# check to see if mcollective is installed in c:\mcollective
+# check to see if mcollective is installed
 
-if ((Test-Path C:\mcollective\bin\mcollectived) -ne $true)
+if ((Test-Path (Join-Path $mcollectivePath 'bin\mcollectived')) -ne $true)
 {
-    Write-Host "Couldn't find mcollective. Make sure you installed it properly." -ForegroundColor red
+    Write-Er "Couldn't find mcollective. Make sure it's installed properly." -ForegroundColor red
     exit 1
 }
 
@@ -72,11 +74,11 @@ Write-Host "Setting up OpenShift development agent ..."
 Write-Host "Warning - The DDL file will be copied, not included. If you change the DDL file, run this script again." -ForegroundColor Yellow
 
 # copy ddl file
-Copy-Item $agentDDLFile "C:\mcollective\plugins\mcollective\agent\" -Force
+Copy-Item $agentDDLFile (Join-Path $mcollectivePath 'plugins\mcollective\agent\') -Force
 
 # create an agent that includes the development agent
 
-Write-Template (Join-Path $currentDir "openshift.rb.template") "C:\mcollective\plugins\mcollective\agent\openshift.rb" @{
+Write-Template (Join-Path $currentDir "openshift.rb.template") (Join-Path $mcollectivePath 'plugins\mcollective\agent\openshift.rb') @{
     devAgentCodeFile = $agentCodeFile
 }
 
@@ -100,43 +102,33 @@ catch [system.exception]
 
 Write-Host "Verified ${userActivemqServer}:${userActivemqPort} is open." -ForegroundColor Green
 
-# edit c:\mcollective\etc\client.cfg
+# edit client.cfg
 
-Write-Host "Configuring c:\mcollective\etc\client.cfg" 
+Write-Host "Configuring ${mcollectivePath}\etc\client.cfg" 
 
-Write-Template (Join-Path $currentDir "client.cfg.template")  "c:\mcollective\etc\client.cfg" @{
+Write-Template (Join-Path $currentDir "client.cfg.template")  (Join-Path $mcollectivePath 'etc\client.cfg') @{
     activemqServer = $userActivemqServer
     activemqPort = $userActivemqPort
     activemqUser = $userActivemqUser
     activemqPassword = $userActivemqPassword
 }
 
-# edit c:\mcollective\etc\server.cfg
-Write-Host "Configuring c:\mcollective\etc\server.cfg"
+# edit server.cfg
+Write-Host "Configuring ${mcollectivePath}\etc\server.cfg"
 
-Write-Template (Join-Path $currentDir "server.cfg.template")  "c:\mcollective\etc\server.cfg" @{
+Write-Template (Join-Path $currentDir "server.cfg.template")  (Join-Path $mcollectivePath 'etc\server.cfg') @{
     activemqServer = $userActivemqServer
     activemqPort = $userActivemqPort
     activemqUser = $userActivemqUser
     activemqPassword = $userActivemqPassword
     binDir = $binDir
+    devLogFile = (Join-Path $mcollectivePath 'dev.log')
 } 
 
-# copy custom validator to C:\mcollective\plugins\mcollective\validator
-Write-Host "Copying custom validator to C:\mcollective\plugins\mcollective\validator ..."
-Copy-Item (Join-Path $currentDir 'any_validator.rb') "C:\mcollective\plugins\mcollective\validator\" -Force
-Copy-Item (Join-Path $currentDir 'any_validator.ddl') "C:\mcollective\plugins\mcollective\validator\" -Force
-
-# restart mcollective service
-
-if ($mcollectiveService.status -like 'running')
-{
-    Write-Host "Stopping mcollectived ..."
-    $mcollectiveService.Stop()
-
-    Write-Host "Waiting 5 seconds for mcolllective to stop ..."
-    Start-Sleep -s 5
-}
+# copy custom validator to plugins\mcollective\validator
+Write-Host "Copying custom validator to ${mcollectivePath}\mcollective\validator ..."
+Copy-Item (Join-Path $currentDir 'any_validator.rb') (Join-Path $mcollectivePath 'plugins\mcollective\validator\') -Force
+Copy-Item (Join-Path $currentDir 'any_validator.ddl') (Join-Path $mcollectivePath 'plugins\mcollective\validator\') -Force
 
 $nodeConfPath = [Uhuru.Openshift.Runtime.Config.NodeConfig]::NodeConfigFile
 
@@ -149,6 +141,3 @@ else
 {
     Write-Host "Did not find configuration file '${nodeConfPath}' - skipping writing facts file!"
 }
-
-Write-Host "Starting mcollectived ..."
-$mcollectiveService.Start()

@@ -181,12 +181,13 @@ namespace Uhuru.Openshift.Runtime
             pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
             
             pi.Arguments = string.Format(
-@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser administrator -userHomeDir {3} -userShell {4}", 
+@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}", 
                 configureScript, 
                 this.ApplicationUuid, 
                 NodeConfig.Values["SSHD_BASE_DIR"], 
                 this.ContainerDir,
-                NodeConfig.Values["GEAR_SHELL"]);
+                NodeConfig.Values["GEAR_SHELL"],
+                Environment.UserName);
 
             Process p = Process.Start(pi);
             p.WaitForExit(60000);
@@ -194,7 +195,11 @@ namespace Uhuru.Openshift.Runtime
             output += p.StandardError.ReadToEnd();
             output += p.StandardOutput.ReadToEnd();
 
-            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser administrator -key ""{1}""", addKeyScript, key, NodeConfig.Values["SSHD_BASE_DIR"]);
+            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser {3} -key ""{1}""", 
+                addKeyScript, 
+                key, 
+                NodeConfig.Values["SSHD_BASE_DIR"],
+                Environment.UserName);
             p = Process.Start(pi);
             p.WaitForExit(60000);
             output += p.StandardError.ReadToEnd();

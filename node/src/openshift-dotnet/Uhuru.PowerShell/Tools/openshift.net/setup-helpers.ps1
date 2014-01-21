@@ -7,38 +7,21 @@ function Cleanup-Directory($directory)
     }
 }
 
-function Setup-MCollective()
+function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir)
 {
     $mcollectiveSetupScript = (Join-Path $currentDir '..\mcollective\setup-mcollective.ps1')
-    $mcollectiveSetupProcess = Start-Process -Wait -PassThru -NoNewWindow 'powershell' "-File ${mcollectiveSetupScript}"
+    $mcollectiveSetupCommand = "-File ${mcollectiveSetupScript} -installLocation ${installLocation} -cygwinInstallLocation ${cygwinInstallLocation}"
 
-    if ($mcollectiveSetupProcess.ExitCode -ne 0)
-    {
-        Write-Error 'MCollective setup failed. Please check installation logs.'
-        exit 1
-    }
-    else
-    {
-        Write-Host "[OK] MCollective installed successfuly."
-    }
+    Run-RubyCommand $rubyDir "powershell ${mcollectiveSetupCommand}" $rubyDir
 }
 
-function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActivemqUser, $userActivemqPassword, $binDir)
+function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActivemqUser, $userActivemqPassword, $mcollectiveInstallDir, $binDir, $rubyDir)
 {
     $mcollectiveSetupScript = (Join-Path $currentDir '..\mcollective\configure-mcollective.ps1')
 
-    $arguments = "-File ${mcollectiveSetupScript} -userActivemqServer ${userActivemqServer} -userActivemqPort ${userActivemqPort} -userActivemqUser ${userActivemqUser} -userActivemqPassword ${userActivemqPassword} -binDir ${binDir}"
-    $mcollectiveSetupProcess = Start-Process -Wait -PassThru -NoNewWindow 'powershell' $arguments
-     
-    if ($mcollectiveSetupProcess.ExitCode -ne 0)
-    {
-        Write-Error 'MCollective configuration failed. Please check installation logs.'
-        exit 1
-    }
-    else
-    {
-        Write-Host "[OK] MCollective configured successfuly."
-    }
+    $arguments = "-File ${mcollectiveSetupScript} -userActivemqServer ${userActivemqServer} -userActivemqPort ${userActivemqPort} -userActivemqUser ${userActivemqUser} -userActivemqPassword ${userActivemqPassword} -mcollectivePath ${mcollectiveInstallDir} -binDir ${binDir}"
+
+    Run-RubyCommand $rubyDir "powershell ${arguments}" $mcollectiveInstallDir
 }
 
 function Setup-SSHD($cygwinDir, $listenAddress, $port)
@@ -55,7 +38,7 @@ function Setup-SSHD($cygwinDir, $listenAddress, $port)
     }
     else
     {
-        Write-Host "[OK] SSHD installed successfuly."
+        Write-Host "[OK] SSHD installed successfully."
     }
 }
 
@@ -70,9 +53,9 @@ function Setup-OOAliases($binLocation)
     $ooScripts = Get-ChildItem -Path $ooPowerShelDir -Filter "*.ps1" 
     foreach ($ooScript in $ooScripts)
     {
-        $scriptUnixPath = & $cygpath $ooScript.FullName
+        $scriptPath = $ooScript.FullName.Replace("\", "/")
         $aliasPath = (Join-Path $ooBinDir $ooScript.Name.SubString(0, $ooScript.Name.Length - 4).ToLower())
-        "powershell -File ${scriptUnixPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
+        "powershell -File ${scriptPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
         $aliasUnixPath = & $cygpath $aliasPath
         & $chmod +x $aliasUnixPath
     }
@@ -125,7 +108,7 @@ function Setup-Ruby($rubyDownloadLocation, $rubyInstallLocation)
     }
     else
     {
-        Write-Host "[OK] Ruby installed successfuly."
+        Write-Host "[OK] Ruby installed successfully."
     }
 }
 
@@ -153,6 +136,6 @@ function Setup-RubyDevkit($rubyDevKitDownloadLocation, $rubyDevKitInstallLocatio
     }
     else
     {
-        Write-Host "[OK] Ruby devkit installed successfuly."
+        Write-Host "[OK] Ruby devkit installed successfully."
     }
 }

@@ -11,4 +11,4 @@ $bashBinary = Join-Path $targetDirectory 'bin\bash.exe'
 
 $args = "--norc --login -c '/usr/sbin/sshd -D -f /etc/sshd_config'"
 
-Start-Process $bashBinary $args -Wait -NoNewWindow
+Start-Process $bashBinary $args -NoNewWindow

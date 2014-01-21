@@ -1,4 +1,9 @@
 # Currently using the mcollective windows installer from kermit.fr
+[CmdletBinding()]
+param (
+    [string] $installLocation = 'c:\openshift\mcollective\',
+    [string] $cygwinInstallLocation = 'c:\openshift\cygwin\installation\'
+)
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
@@ -6,7 +11,7 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
     [Security.Principal.WindowsBuiltInRole] "Administrator"))
 {
-    Write-Host "This script requires elevation. Please run as administator." -ForegroundColor Red
+    Write-Error "This script requires elevation. Please run as administator."
     exit 1
 }
 
@@ -17,7 +22,7 @@ $rubyInterpreter = (Get-Command "ruby" -ErrorAction SilentlyContinue | select pa
 
 if ([string]::IsNullOrEmpty($rubyInterpreter))
 {
-    Write-Host "Could not find ruby. Please install it before setting up mcollective." -ForegroundColor Red
+    Write-Error "Could not find ruby. Please install it before setting up mcollective."
     exit 1
 }
 
@@ -28,33 +33,21 @@ $rubyVersion = [string](ruby -v)
 
 if (($rubyVersion -notlike "*1.8.7*") -and ($rubyVersion -notlike "*1.9.3*"))
 {
-    Write-Host "Incorrect ruby version: $rubyVersion. Ruby 1.8.7 or 1.9.3 required." -ForegroundColor Red
+    Write-Error "Incorrect ruby version: $rubyVersion. Ruby 1.8.7 or 1.9.3 required."
     exit 1
 }
 
 Write-Host "Detected ruby version: " -NoNewline
 Write-Host $rubyVersion -ForegroundColor Yellow
 
-
-$devKitPath = $ENV:RI_DEVKIT
-
-if ([string]::IsNullOrEmpty($devKitPath))
-{
-    Write-Host "Can't find the ruby devkit. Please make sure it's installed and environment variables are set." -ForegroundColor Red
-    exit 1
-}
-
-Write-Host "Using ruby devkit from here: " -NoNewline
-Write-Host $devKitPath -ForegroundColor Yellow
-
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 
-$mcollectiveSetupURL = "http://kermit.fr/repo/windows/bin/mcollective_2_3_1_Setup.exe"
+$mcollectiveSetupURL = "http://downloads.puppetlabs.com/mcollective/mcollective-2.3.3.tar.gz"
 
 Write-Host "Downloading mcollective setup package from here: " -NoNewline
 Write-Host $mcollectiveSetupURL -ForegroundColor Yellow
 
-$setupPackage = Join-Path $env:TEMP "mcollective-setup.exe"
+$setupPackage = [System.IO.Path]::GetTempFileName() + '.tar.gz'
 
 if ((Test-Path $setupPackage) -eq $true)
 {
@@ -63,17 +56,55 @@ if ((Test-Path $setupPackage) -eq $true)
 
 Invoke-WebRequest $mcollectiveSetupURL -OutFile $setupPackage
 
-Write-Host "Executing installation package ..."
+Write-Verbose 'Looking up binaries from cygwin ...'
 
-$logFile = Join-Path $env:TEMP "mcollective_setup.log"
+$bash = (Join-Path $cygwinInstallLocation 'bin\bash.exe')
+$cygpath = (Join-Path $cygwinInstallLocation 'bin\cygpath.exe')
+if ((Test-Path $bash) -ne $true)
+{
+    Write-Error "Can't find the bash binary in the cygwin installation path."
+    exit 1
+}
+if ((Test-Path $cygpath) -ne $true)
+{
+    Write-Error "Can't find the cygpath binary in the cygwin installation path."
+    exit 1
+}
 
-$arguments = "/SP /VERYSILENT /SUPRESSMSGBOXES /LOG=`"$logFile`" /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /DIR=c:\mcollective /NOICONS"
+if (Test-Path $installLocation)
+{
+    Write-Verbose "Cleaning up existing directory '$installLocation'"
+    Remove-Item -Force -Recurse -Path $installLocation
+}
 
+Write-Verbose "Creating directory '${installLocation}' ..."
+New-Item -path $installLocation -type directory -Force | Out-Null
 
-Write-Host "Using the following arguments: " -NoNewline
-Write-Host $arguments -ForegroundColor Yellow
+Write-Host 'Unpacking mcollective ...'
+$setupPackageCyg = & $cygpath $setupPackage
+$installLocationCyg = & $cygpath $installLocation
+Write-Verbose "Using the following command: '${bash} --login --norc -c ""tar zxf ${setupPackageCyg} -C ${installLocationCyg}"""
 
-Start-Process $setupPackage $arguments -Wait
+$unpackProcess = Start-Process -Wait -PassThru -NoNewWindow -WorkingDirectory (Join-Path $cygwinInstallLocation 'bin') $bash "--norc --login -c ""tar zxf ${setupPackageCyg} -C ${installLocationCyg}"""
 
-Write-Host "Completed. You can find the log of the installation here: " -ForegroundColor Green -NoNewline
-Write-Host $logFile -ForegroundColor Yellow
+if ($unpackProcess.ExitCode -ne 0)
+{
+    Write-Error "Error unpacking mcollective. Aborting installation."
+    exit 1
+}
+
+Write-Verbose "MCollective was unpacked successfully."
+
+$mcollectiveUnpackDir = Get-ChildItem -Path "C:\openshift\mcollective\mcollective-*"
+
+Copy-Item -Force -Recurse -Path (Join-Path $mcollectiveUnpackDir '\*') $installLocation
+Remove-Item -Force -Recurse -Path $mcollectiveUnpackDir
+
+Write-Host "Setting up mcollective gem dependencies ..."
+$gemInstallProcess = Start-Process -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp"
+
+if ($gemInstallProcess.ExitCode -ne 0)
+{
+    Write-Error "Error setting up gems for mcollective."
+    exit 1
+}

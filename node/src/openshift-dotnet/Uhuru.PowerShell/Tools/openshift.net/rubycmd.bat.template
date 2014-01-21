@@ -1,6 +1,6 @@
 @echo off
 
-set PATH=${rubyPath}\bin;${rubyDevkit}\bin;${rubyDevkit}\mingw\bin;%PATH%
+set PATH=${rubyPath};%PATH%
 
 cd /D ${directory}
 

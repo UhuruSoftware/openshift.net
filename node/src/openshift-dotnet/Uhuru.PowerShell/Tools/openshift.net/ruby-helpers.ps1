@@ -1,12 +1,11 @@
 
 
-function Run-RubyCommand($rubyDir, $rubyDevkitDir, $command, $directory)
+function Run-RubyCommand($rubyDir, $command, $directory)
 {
     $scriptLocation = [System.IO.Path]::GetTempFileName() + '.bat'
 
     Write-Template (Join-Path $currentDir "rubycmd.bat.template") $scriptLocation @{
-        rubyPath = $rubyDir
-        rubyDevkit = $rubyDevkitDir
+        rubyPath = (Join-Path $rubyDir 'bin')
         directory = $directory
         command = $command
     }
@@ -20,6 +19,6 @@ function Run-RubyCommand($rubyDir, $rubyDevkitDir, $command, $directory)
     }
     else
     {
-        Write-Host "[OK] Ruby command '${command}' ran successfuly."
+        Write-Host "[OK] Ruby command '${command}' ran successfully."
     }
 }

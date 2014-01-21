@@ -1,34 +1,40 @@
-ENV["BUNDLE_GEMFILE"] = File.expand_path("../openshift/Gemfile", __FILE__)
-
-require 'bundler/setup'
-require 'sinatra'
 require 'json'
-require File.expand_path("../powershell_cmdlets", __FILE__)
-require File.expand_path("../openshift/web", __FILE__)
-
-$dev_debug_msg = []
-
-Thread.new do
-  WebInterface.run!
-end
-
+require 'open3'
+require 'logger'
 
 module MCollective
   module Agent
     class Openshift < RPC::Agent
 
-      def print_to_debug(msg)
-        $dev_debug_msg << "<pre>#{msg} - #{Time.new}</pre>"
+      def run_command(command ,args)
+        script = File.join(File.expand_path('../../powershell/oo-cmdlets', __FILE__), "#{command.to_s.gsub('_', '-')}.ps1")
+        ps_args = args.to_json.gsub('"', '"""')
+        cmd = "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} \"#{ps_args}\" 2>&1"
+        output = ""
+        exitcode = 0
+        Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+          output = stdout.read
+          exitcode = wait_thr.value.exitstatus
+
+          if exitcode == 0
+            @logger.debug "EXECUTED COMMAND: #{cmd}"
+            @logger.debug "OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{output}"
+          else
+            @logger.error "EXECUTED COMMAND: #{cmd}"
+            @logger.error "OUT #{command}: EXITCODE: #{exitcode} STDOUT: #{output}"
+          end
+        end
+        return exitcode, output
       end
 
       def echo_action
-        print_to_debug "echo_action"
+        @logger.debug "echo_action"
         validate :msg, String
         reply[:msg] = request[:msg]
       end
 
       def get_facts_action
-        print_to_debug "get_facts_action"
+        @logger.debug "get_facts_action"
       end
 
       # Handles all incoming messages. Validates the input, executes the action, and constructs
@@ -43,13 +49,13 @@ module MCollective
         rc                         = nil
         output                     = ""
 
-        print_to_debug "cartridge_do_action: action: '#{action}', cartridge: '#{cartridge}', args: '#{JSON.pretty_generate(args)}'"
+        @logger.debug "cartridge_do_action: action: '#{action}', cartridge: '#{cartridge}', args: '#{JSON.pretty_generate(args)}'"
 
         # Do the action execution
         exitcode, output, addtl_params           = execute_action(action, args)
 
-        print_to_debug "!!!EXITCODE IS NIL!!! for action: '#{action}'" if exitcode == nil
-        print_to_debug "!!!OUTPUT IS NIL!!! for action: '#{action}'" if output == nil
+        @logger.debug "!!!EXITCODE IS NIL!!! for action: '#{action}'" if exitcode == nil
+        @logger.debug "!!!OUTPUT IS NIL!!! for action: '#{action}'" if output == nil
 
         reply[:exitcode] = exitcode
         reply[:output]   = output
@@ -96,7 +102,7 @@ module MCollective
         # Log.instance.info("Finished executing action [#{action}] (#{exitcode})")
         # end
 
-        print_to_debug "execute_action - action: #{action}, #{JSON.pretty_generate(args)}"
+        @logger.debug "execute_action - action: #{action}, #{JSON.pretty_generate(args)}"
         return exitcode, output, addtl_params
       end
 
@@ -109,7 +115,7 @@ module MCollective
       #
       # BZ 876942: Disable threading until we can explore proper concurrency management
       def execute_parallel_action
-        print_to_debug "execute_parallel_action - request: #{request}"
+        @logger.debug "execute_parallel_action - request: #{request}"
         # Log.instance.info("execute_parallel_action call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
 
         joblist = request[config.identity]
@@ -128,7 +134,7 @@ module MCollective
         end
 
         # Log.instance.info("execute_parallel_action call - #{joblist}")
-        print_to_debug "OUT execute_parallel_action - joblist: #{JSON.pretty_generate(joblist)}"
+        @logger.debug "OUT execute_parallel_action - joblist: #{JSON.pretty_generate(joblist)}"
         reply[:output]   = joblist
         reply[:exitcode] = 0
       end
@@ -137,7 +143,7 @@ module MCollective
       # Upgrade between versions
       #
       def upgrade_action
-        print_to_debug "upgrade_action"
+        @logger.debug "upgrade_action"
         # Log.instance.info("upgrade_action call / action=#{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
         # validate :uuid, /^[a-zA-Z0-9]+$/
         # validate :version, /^.+$/
@@ -188,7 +194,7 @@ module MCollective
       # configured MCollective agent timeout.
       #
       def get_app_container_from_args(args)
-        print_to_debug "get_app_container_from_args"
+        @logger.debug "get_app_container_from_args"
         # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
         # app_name = args['--with-app-name'].to_s if args['--with-app-name']
         # gear_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
@@ -207,7 +213,7 @@ module MCollective
       end
 
       def with_container_from_args(args)
-        print_to_debug "with_container_from_args"
+        @logger.debug "with_container_from_args"
         output = ''
         # begin
         # container = get_app_container_from_args(args)
@@ -223,9 +229,9 @@ module MCollective
       end
 
       def oo_app_create(args)
-        print_to_debug "oo_app_create"
-        exitcode, output = Powershell.run_command(__method__, args)
-        print_to_debug output
+        @logger.debug "oo_app_create"
+        exitcode, output = run_command(__method__, args)
+        @logger.debug output
         # begin
         # container = get_app_container_from_args(args)
         # container.create
@@ -244,7 +250,7 @@ module MCollective
       end
 
       def oo_app_destroy(args)
-        print_to_debug "oo_app_destroy"
+        @logger.debug "oo_app_destroy"
         # skip_hooks = args['--skip-hooks'] ? args['--skip-hooks'] : false
         # output     = ""
         # begin
@@ -259,11 +265,11 @@ module MCollective
         # output << err
         # return rc, output
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_add(args)
-        print_to_debug "oo_authorized_ssh_key_add"
+        @logger.debug "oo_authorized_ssh_key_add"
         # ssh_key  = args['--with-ssh-key']
         # key_type = args['--with-ssh-key-type']
         # comment  = args['--with-ssh-key-comment']
@@ -271,22 +277,22 @@ module MCollective
         # with_container_from_args(args) do |container|
         # container.add_ssh_key(ssh_key, key_type, comment)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_remove(args)
-        print_to_debug "oo_authorized_ssh_key_remove"
+        @logger.debug "oo_authorized_ssh_key_remove"
         # ssh_key = args['--with-ssh-key']
         # comment = args['--with-ssh-comment']
 
         # with_container_from_args(args) do |container|
         # container.remove_ssh_key(ssh_key, comment)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_authorized_ssh_keys_replace(args)
-        print_to_debug "oo_authorized_ssh_keys_replace"
+        @logger.debug "oo_authorized_ssh_keys_replace"
         # ssh_keys  = args['--with-ssh-keys'] || []
 
         # begin
@@ -299,60 +305,60 @@ module MCollective
         # else
         # return 0, ""
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_broker_auth_key_add(args)
-        print_to_debug "oo_broker_auth_key_add"
+        @logger.debug "oo_broker_auth_key_add"
         # iv    = args['--with-iv']
         # token = args['--with-token']
 
         # with_container_from_args(args) do |container|
         # container.add_broker_auth(iv, token)
         # end
-        return Powershell.run_command(__method__, args)
+        return run_command(__method__, args)
       end
 
       def oo_broker_auth_key_remove(args)
-        print_to_debug "oo_broker_auth_key_remove"
+        @logger.debug "oo_broker_auth_key_remove"
         # with_container_from_args(args) do |container|
         # container.remove_broker_auth
         # end
-        return Powershell.run_command(__method__, args)
+        return run_command(__method__, args)
       end
 
       def oo_env_var_add(args)
-        print_to_debug "oo_env_var_add"
+        @logger.debug "oo_env_var_add"
         # key   = args['--with-key']
         # value = args['--with-value']
 
         # with_container_from_args(args) do |container|
         # container.add_env_var(key, value)
         # end
-        return Powershell.run_command(__method__, args)
+        return run_command(__method__, args)
       end
 
       def oo_env_var_remove(args)
-        print_to_debug "oo_env_var_remove"
+        @logger.debug "oo_env_var_remove"
         # key = args['--with-key']
 
         # with_container_from_args(args) do |container|
         # container.remove_env_var(key)
         # end
-        return Powershell.run_command(__method__, args)
+        return run_command(__method__, args)
       end
 
       def oo_cartridge_list(args)
-        print_to_debug "oo_cartridge_list"
-        exitcode, output = Powershell.run_command(__method__, args)
-        print_to_debug exitcode
-        print_to_debug output
+        @logger.debug "oo_cartridge_list"
+        exitcode, output = run_command(__method__, args)
+        @logger.debug exitcode
+        @logger.debug output
         # list_descriptors = true if args['--with-descriptors']
         # porcelain = true if args['--porcelain']
 
         # output = ""
         # begin
-        # print_to_debug "should lits cartridges"
+        # @logger.debug "should lits cartridges"
         # # output = OpenShift::Runtime::Node.get_cartridge_list(list_descriptors, porcelain, false)
         # rescue Exception => e
         # Log.instance.info e.message
@@ -365,8 +371,8 @@ module MCollective
       end
 
       def oo_app_state_show(args)
-        print_to_debug "oo_app_state_show"
-        Powershell.run_command(__method__, args)
+        @logger.debug "oo_app_state_show"
+        run_command(__method__, args)
         # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
         # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
 
@@ -376,12 +382,12 @@ module MCollective
       end
 
       def oo_get_quota(args)
-        print_to_debug "oo_get_quota"
+        @logger.debug "oo_get_quota"
         # uuid = args['--uuid'].to_s if args['--uuid']
 
         # output = ""
         # begin
-        # print_to_debug "should get quota"
+        # @logger.debug "should get quota"
         # # output = OpenShift::Runtime::Node.get_quota(uuid)
         # rescue Exception => e
         # Log.instance.info e.message
@@ -393,14 +399,14 @@ module MCollective
       end
 
       def oo_set_quota(args)
-        print_to_debug "oo_set_quota"
+        @logger.debug "oo_set_quota"
         # uuid = args['--uuid'].to_s if args['--uuid']
         # blocks = args['--blocks']
         # inodes = args['--inodes']
 
         # output = ""
         # begin
-        # print_to_debug "should set quota"
+        # @logger.debug "should set quota"
         # #output = OpenShift::Runtime::Node.set_quota(uuid, blocks, inodes)
         # rescue Exception => e
         # Log.instance.info e.message
@@ -412,7 +418,7 @@ module MCollective
       end
 
       def oo_force_stop(args)
-        print_to_debug "oo_force_stop"
+        @logger.debug "oo_force_stop"
         # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
         # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
 
@@ -427,7 +433,7 @@ module MCollective
       # follow proper exception handling pattern.
       #
       def with_frontend_rescue_pattern
-        print_to_debug "with_frontend_rescue_pattern"
+        @logger.debug "with_frontend_rescue_pattern"
         output = ""
         # begin
         # yield(output)
@@ -449,7 +455,7 @@ module MCollective
       end
 
       def with_frontend_from_args(args)
-        print_to_debug "with_frontend_from_args"
+        @logger.debug "with_frontend_from_args"
         # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
         # container_name = args['--with-container-name'].to_s if args['--with-container-name']
         # namespace = args['--with-namespace'].to_s if args['--with-namespace']
@@ -461,7 +467,7 @@ module MCollective
       end
 
       def with_frontend_returns_data(args)
-        print_to_debug "with_frontend_returns_data"
+        @logger.debug "with_frontend_returns_data"
         # with_frontend_from_args(args) do |f, o|
         # r = yield(f, o)
         # o << "CLIENT_RESULT: " + r.to_json + "\n"
@@ -473,21 +479,21 @@ module MCollective
       # performed on it.
       #
       def oo_frontend_create(args)
-        print_to_debug "oo_frontend_create"
+        @logger.debug "oo_frontend_create"
         # with_frontend_from_args(args) do |f, o|
         # f.create
         # end
       end
 
       def oo_frontend_destroy(args)
-        print_to_debug "oo_frontend_destroy"
+        @logger.debug "oo_frontend_destroy"
         # with_frontend_from_args(args) do |f, o|
         # f.destroy
         # end
       end
 
       def oo_frontend_update_name(args)
-        print_to_debug "oo_frontend_update_name"
+        @logger.debug "oo_frontend_update_name"
         # new_container_name = args['--with-new-container-name']
         # with_frontend_from_args(args) do |f, o|
         # f.update_name(new_container_name)
@@ -501,7 +507,7 @@ module MCollective
       # ex: [ "", "127.0.250.1:8080", { "websocket" => 1 } ], ...
       #
       def oo_frontend_connect(args)
-        print_to_debug "oo_frontend_connect"
+        @logger.debug "oo_frontend_connect"
         # path_target_options = args['--with-path-target-options']
         # with_frontend_from_args(args) do |f, o|
         # f.connect(*path_target_options)
@@ -512,7 +518,7 @@ module MCollective
       # The paths are an array of the paths to remove.
       # ex: [ "", "/health", ... ]
       def oo_frontend_disconnect(args)
-        print_to_debug "oo_frontend_disconnect"
+        @logger.debug "oo_frontend_disconnect"
         # paths = args['--with-paths']
         # with_frontend_from_args(args) do |f, o|
         # f.disconnect(*paths)
@@ -520,35 +526,35 @@ module MCollective
       end
 
       def oo_frontend_connections(args)
-        print_to_debug "oo_frontend_connections"
+        @logger.debug "oo_frontend_connections"
         # with_frontend_returns_data(args) do |f, o|
         # f.connections.to_json
         # end
       end
 
       def oo_frontend_idle(args)
-        print_to_debug "oo_frontend_idle"
+        @logger.debug "oo_frontend_idle"
         # with_frontend_from_args(args) do |f, o|
         # f.idle
         # end
       end
 
       def oo_frontend_unidle(args)
-        print_to_debug "oo_frontend_unidle"
+        @logger.debug "oo_frontend_unidle"
         # with_frontend_from_args(args) do |f, o|
         # f.unidle
         # end
       end
 
       def oo_frontend_check_idle(args)
-        print_to_debug "oo_frontend_check_idle"
+        @logger.debug "oo_frontend_check_idle"
         # with_frontend_returns_data(args) do |f, o|
         # f.idle?
         # end
       end
 
       def oo_frontend_sts(args)
-        print_to_debug "oo_frontend_sts"
+        @logger.debug "oo_frontend_sts"
         # max_age = args['--with-max-age']
         # with_frontend_from_args(args) do |f, o|
         # f.sts(max_age)
@@ -556,21 +562,21 @@ module MCollective
       end
 
       def oo_frontend_no_sts(args)
-        print_to_debug "oo_frontend_no_sts"
+        @logger.debug "oo_frontend_no_sts"
         # with_frontend_from_args(args) do |f, o|
         # f.no_sts
         # end
       end
 
       def oo_frontend_get_sts(args)
-        print_to_debug "oo_frontend_get_sts"
+        @logger.debug "oo_frontend_get_sts"
         # with_frontend_returns_data(args) do |f, o|
         # f.get_sts
         # end
       end
 
       def oo_add_alias(args)
-        print_to_debug "oo_add_alias"
+        @logger.debug "oo_add_alias"
         # alias_name = args['--with-alias-name']
         # with_frontend_from_args(args) do |f, o|
         # f.add_alias(alias_name)
@@ -578,7 +584,7 @@ module MCollective
       end
 
       def oo_remove_alias(args)
-        print_to_debug "oo_remove_alias"
+        @logger.debug "oo_remove_alias"
         # alias_name = args['--with-alias-name']
         # with_frontend_from_args(args) do |f, o|
         # f.remove_alias(alias_name)
@@ -586,14 +592,14 @@ module MCollective
       end
 
       def oo_aliases(args)
-        print_to_debug "oo_aliases"
+        @logger.debug "oo_aliases"
         # with_frontend_returns_data(args) do |f, o|
         # f.aliases(alias_name)
         # end
       end
 
       def oo_ssl_cert_add(args)
-        print_to_debug "oo_ssl_cert_add"
+        @logger.debug "oo_ssl_cert_add"
         # ssl_cert     = args['--with-ssl-cert']
         # priv_key     = args['--with-priv-key']
         # server_alias = args['--with-alias-name']
@@ -605,7 +611,7 @@ module MCollective
       end
 
       def oo_ssl_cert_remove(args)
-        print_to_debug "oo_ssl_cert_remove"
+        @logger.debug "oo_ssl_cert_remove"
         # server_alias = args['--with-alias-name']
         # with_frontend_from_args(args) do |f, o|
         # f.remove_ssl_cert(server_alias)
@@ -613,14 +619,14 @@ module MCollective
       end
 
       def oo_ssl_certs(args)
-        print_to_debug "oo_ssl_certs"
+        @logger.debug "oo_ssl_certs"
         # with_frontend_returns_data do |f, o|
         # f.ssl_certs
         # end
       end
 
       def oo_frontend_to_hash(args)
-        print_to_debug "oo_frontend_to_hash"
+        @logger.debug "oo_frontend_to_hash"
         # with_frontend_returns_data(args) do |f, o|
         # f.to_hash
         # end
@@ -632,13 +638,13 @@ module MCollective
       # the output to protect from interpretation.
       #
       def oo_frontend_backup(args)
-        print_to_debug "oo_frontend_backup"
+        @logger.debug "oo_frontend_backup"
         # oo_frontend_to_hash(args)
       end
 
       # Does an implicit instantiation of the FrontendHttpServer class.
       def oo_frontend_restore(args)
-        print_to_debug "oo_frontend_restore"
+        @logger.debug "oo_frontend_restore"
         # backup = args['--with-backup']
 
         # with_frontend_rescue_pattern do |o|
@@ -647,35 +653,35 @@ module MCollective
       end
 
       def oo_tidy(args)
-        print_to_debug "oo_tidy"
+        @logger.debug "oo_tidy"
         # with_container_from_args(args) do |container|
         # container.tidy
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_expose_port(args)
-        print_to_debug "oo_expose_port"
+        @logger.debug "oo_expose_port"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
         # output << container.create_public_endpoints(cart_name)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_conceal_port(args)
-        print_to_debug "oo_conceal_port"
+        @logger.debug "oo_conceal_port"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
         # output << container.delete_public_endpoints(cart_name)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_connector_execute(args)
-        print_to_debug "oo_connector_execute"
+        @logger.debug "oo_connector_execute"
         #cart_name        = args['--cart-name']
         #pub_cart_name    = args['--publishing-cart-name']
         #hook_name        = args['--hook-name']
@@ -686,11 +692,11 @@ module MCollective
         # output << container.connector_execute(cart_name, pub_cart_name, connection_type, hook_name, input_args)
         # end
 
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_configure(args)
-        print_to_debug "oo_configure"
+        @logger.debug "oo_configure"
         # cart_name        = args['--cart-name']
         # template_git_url = args['--with-template-git-url']
         # manifest         = args['--with-cartridge-manifest']
@@ -698,11 +704,11 @@ module MCollective
         # with_container_from_args(args) do |container, output|
         # output << container.configure(cart_name, template_git_url, manifest)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_update_configuration(args)
-        print_to_debug "oo_update_configuration"
+        @logger.debug "oo_update_configuration"
         #config  = args['--with-config']
         #auto_deploy = config['auto_deploy']
         #deployment_branch = config['deployment_branch']
@@ -715,32 +721,32 @@ module MCollective
         #  container.set_keep_deployments(keep_deployments)
         #  container.set_deployment_type(deployment_type)
         #end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_post_configure(args)
-        print_to_debug "oo_post_configure"
+        @logger.debug "oo_post_configure"
         # cart_name = args['--cart-name']
         # template_git_url = args['--with-template-git-url']
 
         # with_container_from_args(args) do |container, output|
         # output << container.post_configure(cart_name, template_git_url)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_deconfigure(args)
-        print_to_debug "oo_deconfigure"
+        @logger.debug "oo_deconfigure"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
         # output << container.deconfigure(cart_name)
         # end
-        Powershell.run_command(__method__, args)
+        run_command(__method__, args)
       end
 
       def oo_unsubscribe(args)
-        print_to_debug "oo_unsubscribe"
+        @logger.debug "oo_unsubscribe"
         # cart_name     = args['--cart-name']
         # pub_cart_name = args['--publishing-cart-name']
 
@@ -750,7 +756,7 @@ module MCollective
       end
 
       def oo_deploy_httpd_proxy(args)
-        print_to_debug "oo_deploy_httpd_proxy"
+        @logger.debug "oo_deploy_httpd_proxy"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container|
@@ -759,7 +765,7 @@ module MCollective
       end
 
       def oo_remove_httpd_proxy(args)
-        print_to_debug "oo_remove_httpd_proxy"
+        @logger.debug "oo_remove_httpd_proxy"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container|
@@ -768,7 +774,7 @@ module MCollective
       end
 
       def oo_restart_httpd_proxy(args)
-        print_to_debug "oo_restart_httpd_proxy"
+        @logger.debug "oo_restart_httpd_proxy"
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container|
@@ -777,12 +783,12 @@ module MCollective
       end
 
       def oo_system_messages(args)
-        print_to_debug "oo_system_messages"
+        @logger.debug "oo_system_messages"
         # cart_name = args['--cart-name']
 
         # output = ""
         # begin
-        # print_to_debug "should find system messages for node"
+        # @logger.debug "should find system messages for node"
         # # output = OpenShift::Runtime::Node.find_system_messages(cart_name)
         # rescue Exception => e
         # Log.instance.info e.message
@@ -794,11 +800,11 @@ module MCollective
       end
 
       def oo_start(args)
-        print_to_debug "oo_start"
-		    Powershell.run_command(__method__, args)
+        @logger.debug "oo_start"
+		    run_command(__method__, args)
 		    #exitcode, output = Powershell.run_command(__method__, args)
-        #print_to_debug exitcode
-        #print_to_debug output
+        #@logger.debug exitcode
+        #@logger.debug output
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -807,8 +813,8 @@ module MCollective
       end
 
       def oo_stop(args)
-        print_to_debug "oo_stoping"
-        Powershell.run_command(__method__, args)
+        @logger.debug "oo_stoping"
+        run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -817,8 +823,8 @@ module MCollective
       end
 
       def oo_restart(args)
-        print_to_debug "oo_restart"
-        Powershell.run_command(__method__, args)
+        @logger.debug "oo_restart"
+        run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -827,8 +833,8 @@ module MCollective
       end
 
       def oo_reload(args)
-        print_to_debug "oo_reload"
-        Powershell.run_command(__method__, args)
+        @logger.debug "oo_reload"
+        run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -837,8 +843,8 @@ module MCollective
       end
 
       def oo_status(args)
-        print_to_debug "oo_status"
-        Powershell.run_command(__method__, args)
+        @logger.debug "oo_status"
+        run_command(__method__, args)
         # cart_name = args['--cart-name']
 
         # with_container_from_args(args) do |container, output|
@@ -847,7 +853,7 @@ module MCollective
       end
 
       def oo_threaddump(args)
-        print_to_debug "oo_threaddump"
+        @logger.debug "oo_threaddump"
         # cart_name = args['--cart-name']
 
         # output = ""
@@ -869,7 +875,7 @@ module MCollective
       # Set the district for a node
       #
       def set_district_action
-        print_to_debug "set_district_action"
+        @logger.debug "set_district_action"
         # Log.instance.info("set_district call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
         # validate :uuid, /^[a-zA-Z0-9]+$/
         # uuid = request[:uuid].to_s if request[:uuid]
@@ -905,7 +911,7 @@ module MCollective
       # Returns whether an app is on a server
       #
       def has_app_action
-        print_to_debug "has_app_action"
+        @logger.debug "has_app_action"
          validate :uuid, /^[a-zA-Z0-9]+$/
          validate :application, /^[a-zA-Z0-9]+$/
          uuid = request[:uuid].to_s if request[:uuid]
@@ -923,7 +929,7 @@ module MCollective
       # Returns whether an embedded app is on a server
       #
       def has_embedded_app_action
-        print_to_debug "has_embedded_app_action"
+        @logger.debug "has_embedded_app_action"
          validate :uuid, /^[a-zA-Z0-9]+$/
          validate :embedded_type, /^.+$/
          uuid = request[:uuid].to_s if request[:uuid]
@@ -940,7 +946,7 @@ module MCollective
       # Returns the entire set of env variables for a given gear uuid
       #
       def get_gear_envs_action
-        print_to_debug "get_gear_envs_action"
+        @logger.debug "get_gear_envs_action"
         # validate :uuid, /^[a-zA-Z0-9]+$/
         # dir = OpenShift::Runtime::ApplicationContainer.from_uuid(request[:uuid].to_s).container_dir
         # env_hash = OpenShift::Runtime::Utils::Environ.for_gear(dir)
@@ -952,7 +958,7 @@ module MCollective
       # Returns whether a uid or gid is already reserved on the system
       #
       def has_uid_or_gid_action
-        print_to_debug "has_uid_or_gid_action"
+        @logger.debug "has_uid_or_gid_action"
         # validate :uid, /^[0-9]+$/
         # uid  = request[:uid].to_i
 
@@ -974,7 +980,7 @@ module MCollective
       # Returns whether the cartridge is present on a gear
       #
       def has_app_cartridge_action
-        print_to_debug "has_app_cartridge_action"
+        @logger.debug "has_app_cartridge_action"
         # validate :app_uuid, /^[a-zA-Z0-9]+$/
         # validate :gear_uuid, /^[a-zA-Z0-9]+$/
         # validate :cartridge, /\A[a-zA-Z0-9\.\-\/_]+\z/
@@ -1001,7 +1007,7 @@ module MCollective
       # Get all gears
       #
       def get_all_gears_action
-        print_to_debug "get_all_gears_action"
+        @logger.debug "get_all_gears_action"
         # gear_map = {}
 
         # uid_map          = {}
@@ -1024,7 +1030,7 @@ module MCollective
         # }
         # reply[:output]   = gear_map
         # reply[:exitcode] = 0
-        print_to_debug "get_all_gears_action"
+        @logger.debug "get_all_gears_action"
         gear_map = {}
 
         uid_map          = {}
@@ -1041,8 +1047,8 @@ module MCollective
                 next unless File.exists?(File.join(dir, file, ".auth/token"))
               end
 
-              print_to_debug "file is #{file}"
-              print_to_debug "uid_map is #{uid_map[file]}"
+              @logger.debug "file is #{file}"
+              @logger.debug "uid_map is #{uid_map[file]}"
 
               gear_map[file] = uid_map[file]
             end
@@ -1057,7 +1063,7 @@ module MCollective
       # Get all sshkeys for all gears
       #
       def get_all_gears_sshkeys_action
-        print_to_debug "get_all_gears_sshkeys_action"
+        @logger.debug "get_all_gears_sshkeys_action"
         gear_map = {}
         dir              = "c:/openshift/gears/"
         filelist         = Dir.foreach(dir) do |gear_file|
@@ -1084,7 +1090,7 @@ module MCollective
       # Get all gears
       #
       def get_all_active_gears_action
-        print_to_debug "get_all_active_gears_action"
+        @logger.debug "get_all_active_gears_action"
         active_gears     = {}
         dir              = "c:/openshift/gears/"
         filelist         = Dir.foreach(dir) { |file|
@@ -1103,7 +1109,7 @@ module MCollective
 
       ## Perform operation on CartridgeRepository
       def cartridge_repository_action
-        print_to_debug "cartridge_repository_action"
+        @logger.debug "cartridge_repository_action"
         # Log.instance.info("action: #{request.action}_action, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
         # action            = request[:action]
         # path              = request[:path]
@@ -1143,9 +1149,9 @@ module MCollective
           return -1, "In #{__method__} at least user environment variables or gears must be provided for #{args['--with-app-name']}"
         end
 
-        print_to_debug "ENV_VARIABLES: #{variables}"
+        @logger.debug "ENV_VARIABLES: #{variables}"
 
-        rc, output = Powershell.run_command(__method__, args)
+        rc, output = run_command(__method__, args)
         #with_container_from_args(args) do |container|
         #  rc, output = container.user_var_add(variables, gears)
         #end
@@ -1153,13 +1159,13 @@ module MCollective
       end
 
       def oo_user_var_remove(args)
-        print_to_debug "method is #{__method__.to_s}"
+        @logger.debug "method is #{__method__.to_s}"
 
         unless args['--with-keys']
           return -1, "In #{__method__} no user environment variable names provided for #{args['--with-app-name']}"
         end
 
-        exitcode, output = Powershell.run_command(__method__, args)
+        exitcode, output = run_command(__method__, args)
         return exitcode, output
         #
         #keys  = args['--with-keys'].split(' ')
@@ -1174,8 +1180,8 @@ module MCollective
       end
 
       def oo_user_var_list(args)
-        print_to_debug "oo_user_var_list"
-        print_to_debug "method is #{__method__.to_s}"
+        @logger.debug "oo_user_var_list"
+        @logger.debug "method is #{__method__.to_s}"
         #keys = args['--with-keys'] ? args['--with-keys'].split(' ') : []
         #
         #output = ''
@@ -1190,7 +1196,7 @@ module MCollective
         #else
         #  return 0, output
         #end
-        exitcode, output = Powershell.run_command(__method__, args)
+        exitcode, output = run_command(__method__, args)
         return exitcode, output
       end
 
