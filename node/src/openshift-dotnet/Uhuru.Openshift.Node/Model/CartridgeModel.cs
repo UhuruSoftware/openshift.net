@@ -344,19 +344,23 @@ namespace Uhuru.Openshift.Runtime
 
         public string PostConfigure(string cartridgeName)
         {
-            string output = string.Empty;
+            StringBuilder output = new StringBuilder();
             
+            string name = cartridgeName.Split('-')[0];
+            string version = cartridgeName.Split('-')[1];
+            Manifest cartridge = GetCartridge(cartridgeName);
+
             if (EmptyRepository())
             {
-                output += "CLIENT_MESSAGE: An empty Git repository has been created for your application.  Use 'git push' to add your code.";
+                output.AppendLine("CLIENT_MESSAGE: An empty Git repository has been created for your application.  Use 'git push' to add your code.");
             }
             else
             {
-                //output = this.StartCartridge("start",)
+                output.AppendLine(this.StartCartridge("start", cartridge, new Dictionary<string, object>() { { "user_initiated", "true" } }));
             }
+            // TODO call post_install
 
-
-            return output;
+            return output.ToString();
         }
 
         public Manifest GetCartridge(string cartName)

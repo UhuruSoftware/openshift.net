@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Runtime
@@ -174,8 +177,12 @@ namespace Uhuru.Openshift.Runtime
             Activate(options);
         }
 
-        public string Activate(dynamic options)
+        public string Activate(dynamic options = null)
         {
+            if(options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
             StringBuilder output = new StringBuilder();
 
             if (!options.ContainsKey("deployment_id"))
@@ -183,15 +190,134 @@ namespace Uhuru.Openshift.Runtime
                 throw new Exception("deployment_id must be supplied");
             }
             string deploymentId = options["deployment_id"];
+            string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
+            DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+            options["hot_deploy"] = deploymentMetadata.HotDeploy;
+            if (options.ContainsKey("post_install") || options.ContainsKey("restore"))
+            {
+                options["hot_deploy"] = false;
+            }
 
-
-            Dictionary<string, object> opts = new Dictionary<string, object>();
-            opts["secondaryOnly"] = true;
-            opts["userInitiated"] = true;
-            //opts["hotDeploy"] = options["hotDeploy"];
-            StartGear(opts);
+            WithGearRotation(options,
+            (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+                {
+                    string targetGearUuid;
+                    if (targetGear is string)
+                    {
+                        targetGearUuid = targetGear.ToString();
+                    }
+                    else
+                    {
+                        targetGearUuid = ((Model.GearRegistry.Entry)targetGear).Uuid;
+                    }
+                    if (targetGearUuid == this.Uuid)
+                    {
+                        ActivateLocalGear(options);
+                    }
+                    else
+                    {                        
+                        ActivateRemoteGear((GearRegistry.Entry)targetGear, localGearEnv, options);
+                    }
+                });
+            
+            options["secondaryOnly"] = true;
+            options["userInitiated"] = true;
+            StartGear(options);
 
             return string.Empty;
+        }
+
+        private ActivateResult ActivateLocalGear(dynamic options)
+        {
+            string deploymentId = options["deployment_id"];
+
+            ActivateResult result = new ActivateResult();
+            result.Status = RESULT_FAILURE;
+            result.GearUuid = this.Uuid;
+            result.DeploymentId = deploymentId;
+            result.Messages = new List<string>();
+            result.Errors = new List<string>();
+
+            if (!DeploymentExists(deploymentId))
+            {
+                result.Errors.Add(string.Format("No deployment with id {0} found on gear", deploymentId));
+                return result;
+            }
+
+            try
+            {
+                string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
+                string deploymentDir = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
+
+                string output = string.Empty;
+
+                if (State.Value() == Runtime.State.STARTED.ToString())
+                {
+                    options["exclude_web_proxy"] = true;
+                    output = StopGear(options);
+                    result.Messages.Add(output);
+                }
+
+                SyncDeploymentRepoDirToRuntime(deploymentDateTime);
+                SyncDeploymentDependenciesDirToRuntime(deploymentDateTime);
+                SyncDeploymentBuildDependenciesDirToRuntime(deploymentDateTime);
+
+                UpdateCurrentDeploymentDateTimeSymlink(deploymentDateTime);
+
+                Manifest primaryCartridge = this.Cartridge.GetPrimaryCartridge();
+                
+                this.Cartridge.DoControl("update-configuration", primaryCartridge);
+
+                result.Messages.Add("Starting application " + ApplicationName);
+
+                Dictionary<string, object> opts = new Dictionary<string,object>();
+                opts["secondary_only"] = true;
+                opts["user_initiated"] = true;
+                opts["hot_deploy"] = options["hot_deploy"];
+                output = StartGear(opts);
+                result.Messages.Add(output);
+
+                this.State.Value(Runtime.State.DEPLOYING);
+
+                opts = new Dictionary<string, object>();
+                opts["pre_action_hooks_enabled"] = false;
+                opts["prefix_action_hooks"] = false;
+                output = this.Cartridge.DoControl("deploy", primaryCartridge, opts);
+                result.Messages.Add(output);
+
+                opts = new Dictionary<string, object>();
+                opts["primary_only"] = true;
+                opts["user_initiated"] = true;
+                opts["hot_deploy"] = options["hot_deploy"];
+                output = StartGear(opts);
+                result.Messages.Add(output);
+
+                opts = new Dictionary<string, object>();
+                opts["pre_action_hooks_enabled"] = false;
+                opts["prefix_action_hooks"] = false;
+                output = this.Cartridge.DoControl("post-deploy", primaryCartridge, opts);
+                result.Messages.Add(output);
+
+
+
+
+
+
+
+                result.Status = RESULT_SUCCESS;
+            }
+            catch(Exception e)
+            {
+                result.Status = RESULT_FAILURE;
+                result.Errors.Add(string.Format("Error activating gear: {0}", e.ToString()));
+            }
+
+            return result;
+        }
+
+        private void ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, dynamic options)
+        {
+            // TODO
         }
 
         public string Deploy(dynamic options)

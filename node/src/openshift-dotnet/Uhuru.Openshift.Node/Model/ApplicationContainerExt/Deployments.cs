@@ -37,7 +37,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 return null;
             }
-            return null;
+            return new FileInfo(FileUtil.GetSymlinkTargetLocation(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId))).Directory.Name;
         }
 
         public bool DeploymentExists(string deploymentId)
@@ -90,7 +90,7 @@ namespace Uhuru.Openshift.Runtime
 
         public string CalculateDeploymentId()
         {
-            return Guid.NewGuid().ToString().Substring(0, 4);
+            return Guid.NewGuid().ToString().Substring(0, 8);
         }
 
         public void LinkDeploymentId(string deploymentDateTime, string deploymentId)
@@ -124,7 +124,7 @@ namespace Uhuru.Openshift.Runtime
         {
             string from = Path.Combine(this.ContainerDir, "app-root", "runtime", name);
             string to = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime, name);
-            DirectoryUtil.DirectoryCopy(from, to, true);
+            SyncFiles(from, to);
         }
 
         public string CalculateDeploymentChecksum(string deploymentId)
@@ -140,6 +140,34 @@ namespace Uhuru.Openshift.Runtime
             string file = Path.Combine(this.ContainerDir, "app-deployments", "current");
             Directory.Delete(file);
             DirectoryUtil.CreateSymbolicLink(deploymentDateTime, file, DirectoryUtil.SymbolicLink.Directory);
+        }
+
+        public void SyncDeploymentRepoDirToRuntime(string deploymentDateTime)
+        {
+            SyncDeploymentDirToRuntime(deploymentDateTime, "repo");
+        }
+
+        public void SyncDeploymentDependenciesDirToRuntime(string deploymentDateTime)
+        {
+            SyncDeploymentDirToRuntime(deploymentDateTime, "dependencies");
+        }
+
+        public void SyncDeploymentBuildDependenciesDirToRuntime(string deploymentDateTime)
+        {
+            SyncDeploymentDirToRuntime(deploymentDateTime, "build-dependencies");
+        }
+
+        public void SyncDeploymentDirToRuntime(string deploymentDateTime, string name)
+        {
+            string to = Path.Combine(this.ContainerDir, "app-root", "runtime", name);
+            string from = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime, name);
+            SyncFiles(from, to);
+        }
+
+        public void SyncFiles(string from, string to)
+        {
+            // TODO use rsync
+            DirectoryUtil.DirectoryCopy(from, to, true);
         }
     }
 }

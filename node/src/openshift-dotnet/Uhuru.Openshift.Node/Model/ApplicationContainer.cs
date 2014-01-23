@@ -220,18 +220,15 @@ namespace Uhuru.Openshift.Runtime
         }
 
         private void PruneDeployments()
-        {}
-
-
-
-        private void StartGear(dynamic options)
         {
-            this.Cartridge.StartGear(options);
+            // TODO implement this!
         }
 
-        private void ActivateLocalGear(dynamic options)
-        {
 
+
+        private string StartGear(dynamic options)
+        {
+            return this.Cartridge.StartGear(options);
         }
 
         public void SetRWPermissions(string filename)
@@ -247,7 +244,7 @@ namespace Uhuru.Openshift.Runtime
         public string Restart(string cartName, dynamic options)
         {
             WithGearRotation(options,
-                (GearRotationCallback)delegate(string targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+                (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
                 {
                     RestartGear(targetGear, localGearEnv, cartName, opts);
                 });
@@ -277,22 +274,22 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar("DEPLOYMENT_TYPE", deploymentType, true);
         }
 
-        public delegate void GearRotationCallback(string targetGear, Dictionary<string, string> localGearEnv, dynamic options);
+        public delegate void GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, dynamic options);
         public string WithGearRotation(dynamic options, GearRotationCallback action)
         {
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
             Manifest proxyCart = this.Cartridge.WebProxy();
-            List<string> gears = new List<string>();
+            List<object> gears = new List<object>();
             if (options.ContainsKey("all") && proxyCart != null)
             {
                 if ((bool)options["all"])
                 {
-                    gears = (List<string>)this.GearRegist.Entries["web"];
+                    gears = (List<object>)this.GearRegist.Entries["web"];
                 }
                 else if (options.ContainsKey("gears"))
                 {
                     List<string> g = (List<string>)options["gears"];
-                    gears = ((List<string>)this.GearRegist.Entries["web"]).Where(e => g.Contains(e)).ToList<string>();
+                    gears = ((List<object>)this.GearRegist.Entries["web"]).Where(e => g.Contains(e)).ToList<object>();
                 }
                 else
                 {
@@ -322,7 +319,7 @@ namespace Uhuru.Openshift.Runtime
             int threads = Math.Max(batchSize, MAX_THREADS);
 
             // need to parallelize
-            foreach (string targetGear in gears)
+            foreach (var targetGear in gears)
             {
                 RotateAndYield(targetGear, localGearEnv, options, action);
             }
@@ -330,7 +327,7 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
-        public string RotateAndYield(string targetGear, Dictionary<string, string> localGearEnv, dynamic options, GearRotationCallback action)
+        public string RotateAndYield(object targetGear, Dictionary<string, string> localGearEnv, dynamic options, GearRotationCallback action)
         {
             StringBuilder output = new StringBuilder();
 
@@ -339,7 +336,7 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        public string RestartGear(string targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
+        public string RestartGear(object targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
         {
             return this.Cartridge.StartCartridge("restart", cartName, options);
         }

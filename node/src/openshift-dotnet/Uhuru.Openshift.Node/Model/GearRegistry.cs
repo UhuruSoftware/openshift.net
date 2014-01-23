@@ -10,7 +10,7 @@ namespace Uhuru.Openshift.Runtime.Model
 {
     public class GearRegistry
     {
-        class Entry
+        public class Entry
         {
             public string Uuid { get; set; }
             public string Namespace { get; set; }
