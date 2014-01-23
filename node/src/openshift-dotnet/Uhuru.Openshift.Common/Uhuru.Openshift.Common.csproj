@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="JsonHelper\ActivateResult.cs" />
     <Compile Include="JsonHelper\NameValuePair.cs" />
     <Compile Include="JsonHelper\SshKey.cs" />
     <Compile Include="Models\Cartridge.cs" />
