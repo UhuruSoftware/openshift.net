@@ -1,6 +1,7 @@
 .idea/
 lib/mcollective/mcollective_setup.log
 *.suo
+*.opensdf
 bin/
 !cartridges/openshift-origin-cartridge-dotnet/bin/
 !cartridges/openshift-origin-cartridge-winsample/bin/

@@ -61,11 +61,7 @@ Cart-Data:
     Description: "Unique ID which identified the gear. This value changes between gears."
 Provides:
   - dotnet-4.5
-Publishes:
-  publish-http-url:
-    Type: "NET_TCP:httpd-proxy-info"
-  publish-gear-endpoint:
-    Type: "NET_TCP:gear-endpoint-info"
+Publishes: {}
 Subscribes:
   set-env:
     Type: "ENV:*"
@@ -74,23 +70,16 @@ Subscribes:
 Scaling:
   Min: 1
   Max: -1
-Group-Overrides:
-  - components:
-    - web-proxy
 Endpoints:
 #Endpoints are where front-end httpd mappings for your cartridge are declared to route traffic from the outside world to your cartridge’s services.
   - Private-IP-Name:   IP
-    #generates OPENSHIFT_DOTNET_IP
     Private-Port-Name: PORT
-    #generates OPENSHIFT_DOTNET_PORT
     Private-Port:      80
     Public-Port-Name:  PROXY_PORT
-    #generates OPENSHIFT_DOTNET_PROXY_PORT
+    Protocols: 
+      - http
+    Options:
+      primary: true
     Mappings:
       - Frontend:      ""
-        Backend:       ""
-        Options:       { websocket: true }
-      - Frontend:      "/health"
-        Backend:       ""
-        Options:       { health: true }
-    
+        Backend:       ""    

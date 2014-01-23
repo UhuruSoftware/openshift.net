@@ -1212,6 +1212,10 @@ module MCollective
         end
         reply[:exitcode] = 0
       end
+
+      def oo_update_cluster(args)
+        return 0, ''
+      end
     end
   end
 end

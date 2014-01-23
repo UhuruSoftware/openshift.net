@@ -296,4 +296,6 @@ $cygwinInstallationPath = (Join-Path $sshdCygwinDir 'installation')
 
 Create-Service 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
 
-
+Write-Host 'Starting services ...'
+net start openshift.mcollectived
+net start openshift.sshd

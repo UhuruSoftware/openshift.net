@@ -183,7 +183,7 @@ namespace Uhuru.Openshift.Runtime
             pi.Arguments = string.Format(
 @"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}", 
                 configureScript, 
-                this.ApplicationUuid, 
+                this.Uuid, 
                 NodeConfig.Values["SSHD_BASE_DIR"], 
                 this.ContainerDir,
                 NodeConfig.Values["GEAR_SHELL"],
@@ -191,7 +191,7 @@ namespace Uhuru.Openshift.Runtime
 
             Process p = Process.Start(pi);
             p.WaitForExit(60000);
-            output += this.ApplicationUuid;
+            output += this.Uuid;
             output += p.StandardError.ReadToEnd();
             output += p.StandardOutput.ReadToEnd();
 
