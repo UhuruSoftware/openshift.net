@@ -67,7 +67,7 @@ set GIT_DIR=./{2}.git
 ";
 
         private const string GIT_GET_SHA1 = @"set -xe;
-git rev-parse --short {0}";
+{0} rev-parse --short {1}";
 
         private const string PRE_RECEIVE = @"gear -Prereceive";
 
@@ -214,6 +214,37 @@ git rev-parse --short {0}";
             if (!Exists())
                 return false;
             return Directory.GetFiles(this.RepositoryPath).Length == 0;
+        }
+
+        public string GetSha1(string refId)
+        {
+            string cmd = string.Format(GIT_INIT, GIT, refId);
+
+            string tempfile = Path.GetTempFileName();
+            string batfile = tempfile + ".bat";
+            File.WriteAllText(batfile, cmd);
+            ProcessStartInfo pi = new ProcessStartInfo();
+            pi.WorkingDirectory = this.RepositoryPath;
+            pi.UseShellExecute = true;
+            pi.CreateNoWindow = true;
+            pi.RedirectStandardOutput = true;
+            pi.RedirectStandardError = true;
+            pi.WindowStyle = ProcessWindowStyle.Hidden;
+            pi.FileName = "cmd.exe";
+            pi.Arguments = "/c " + batfile;
+            Process p = Process.Start(pi);
+            p.WaitForExit(30000);
+            File.Delete(tempfile);
+            File.Delete(batfile);
+
+            if (p.ExitCode == 0)
+            {
+                return p.StandardOutput.ReadToEnd();
+            }
+            else
+            {
+                return "";
+            }
         }
 
         private void RunCmd(string cmd, string dir)

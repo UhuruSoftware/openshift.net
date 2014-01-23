@@ -39,7 +39,7 @@ namespace Uhuru.Openshift.Runtime
         public List<object> Categories { get; set; }
         public string Website { get; set; }
         public List<object> Suggests { get; set; }
-
+        bool isDeployable;
         public dynamic HelpTopics { get; set; }
 
         public dynamic CartDataDef { get; set; }
@@ -52,6 +52,30 @@ namespace Uhuru.Openshift.Runtime
 
         public Dictionary<string, Uhuru.Openshift.Common.Models.Profile> ProfileMap { get; set; }
 
+        public bool Deployable
+        {
+            get
+            {
+                return this.isDeployable;
+            }
+        }
+
+        public bool WebFramework
+        {
+            get
+            {
+                return Deployable;
+            }
+        }
+
+        public bool Buildable
+        {
+            get
+            {
+                return Deployable;
+            }
+        }
+
         public bool WebProxy
         {
             get
@@ -59,6 +83,18 @@ namespace Uhuru.Openshift.Runtime
                 return this.isWebProxy;
             }
         }
+
+        public bool InstallBuildRequired
+        {
+            get
+            {
+                if (manifest.ContainsKey("Install-Build-Required"))
+                {
+                    return bool.Parse(manifest["Install-Build-Required"]);
+                }
+                return false;
+            }
+        }        
 
         dynamic manifest;
         bool isWebProxy;
@@ -92,7 +128,7 @@ namespace Uhuru.Openshift.Runtime
             this.Name = manifest["Name"];
             this.ShortName = manifest["Cartridge-Short-Name"];
             this.Categories = manifest["Categories"] ?? new List<object>() { };
-
+            this.isDeployable = this.Categories.Contains("web_framework");
             this.RepositoryPath = Path.Combine(repositoryBasePath, this.Name);
 
             this.Endpoints = new List<Endpoint>();
@@ -109,6 +145,8 @@ namespace Uhuru.Openshift.Runtime
 
             this.isWebProxy = Categories.Contains("web_framework");
         }
+
+
 
         public static string BuildIdent(string vendor, string software, string softwareVersion, string cartridgeVersion)
         {

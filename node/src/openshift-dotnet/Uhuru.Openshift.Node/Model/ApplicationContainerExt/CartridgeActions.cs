@@ -113,6 +113,51 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public string PostConfigure(string cartName, string templateGitUrl = null)
+        {
+            StringBuilder output = new StringBuilder();
+            Manifest cartridge = this.Cartridge.GetCartridge(cartName);
+
+            bool performInitialBuild = !Git.EmptyCloneSpec(templateGitUrl) && (cartridge.InstallBuildRequired || !string.IsNullOrEmpty(templateGitUrl)) && cartridge.Buildable;
+
+            if (performInitialBuild)
+            {
+                Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init"));
+                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init"));
+            }
+            else if (cartridge.Deployable)
+            {
+                string deploymentDatetime = LatestDeploymentDateTime();
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDatetime);
+                if (deploymentMetadata.Activations.Count == 0)
+                {
+                    Prepare(new Dictionary<string, object>() { { "deployment_datetime", deploymentDatetime } });
+                    deploymentMetadata.Load();
+                    ApplicationRepository applicationRepository = new ApplicationRepository(this);
+                    string gitRef = "master";
+                    string gitSha1 = applicationRepository.GetSha1(gitRef);
+                    string deploymentsDir = Path.Combine(this.ContainerDir, "app-deployments");
+                    SetRWPermissions(deploymentsDir);
+                    // TODO reset_permission_R(deployments_dir)
+
+                    deploymentMetadata.RecordActivation();
+                    deploymentMetadata.Save();
+
+                    UpdateCurrentDeploymentDateTimeSymlink(deploymentDatetime);
+                }
+            }
+
+            output.AppendLine(this.Cartridge.PostConfigure(cartName));
+
+            if (performInitialBuild)
+            {
+                // grep build log
+            }
+
+            return output.ToString();
+        }
+
         public void PostReceive(dynamic options)
         {
 
@@ -129,6 +174,26 @@ namespace Uhuru.Openshift.Runtime
             Activate(options);
         }
 
+        public string Activate(dynamic options)
+        {
+            StringBuilder output = new StringBuilder();
+
+            if (!options.ContainsKey("deployment_id"))
+            {
+                throw new Exception("deployment_id must be supplied");
+            }
+            string deploymentId = options["deployment_id"];
+
+
+            Dictionary<string, object> opts = new Dictionary<string, object>();
+            opts["secondaryOnly"] = true;
+            opts["userInitiated"] = true;
+            //opts["hotDeploy"] = options["hotDeploy"];
+            StartGear(opts);
+
+            return string.Empty;
+        }
+
         public string Deploy(dynamic options)
         {
             StringBuilder output = new StringBuilder();
@@ -141,6 +206,50 @@ namespace Uhuru.Openshift.Runtime
             {
                 output.AppendLine(DeployBinaryArtifact(options));
             }
+            return output.ToString();
+        }
+
+        public string Prepare(Dictionary<string, object> options = null)
+        {
+            if (options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
+            StringBuilder output = new StringBuilder();
+            output.AppendLine("Preparing build for deployment");
+            if (!options.ContainsKey("deployment_datetime"))
+            {
+                throw new ArgumentException("deployment_datetime is required");
+            }
+            string deploymentDatetime = options["deployment_datetime"].ToString();
+            Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+
+            // TODO clean runtime dirs, extract archive
+
+            this.Cartridge.DoActionHook("prepare", env, options);
+            string deploymentId = CalculateDeploymentId();
+            LinkDeploymentId(deploymentDatetime, deploymentId);
+
+            try
+            {
+                SyncRuntimeRepoDirToDeployment(deploymentDatetime);
+                SyncRuntimeDependenciesDirToDeployment(deploymentDatetime);
+                SyncRuntimeBuildDependenciesDirToDeployment(deploymentDatetime);
+
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDatetime);
+                deploymentMetadata.Id = deploymentId;
+                deploymentMetadata.Checksum = CalculateDeploymentChecksum(deploymentId);
+                deploymentMetadata.Save();
+
+                options["deployment_id"] = deploymentId;
+                output.AppendLine("Deployment id is " + deploymentId);
+            }
+            catch (Exception e)
+            {
+                output.AppendLine("Error preparing deployment " + deploymentId);
+                UnlinkDeploymentId(deploymentId);
+            }
+
             return output.ToString();
         }
 

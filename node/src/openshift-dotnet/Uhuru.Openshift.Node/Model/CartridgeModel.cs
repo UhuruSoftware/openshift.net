@@ -437,6 +437,20 @@ namespace Uhuru.Openshift.Runtime
             return new ApplicationRepository(this.container).Empty();
         }
 
+        public string DoActionHook(string action, Dictionary<string, string> env, dynamic options)
+        {
+            StringBuilder output = new StringBuilder();
+
+            action = action.Replace('-', '_');
+            string actionHook = Path.Combine(env["OPENSHIFT_REPO_DIR"], ".openshift", "action_hooks", action + ".ps1");
+            if (File.Exists(actionHook))
+            {
+                string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0}", actionHook);
+                output.AppendLine(container.RunProcessInContainerContext(container.ContainerDir, cmd));
+            }
+            return output.ToString();
+        }
+
         public string ConnectorExecute(string cartName, string hookName, string publishingCartName, string connectionType, string inputArgs)
         {
             // TODO: this method is not fully implemented - its Linux counterpart has extra functionality

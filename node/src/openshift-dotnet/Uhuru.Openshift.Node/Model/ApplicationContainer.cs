@@ -113,13 +113,6 @@ namespace Uhuru.Openshift.Runtime
             return Cartridge.ConnectorExecute(cartName, hookName, publishingCartName, connectionType, inputArgs);
         }
 
-        public string PostConfigure()
-        {
-            string output = RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init");
-            output += RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init");
-            return output;
-        }
-
         public string Start(string cartName, dynamic options = null)
         {
             if (options == null)
@@ -229,14 +222,7 @@ namespace Uhuru.Openshift.Runtime
         private void PruneDeployments()
         {}
 
-        public void Activate(dynamic options)
-        {
-            Dictionary<string, object> opts = new Dictionary<string, object>();
-            opts["secondaryOnly"] = true;
-            opts["userInitiated"] = true;
-            //opts["hotDeploy"] = options["hotDeploy"];
-            StartGear(opts);
-        }
+
 
         private void StartGear(dynamic options)
         {
@@ -473,6 +459,7 @@ namespace Uhuru.Openshift.Runtime
             string deploymentsDir = Path.Combine(homeDir, "app-deployments");
             Directory.CreateDirectory(deploymentsDir);
             AddEnvVar("DEPLOYMENTS_DIR", deploymentsDir, true);
+            Directory.CreateDirectory(Path.Combine(deploymentsDir, "by-id"));
 
             CreateDeploymentDir();
 

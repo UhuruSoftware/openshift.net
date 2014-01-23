@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -27,6 +29,117 @@ namespace Uhuru.Openshift.Runtime
                 }
             }
             return refId;
+        }
+
+        public string GetDeploymentDateTimeForDeploymentId(string deploymentId)        
+        {
+            if (!DeploymentExists(deploymentId))
+            {
+                return null;
+            }
+            return null;
+        }
+
+        public bool DeploymentExists(string deploymentId)
+        {
+            return File.Exists(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId));
+        }
+
+        public List<string> AllDeployments()
+        {
+            string deploymentsDir = Path.Combine(this.ContainerDir, "app-deployments");
+            return Directory.GetDirectories(deploymentsDir).Where(d => !new string[] { "by-id", "current" }.Contains(new DirectoryInfo(d).Name)).ToList<string>();
+        }
+
+        public List<string> AllDeploymentsByActivation()
+        {
+            List<string> deployments = AllDeployments();
+            int count = 0;
+            deployments.Sort();
+            deployments.OrderBy(d =>
+                {
+                    DeploymentMetadata metadata = DeploymentMetadataFor(new DirectoryInfo(d).Name);
+                    float latestActivation = 0;
+                    if (metadata.Activations.Count > 0)
+                    {
+                        latestActivation = metadata.Activations.Last();
+                    }
+                    count++;
+                    if (latestActivation != 0)
+                    {
+                        return latestActivation;
+                    }
+                    else
+                    {
+                        return float.MaxValue - count;
+                    }
+                });
+            return deployments;
+        }
+
+        public DeploymentMetadata DeploymentMetadataFor(string deploymentDateTime)
+        {
+            return new DeploymentMetadata(this, deploymentDateTime);
+        }
+
+        public string LatestDeploymentDateTime()
+        {
+            string latest = AllDeploymentsByActivation().Last();
+            return new DirectoryInfo(latest).Name;
+        }
+
+        public string CalculateDeploymentId()
+        {
+            return Guid.NewGuid().ToString().Substring(0, 4);
+        }
+
+        public void LinkDeploymentId(string deploymentDateTime, string deploymentId)
+        {
+            string target = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
+            string link = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
+            DirectoryUtil.CreateSymbolicLink(link, target, DirectoryUtil.SymbolicLink.Directory);
+        }
+
+        public void UnlinkDeploymentId(string deploymentId)
+        {
+            Directory.Delete(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId), true);
+        }
+
+        public void SyncRuntimeRepoDirToDeployment(string deploymentDateTime)
+        {
+            SyncRuntimeDirToDeployment(deploymentDateTime, "repo");
+        }
+
+        public void SyncRuntimeDependenciesDirToDeployment(string deploymentDateTime)
+        {
+            SyncRuntimeDirToDeployment(deploymentDateTime, "dependencies");
+        }
+
+        public void SyncRuntimeBuildDependenciesDirToDeployment(string deploymentDateTime)
+        {
+            SyncRuntimeDirToDeployment(deploymentDateTime, "build-dependencies");
+        }
+
+        public void SyncRuntimeDirToDeployment(string deploymentDateTime, string name)
+        {
+            string from = Path.Combine(this.ContainerDir, "app-root", "runtime", name);
+            string to = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime, name);
+            DirectoryUtil.DirectoryCopy(from, to, true);
+        }
+
+        public string CalculateDeploymentChecksum(string deploymentId)
+        {
+            string deploymentDir = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
+            string binPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
+            string command = string.Format(@"{0}\tar.exe -c --exclude metadata.json . | {0}\tar.exe -xO | {0}\sha1sum.exe | {0}\cut.exe -f 1 -d ' '", binPath);
+            return RunProcessInContainerContext(deploymentDir, command);
+        }
+
+        public void UpdateCurrentDeploymentDateTimeSymlink(string deploymentDateTime)
+        {
+            string file = Path.Combine(this.ContainerDir, "app-deployments", "current");
+            Directory.Delete(file);
+            DirectoryUtil.CreateSymbolicLink(deploymentDateTime, file, DirectoryUtil.SymbolicLink.Directory);
         }
     }
 }
