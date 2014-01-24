@@ -5,12 +5,14 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -208,7 +210,7 @@ namespace Uhuru.Openshift.Runtime
                 options["hot_deploy"] = false;
             }
 
-            dynamic parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+            dynamic parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
                 {
                     string targetGearUuid;
                     if (targetGear is string)
@@ -221,11 +223,11 @@ namespace Uhuru.Openshift.Runtime
                     }
                     if (targetGearUuid == this.Uuid)
                     {
-                        ActivateLocalGear(options);
+                        return ActivateLocalGear(options);
                     }
                     else
                     {                        
-                        ActivateRemoteGear((GearRegistry.Entry)targetGear, localGearEnv, options);
+                        return ActivateRemoteGear((GearRegistry.Entry)targetGear, localGearEnv, options);
                     }
                 });
 
@@ -260,20 +262,20 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        private ActivateResult ActivateLocalGear(dynamic options)
+        private RubyHash ActivateLocalGear(dynamic options)
         {
             string deploymentId = options["deployment_id"];
 
-            ActivateResult result = new ActivateResult();
-            result.Status = RESULT_FAILURE;
-            result.GearUuid = this.Uuid;
-            result.DeploymentId = deploymentId;
-            result.Messages = new List<string>();
-            result.Errors = new List<string>();
+            RubyHash result = new RubyHash();
+            result["status"] = RESULT_FAILURE;
+            result["gear_uuid"] = this.Uuid;
+            result["deployment_id"] = deploymentId;
+            result["messages"] = new List<string>();
+            result["errors"] = new List<string>();
 
             if (!DeploymentExists(deploymentId))
             {
-                result.Errors.Add(string.Format("No deployment with id {0} found on gear", deploymentId));
+                result["errors"].Add(string.Format("No deployment with id {0} found on gear", deploymentId));
                 return result;
             }
 
@@ -282,13 +284,15 @@ namespace Uhuru.Openshift.Runtime
                 string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
                 string deploymentDir = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
 
+                Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
                 string output = string.Empty;
 
                 if (State.Value() == Runtime.State.STARTED.ToString())
                 {
                     options["exclude_web_proxy"] = true;
                     output = StopGear(options);
-                    result.Messages.Add(output);
+                    result["messages"].Add(output);
                 }
 
                 SyncDeploymentRepoDirToRuntime(deploymentDateTime);
@@ -301,14 +305,14 @@ namespace Uhuru.Openshift.Runtime
                 
                 this.Cartridge.DoControl("update-configuration", primaryCartridge);
 
-                result.Messages.Add("Starting application " + ApplicationName);
+                result["messages"].Add("Starting application " + ApplicationName);
 
                 Dictionary<string, object> opts = new Dictionary<string,object>();
                 opts["secondary_only"] = true;
                 opts["user_initiated"] = true;
                 opts["hot_deploy"] = options["hot_deploy"];
                 output = StartGear(opts);
-                result.Messages.Add(output);
+                result["messages"].Add(output);
 
                 this.State.Value(Runtime.State.DEPLOYING);
 
@@ -316,33 +320,47 @@ namespace Uhuru.Openshift.Runtime
                 opts["pre_action_hooks_enabled"] = false;
                 opts["prefix_action_hooks"] = false;
                 output = this.Cartridge.DoControl("deploy", primaryCartridge, opts);
-                result.Messages.Add(output);
+                result["messages"].Add(output);
 
                 opts = new Dictionary<string, object>();
                 opts["primary_only"] = true;
                 opts["user_initiated"] = true;
                 opts["hot_deploy"] = options["hot_deploy"];
                 output = StartGear(opts);
-                result.Messages.Add(output);
+                result["messages"].Add(output);
 
                 opts = new Dictionary<string, object>();
                 opts["pre_action_hooks_enabled"] = false;
                 opts["prefix_action_hooks"] = false;
                 output = this.Cartridge.DoControl("post-deploy", primaryCartridge, opts);
-                result.Messages.Add(output);
+                result["messages"].Add(output);
 
+                if (options.ContainsKey("post_install"))
+                {
+                    string primaryCartEnvDir = Path.Combine(this.ContainerDir, primaryCartridge.Dir, "env");
+                    Dictionary<string, string> primaryCartEnv = Environ.Load(primaryCartEnvDir);
+                    string ident = (from kvp in primaryCartEnv
+                                    where Regex.Match(kvp.Key, "^OPENSHIFT_.*_IDENT").Success
+                                    select kvp.Value).FirstOrDefault();
+                    string version = Manifest.ParseIdent(ident)[2];
+                    this.Cartridge.PostInstall(primaryCartridge, version);
+                }
 
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+                deploymentMetadata.RecordActivation();
+                deploymentMetadata.Save();
 
+                if (options.ContainsKey("report_deployments") && gearEnv["OPENSHIFT_APP_DNS"] == gearEnv["OPENSHIFT_GEAR_DNS"])
+                {
+                    ReportDeployments(gearEnv);
+                }
 
-
-
-
-                result.Status = RESULT_SUCCESS;
+                result["status"] = RESULT_SUCCESS;
             }
             catch(Exception e)
             {
-                result.Status = RESULT_FAILURE;
-                result.Errors.Add(string.Format("Error activating gear: {0}", e.ToString()));
+                result["status"] = RESULT_FAILURE;
+                result["errors"].Add(string.Format("Error activating gear: {0}", e.ToString()));
             }
 
             return result;

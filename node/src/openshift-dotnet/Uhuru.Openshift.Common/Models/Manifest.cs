@@ -154,6 +154,16 @@ namespace Uhuru.Openshift.Runtime
             return string.Format("{0}:{1}:{2}:{3}", vendor, software, softwareVersion, cartridgeVersion);
         }
 
+        public static string[] ParseIdent(string ident)
+        {
+            string[] cooked = ident.Split(':');
+            if (cooked.Length != 4)
+            {
+                throw new ArgumentException(string.Format("'{0}' is not a legal cartridge identifier", ident));
+            }
+            return cooked;
+        }
+
         public static dynamic ManifestFromYaml(string yamlStr)
         {
             var input = new StringReader(yamlStr);

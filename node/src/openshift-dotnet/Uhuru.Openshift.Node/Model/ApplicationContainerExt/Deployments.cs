@@ -14,6 +14,8 @@ namespace Uhuru.Openshift.Runtime
 {
     public partial class ApplicationContainer
     {
+        const string DEPLOYMENT_DATETIME_FORMAT = "yyyy-MM-dd_HH-mm-s";
+
         public string DetermineDeploymentRef(string input=null)
         {
             string refId = input;
@@ -169,5 +171,40 @@ namespace Uhuru.Openshift.Runtime
             // TODO use rsync
             DirectoryUtil.DirectoryCopy(from, to, true);
         }
+
+        private DateTime CreateDeploymentDir()
+        {
+            DateTime deploymentdateTime = DateTime.Now;
+
+            string fullPath = Path.Combine(this.ContainerDir, "app-deployments", deploymentdateTime.ToString(DEPLOYMENT_DATETIME_FORMAT));
+            Directory.CreateDirectory(Path.Combine(fullPath, "repo"));
+            Directory.CreateDirectory(Path.Combine(fullPath, "dependencies"));
+            Directory.CreateDirectory(Path.Combine(fullPath, "build-depedencies"));
+            SetRWPermissions(fullPath);
+            PruneDeployments();
+            return deploymentdateTime;
+        }
+
+        public List<RubyHash> CalculateDeployments()
+        {
+            List<RubyHash> deployments = new List<RubyHash>();
+            foreach (string d in AllDeployments())
+            {
+                string deploymentDateTime = new DirectoryInfo(d).Name;
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+                deployments.Add(new RubyHash() {
+                    { "id", deploymentMetadata.Id},
+                    {"ref", deploymentMetadata.GitRef},
+                    {"sha1",deploymentMetadata.GitSha},
+                    {"force_clean_build", deploymentMetadata.ForceCleanBuild},
+                    {"hot_deploy", deploymentMetadata.HotDeploy},
+                    {"created_at", RubyCompatibility.DateTimeToEpochSeconds(DateTime.Parse(deploymentDateTime))},
+                    {"activations", deploymentMetadata.Activations}
+                });
+            }
+
+            return deployments;
+        }
+
     }
 }

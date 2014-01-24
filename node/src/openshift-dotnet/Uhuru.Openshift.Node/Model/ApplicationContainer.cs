@@ -15,6 +15,7 @@ using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Utilities;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
+using System.Net;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -206,19 +207,6 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        private DateTime CreateDeploymentDir()
-        {
-            DateTime deploymentdateTime = DateTime.Now;
-
-            string fullPath = Path.Combine(this.ContainerDir, "app-deployments", deploymentdateTime.ToString("yyyy-MM-dd_HH-mm-s"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "repo"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "dependencies"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "build-depedencies"));
-            SetRWPermissions(fullPath);
-            PruneDeployments();
-            return deploymentdateTime;
-        }
-
         private void PruneDeployments()
         {
             // TODO implement this!
@@ -243,14 +231,51 @@ namespace Uhuru.Openshift.Runtime
 
         public string Restart(string cartName, dynamic options)
         {
-            WithGearRotation(options,
-                (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+            string result = WithGearRotation(options,
+                (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
                 {
-                    RestartGear(targetGear, localGearEnv, cartName, opts);
+                    return RestartGear(targetGear, localGearEnv, cartName, opts);
                 });
 
 
-            return string.Empty;
+            return result;
+        }
+
+        public void ReportDeployments(Dictionary<string, string> gearEnv)
+        {
+            string brokerAddr = NodeConfig.Values["BROKER_HOST"];
+            string domain = gearEnv["OPENSHIFT_NAMESPACE"];
+            string appName = gearEnv["OPENSHIFT_APP_NAME"];
+            string appUuid = gearEnv["OPENSHIFT_APP_UUID"];
+            string url = string.Format("https://{0}/broker/rest/domain/{1}/application/{2}/deployments", brokerAddr, domain, appName);
+            Dictionary<string, string> param = BrokerAuthParams();
+            if (param != null)
+            {
+                List<RubyHash> deployments = CalculateDeployments();
+                param["deployments[]"] = JsonConvert.SerializeObject(deployments);
+                param["applicaition_id"] = appUuid;
+                string payload = JsonConvert.SerializeObject(param);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "POST";
+                request.Headers.Add("accept", "application/json;version=1.6");
+                request.Headers.Add("user_agent", "OpenShift");
+                using (StreamWriter sw = new StreamWriter(request.GetRequestStream()))
+                {
+                    sw.Write(payload);
+                    sw.Flush();
+                    sw.Close();
+                }
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if ((int)response.StatusCode >= 300)
+                {
+                    string result;
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        result = sr.ReadToEnd();
+                    }
+                    throw new Exception(result);
+                }
+            }
         }
 
         public void SetAutoDeploy(bool autoDeploy)
@@ -274,7 +299,7 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar("DEPLOYMENT_TYPE", deploymentType, true);
         }
 
-        public delegate RubyHash GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options);
+        public delegate dynamic GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options);
         public dynamic WithGearRotation(dynamic options, GearRotationCallback action)
         {
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
@@ -583,8 +608,9 @@ namespace Uhuru.Openshift.Runtime
             args.Add(gearUuid);
 
             this.Cartridge.DoControl(
-                control, cartridge, string.Join(" ", args), new Dictionary<string, object>()
+                control, cartridge, new Dictionary<string, object>()
                 {
+                    { "args", string.Join(" ", args) },
                     { "pre_action_hooks_enabled", false },
                     { "post_action_hooks_enabled", false }
                 });
@@ -882,6 +908,23 @@ namespace Uhuru.Openshift.Runtime
                 {
                     return string.Empty;
                 }
+            }
+        }
+
+        protected Dictionary<string, string> BrokerAuthParams()
+        {
+            string authToken = Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid, ".auth", "token");
+            string authIv = Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid, ".auth", "iv");
+            if (File.Exists(authToken) && File.Exists(authIv))
+            {
+                Dictionary<string, string> param = new Dictionary<string, string>();
+                param["broker_auth_key"] = File.ReadAllText(authToken);
+                param["broker_auth_iv"] = File.ReadAllText(authIv);
+                return param;
+            }
+            else
+            {
+                return null;
             }
         }
     }

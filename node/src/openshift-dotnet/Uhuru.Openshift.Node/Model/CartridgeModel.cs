@@ -363,6 +363,11 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
+        public string PostInstall(dynamic cartridge, string softwareVersion, dynamic options = null)
+        {
+            return CartridgeAction(cartridge, "post_install", softwareVersion);
+        }
+
         public Manifest GetCartridge(string cartName)
         {
             if (!cartridges.ContainsKey(cartName))
@@ -439,6 +444,33 @@ namespace Uhuru.Openshift.Runtime
         private bool EmptyRepository()
         {
             return new ApplicationRepository(this.container).Empty();
+        }
+
+        public string CartridgeAction(Manifest cartridge, string action, string softwareVersion, bool renderErbs = false)
+        {
+            string cartridgeHome = Path.Combine(this.container.ContainerDir, cartridge.Dir);
+            action = Path.Combine(cartridgeHome, "bin", action + ".ps1");
+            if (!File.Exists(action))
+            {
+                return string.Empty;
+            }
+
+            Dictionary<string, string> gearEnv = Environ.ForGear(this.container.ContainerDir);
+            string cartridgeEnvHome = Path.Combine(cartridgeHome, "env");
+            Dictionary<string, string> cartridgeEnv = Environ.Load(cartridgeEnvHome);
+            cartridgeEnv.Remove("PATH");
+            foreach (var kvp in gearEnv)
+            {
+                cartridgeEnv[kvp.Key] = kvp.Value;
+            }
+            if (renderErbs)
+            {
+                // TODO render erb
+            }
+
+            string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} --version {1}", action, softwareVersion);
+            string output = this.container.RunProcessInContainerContext(cartridgeHome, cmd);
+            return output;
         }
 
         public string DoActionHook(string action, Dictionary<string, string> env, dynamic options)
