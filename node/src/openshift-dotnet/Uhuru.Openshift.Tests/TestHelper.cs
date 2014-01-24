@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
+using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Tests
@@ -24,6 +25,8 @@ namespace Uhuru.Openshift.Tests
         {
             string applicationUuid = Guid.NewGuid().ToString("N");
             string containerUuid = applicationUuid;
+            NodeConfig config = new NodeConfig();
+            EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
             string userId = WindowsIdentity.GetCurrent().Name;
             string applicationName = "testApp";
             string containerName = applicationName;
@@ -33,7 +36,7 @@ namespace Uhuru.Openshift.Tests
             Hourglass hourglass = null;
 
             ApplicationContainer container = new ApplicationContainer(
-                applicationUuid, containerUuid, userId,
+                applicationUuid, containerUuid, etcUser,
                 applicationName, containerName, namespaceName,
                 quotaBlocks, quotaFiles, hourglass);
 

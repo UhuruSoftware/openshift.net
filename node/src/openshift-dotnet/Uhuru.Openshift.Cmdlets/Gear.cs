@@ -7,6 +7,7 @@ using System.Management.Automation;
 using System.Text;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -161,7 +162,10 @@ namespace Uhuru.Openshift.Cmdlets
                 string gearName = Environment.GetEnvironmentVariable("OPENSHIFT_GEAR_NAME");
                 string nmSpace = Environment.GetEnvironmentVariable("OPENSHIFT_NAMESPACE");
 
-                container = new ApplicationContainer(appUuid, gearUuid, System.Security.Principal.WindowsIdentity.GetCurrent().Name, appName, gearName, nmSpace, null, null, null);
+                NodeConfig config = new NodeConfig();
+                EtcUser etcUser = new Etc(config).GetPwanam(gearUuid);
+
+                container = new ApplicationContainer(appUuid, gearUuid, etcUser, appName, gearName, nmSpace, null, null, null);
                 repo = new ApplicationRepository(container);
 
                 if (Prereceive)

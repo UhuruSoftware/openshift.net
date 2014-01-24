@@ -965,6 +965,7 @@ module MCollective
 
         # # FIXME: Etc.getpwuid() and Etc.getgrgid() would be much faster
         #TODO get path from config
+         uid  = request[:uid]
          uids = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
          gids = IO.readlines("C:/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
 
@@ -985,9 +986,9 @@ module MCollective
         # validate :gear_uuid, /^[a-zA-Z0-9]+$/
         # validate :cartridge, /\A[a-zA-Z0-9\.\-\/_]+\z/
 
-        # app_uuid = request[:app_uuid].to_s if request[:app_uuid]
-        # gear_uuid = request[:gear_uuid].to_s if request[:gear_uuid]
-        # cart_name = request[:cartridge]
+        app_uuid = request[:app_uuid].to_s if request[:app_uuid]
+        gear_uuid = request[:gear_uuid].to_s if request[:gear_uuid]
+        cart_name = request[:cartridge]
 
         # begin
         # # container = OpenShift::Runtime::ApplicationContainer.from_uuid(gear_uuid)
@@ -1001,6 +1002,10 @@ module MCollective
         # reply[:exitcode] = 1
         # end
         # reply
+        args = "-AppUuid #{app_uuid} -GearUuid #{gear_uuid} -CartName #{cart_name}"
+        rc, output = run_command(__method__, args)
+        reply[:output] = output
+        reply[:exitcode] = rc
       end
 
       #

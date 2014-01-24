@@ -77,6 +77,7 @@
     <Content Include="Common\template-mechanism.ps1">
       <Publish>False</Publish>
     </Content>
+    <Content Include="OO-Cmdlets\has-app-cartridge-action.ps1" />
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />

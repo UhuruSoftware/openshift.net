@@ -68,13 +68,13 @@ function Check-SQLServer2008()
     if (($mssqlRegistry -eq $null) -or ((Test-Path $mssqlRegistry.SQLPath) -eq $false))
     {
         Write-Error "Prerequisite SQL Server 2008 is not installed. Please install this and then run this script again."
-        exit 1
+        # exit 1
     }
 
     if ((get-service MSSQLSERVER).Status -ne "Stopped")
     {
         Write-Error "The SQL Server 2008 service 'MSSQLSERVER' is running. Please stop and disable the service and then run this script again."
-        exit 1
+        # exit 1
     }
 
     $sqlServerStartMode = Get-WMIObject win32_service -filter "name='mssqlserver'" -computer "." | select -expand startMode
@@ -82,7 +82,7 @@ function Check-SQLServer2008()
     if ($sqlServerStartMode -ne "Disabled")
     {
         Write-Error "The SQL Server 2008 service 'MSSQLSERVER' is not disabled. Please disable the service and then run this script again."
-        exit 1
+        #exit 1
     }
 
     Write-Host "[OK] Prerequisite SQL Server 2008 is installed."

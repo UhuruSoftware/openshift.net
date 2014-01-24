@@ -15,6 +15,7 @@ using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Utilities;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
+using System.Text.RegularExpressions;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -32,8 +33,14 @@ namespace Uhuru.Openshift.Runtime
         public string Namespace { get; set; }
         public string BaseDir { get; set; }
 
+        public int uid = 0;
+        public int gid = 0;
+        public string gecos = string.Empty;
+        
+
         public object QuotaBlocks { get; set; }
         public object QuotaFiles { get; set; }
+
         
         public string ContainerDir 
         { 
@@ -64,7 +71,57 @@ namespace Uhuru.Openshift.Runtime
         private Hourglass hourglass;
         private GearRegistry gearRegistry;
 
-        public ApplicationContainer(string applicationUuid, string containerUuid, string userId, string applicationName,
+
+        public static ApplicationContainer GetFromUuid(string containerUuid, Hourglass hourglass = null)
+        {
+            EtcUser etcUser = GetPasswdFor(containerUuid);
+            string nameSpace = null;
+            Dictionary<string,string> env = Environ.Load(Path.Combine(etcUser.Dir, ".env"));
+            
+            if (!string.IsNullOrEmpty(env["OPENSHIFT_GEAR_DNS"]))
+            {
+                nameSpace = Regex.Replace(Regex.Replace("testing-uhu.openshift.local", @"\..*$", ""), @"^.*\-" ,"");
+            }
+
+            if (string.IsNullOrEmpty(env["OPENSHIFT_APP_UUID"]))
+            {
+                //Maybe we should improve the exceptions we throw.
+                throw new Exception("OPENSHIFT_APP_UUID is missing!");
+            }
+            if (string.IsNullOrEmpty(env["OPENSHIFT_APP_NAME"]))
+            {
+                throw new Exception("OPENSHIFT_APP_NAME is missing!");
+            }
+            if (string.IsNullOrEmpty(env["OPENSHIFT_GEAR_NAME"]))
+            {
+                throw new Exception("OPENSHIFT_GEAR_NAME is missing!");
+            }
+
+            ApplicationContainer applicationContainer = new ApplicationContainer(env["OPENSHIFT_APP_UUID"], containerUuid, etcUser, 
+                env["OPENSHIFT_APP_NAME"], env["OPENSHIFT_GEAR_NAME"], nameSpace, null, null, hourglass);
+
+            return applicationContainer;
+
+        }
+
+        private static EtcUser GetPasswdFor(string containerUuid)
+        {
+            NodeConfig config = new Config.NodeConfig();
+
+            string gecos = config.Get("GEAR_GECOS");
+
+            if (string.IsNullOrEmpty(gecos))
+            {
+                gecos = "OO application container";
+            }
+            EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
+            etcUser.Gecons = gecos;
+            
+            return etcUser;
+
+        }
+
+        public ApplicationContainer(string applicationUuid, string containerUuid, EtcUser userId, string applicationName,
             string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
         {
             this.config = NodeConfig.Values;
@@ -80,6 +137,13 @@ namespace Uhuru.Openshift.Runtime
             this.BaseDir = this.config["GEAR_BASE_DIR"];
             this.containerPlugin = new ContainerPlugin(this);
             this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
+
+            if (userId != null)
+            {
+                this.uid = userId.Uid;
+                this.gid = userId.Gid;
+                this.gecos = userId.Gecons;
+            }
         }
 
         public string Create(string secretToken = null)
@@ -511,6 +575,12 @@ namespace Uhuru.Openshift.Runtime
         {
             this.State.Value(Uhuru.Openshift.Runtime.State.STOPPED);
             return this.containerPlugin.Stop();
+        }
+
+        public Manifest GetCartridge(string cartridgeName)
+        {
+
+            return Cartridge.GetCartridge(cartridgeName);
         }
 
         private int CalculateBatchSize(int count, double ratio)

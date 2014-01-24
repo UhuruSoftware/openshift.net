@@ -371,8 +371,16 @@ namespace Uhuru.Openshift.Runtime
 
         public string CartridgeDirectory(string cartName)
         {
-            string name = cartName.Split('-')[0];
-            string version = cartName.Split('-')[1];
+            string name = string.Empty;
+            if (cartName.Split('-').Length > 1)
+            {
+                name = cartName.Split('-')[0];
+            }
+            else
+            {
+                name = cartName;
+            }
+            
             return Path.Combine(container.ContainerDir, name);
         }
 

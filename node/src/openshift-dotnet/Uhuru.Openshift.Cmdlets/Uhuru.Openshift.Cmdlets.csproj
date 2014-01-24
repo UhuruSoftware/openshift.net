@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Has_App_Cartridge_Action.cs" />
     <Compile Include="OO_Force_Stop.cs" />
     <Compile Include="OO_Env_Var_Add.cs" />
     <Compile Include="OO_Authorized_Ssh_Keys_Replace.cs" />
