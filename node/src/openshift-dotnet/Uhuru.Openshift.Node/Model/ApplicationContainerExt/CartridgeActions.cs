@@ -183,7 +183,16 @@ namespace Uhuru.Openshift.Runtime
             {
                 options = new Dictionary<string, object>();
             }
+
+            bool onlyJson = options.ContainsKey("out") && options["out"];
+
             StringBuilder output = new StringBuilder();
+            dynamic result = new Dictionary<string, object>();
+
+            if (!onlyJson)
+            {
+                output.Append("Activating deployment");
+            }
 
             if (!options.ContainsKey("deployment_id"))
             {
@@ -192,14 +201,14 @@ namespace Uhuru.Openshift.Runtime
             string deploymentId = options["deployment_id"];
             string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
             DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+       
             options["hot_deploy"] = deploymentMetadata.HotDeploy;
             if (options.ContainsKey("post_install") || options.ContainsKey("restore"))
             {
                 options["hot_deploy"] = false;
             }
 
-            WithGearRotation(options,
-            (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+            dynamic parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
                 {
                     string targetGearUuid;
                     if (targetGear is string)
@@ -219,12 +228,36 @@ namespace Uhuru.Openshift.Runtime
                         ActivateRemoteGear((GearRegistry.Entry)targetGear, localGearEnv, options);
                     }
                 });
-            
-            options["secondaryOnly"] = true;
-            options["userInitiated"] = true;
-            StartGear(options);
 
-            return string.Empty;
+            List<string> activatedGearUuids = new List<string>();
+
+            if ((options.ContainsKey("all") && options["all"]) || (options.ContainsKey("gears") && options["gears"]))
+            {
+                result["status"] = "RESULT_SUCCESS";
+                result["gear_results"] = new Dictionary<string, object>();
+
+                foreach (dynamic gearResult in parallelResults)
+                {
+                    string gearUuid = gearResult["gear_uuid"];
+                    activatedGearUuids.Add(gearUuid);
+
+                    result["gear_results"][gearUuid] = gearResult;
+
+                    if (gearResult["status"] != "RESULT_SUCCESS")
+                    {
+                        result["status"] = "RESULT_FAILURE";
+                    }
+                }
+            }
+            else
+            {
+                activatedGearUuids.Add(this.Uuid);
+                result = parallelResults[0];
+            }
+
+            output.Append(JsonConvert.SerializeObject(result));
+
+            return output.ToString();
         }
 
         private ActivateResult ActivateLocalGear(dynamic options)

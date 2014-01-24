@@ -44,7 +44,10 @@ namespace Uhuru.Openshift.Runtime.Model
             }
         }
 
-        public Dictionary<string, object> Entries
+        /// <summary>
+        /// Type => Gear UUID => Entry
+        /// </summary>
+        public Dictionary<string, Dictionary<string, Entry>> Entries
         {
             get
             {
@@ -56,7 +59,7 @@ namespace Uhuru.Openshift.Runtime.Model
         string registryFile;
         string backupFile;
         string lockFile;
-        Dictionary<string, object> gearRegistry;
+        Dictionary<string, Dictionary<string, Entry>> gearRegistry;
 
 
         public GearRegistry(ApplicationContainer container)
@@ -96,7 +99,7 @@ namespace Uhuru.Openshift.Runtime.Model
 
         public void Clear()
         {
-            this.gearRegistry = new Dictionary<string, object>();
+            this.gearRegistry = new Dictionary<string, Dictionary<string, Entry>>();
         }
 
         public void Add(Dictionary<string, object> options)
@@ -112,9 +115,10 @@ namespace Uhuru.Openshift.Runtime.Model
             string type = options["type"].ToString();
             if (this.gearRegistry[type] == null)
             {
-                this.gearRegistry[type] = new Dictionary<string, object>();
+                this.gearRegistry[type] = new Dictionary<string, Entry>();
             }
-            ((Dictionary<string, object>)this.gearRegistry[type])[options["uuis"].ToString()] = new Entry(options);
+
+            this.gearRegistry[type][options["uuis"].ToString()] = new Entry(options);
         }
 
         public delegate void WithLockCallback();

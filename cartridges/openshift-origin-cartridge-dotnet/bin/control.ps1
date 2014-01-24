@@ -46,11 +46,11 @@ function status-cartridge
     }
     if (($exists) -and ($process.HasExited -eq $false))
     {
-		client_result "Application is running"
+        client_result "Application is running"
     }
     else
     {
-		client_result "Application is either stopped or inaccessible"
+        client_result "Application is either stopped or inaccessible"
     }
     
   }

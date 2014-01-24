@@ -38,6 +38,7 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter(HelpMessage = "Deployment ID", ParameterSetName = "Distribute")]
         [Parameter(ParameterSetName = "ArchiveDeployment")]
+        [Parameter(ParameterSetName = "Activate", Position=1)]
         public string DeploymentId { get; set; }
 
         [Parameter(HelpMessage = "Activate a build", ParameterSetName = "Activate", Position=0)]
@@ -54,6 +55,9 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter(HelpMessage = "Rotate gears out/in (defaults to true)", ParameterSetName = "Activate")]
         public SwitchParameter Rotation { get; set; }
+
+        [Parameter(HelpMessage = "Do not rotate gears out/in", ParameterSetName = "Activate")]
+        public SwitchParameter NoRotation { get; set; }
 
         [Parameter(HelpMessage = "Archive the current deployment", ParameterSetName = "ArchiveDeployment" )]
         public SwitchParameter ArchiveDeployment { get; set; }
@@ -208,6 +212,20 @@ namespace Uhuru.Openshift.Cmdlets
                     options["report_deployments"] = true;
                     options["all"] = true;
                     container.Deploy(options);
+                }
+                else if (Activate)
+                {
+                    string result = container.Activate(new Dictionary<string, object>
+                    {
+                        {"deployment_id", this.DeploymentId},
+                        {"post_install", this.PostInstall.ToBool()},
+                        {"all", this.All.ToBool()},
+                        {"rotate", this.Rotation && !this.NoRotation},
+                        {"report_deployments", true},
+                        {"out", !this.AsJson.ToBool()}
+                    });
+                    
+                    status.Output = @"{""status"":""success"",""messages"":[""Starting application windows"",""Starting Ruby cartridge\n[Thu Jan 23 06:37:16.534153 2014] [core:warn] [pid 25164] AH00117: Ignoring deprecated use of DefaultType in line 112 of /var/lib/openshift/52e1291054bdb43e620006c2/ruby/etc/conf/httpd_nolog.conf.\n""],""errors"":[],""gear_uuid"":""52e1291054bdb43e620006c2"",""deployment_id"":""6307a54a""}";
                 }
                 status.ExitCode = 0;
             }

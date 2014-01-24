@@ -274,8 +274,8 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar("DEPLOYMENT_TYPE", deploymentType, true);
         }
 
-        public delegate void GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, dynamic options);
-        public string WithGearRotation(dynamic options, GearRotationCallback action)
+        public delegate RubyHash GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options);
+        public dynamic WithGearRotation(dynamic options, GearRotationCallback action)
         {
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
             Manifest proxyCart = this.Cartridge.WebProxy();
@@ -284,18 +284,18 @@ namespace Uhuru.Openshift.Runtime
             {
                 if ((bool)options["all"])
                 {
-                    gears = (List<object>)this.GearRegist.Entries["web"];
+                    gears = this.GearRegist.Entries["web"].Keys.ToList<object>();
                 }
                 else if (options.ContainsKey("gears"))
                 {
                     List<string> g = (List<string>)options["gears"];
-                    gears = ((List<object>)this.GearRegist.Entries["web"]).Where(e => g.Contains(e)).ToList<object>();
+                    gears = this.GearRegist.Entries["web"].Keys.Where(e => g.Contains(e)).ToList<object>();
                 }
                 else
                 {
                     try
                     {
-                        gears.Add(((Dictionary<string, object>)this.GearRegist.Entries["web"])[this.Uuid].ToString());
+                        gears.Add(this.GearRegist.Entries["web"][this.Uuid]);
                     }
                     catch
                     {
@@ -318,22 +318,339 @@ namespace Uhuru.Openshift.Runtime
 
             int threads = Math.Max(batchSize, MAX_THREADS);
 
+            dynamic result = new List<object>();
+
             // need to parallelize
             foreach (var targetGear in gears)
             {
-                RotateAndYield(targetGear, localGearEnv, options, action);
+                result.Add(RotateAndYield(targetGear, localGearEnv, options, action));
             }
 
-            return string.Empty;
+            return result;
         }
 
-        public string RotateAndYield(object targetGear, Dictionary<string, string> localGearEnv, dynamic options, GearRotationCallback action)
+        public RubyHash RotateAndYield(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options, GearRotationCallback action)
         {
-            StringBuilder output = new StringBuilder();
+            RubyHash result = new RubyHash()
+            {
+                { "status", "RESULT_FAILURE" },
+                { "messages", new List<string>() },
+                { "errors", new List<string>() }
+            };
 
-            action(targetGear, localGearEnv, options);
+            string proxyCart = options["proxy_cart"];
 
-            return output.ToString();
+            string targetGearUuid = targetGear is string ? (string)targetGear : ((GearRegistry.Entry)targetGear).Uuid;
+
+            // TODO: vladi: check if this condition also needs boolean verification on the value in the hash
+            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            {
+                result["messages"].Add("Rotating out gear in proxies");
+
+                RubyHash rotateOutResults = this.UpdateProxyStatus(new RubyHash()
+                    {
+                        { "action", "disable" },
+                        { "gear_uuid", targetGearUuid },
+                        { "cartridge", proxyCart }
+                    });
+
+                result["rotate_out_results"] = rotateOutResults;
+
+                if (rotateOutResults["errors"] != "RESULT_SUCCESS")
+                {
+                    result["errors"].Add("Rotating out gear in proxies failed.");
+                    return result;
+                }
+            }
+
+            RubyHash yieldResult = action(targetGear, localGearEnv, options);
+
+            dynamic yieldStatus = yieldResult.Delete("status");
+            dynamic yieldMessages = yieldResult.Delete("messages");
+            dynamic yieldErrors = yieldResult.Delete("errors");
+
+            result["messages"].AddRange(yieldMessages);
+            result["errors"].AddRange(yieldErrors);
+
+            result = result.Merge(yieldResult);
+
+            if (yieldStatus != "RESULT_SUCCESS")
+            {
+                return result;
+            }
+
+            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            {
+                result["messages"].Add("Rotating in gear in proxies");
+
+                RubyHash rotateInResults = this.UpdateProxyStatus(new RubyHash()
+                {
+                    { "action", "enable" },
+                    { "gear_uuid", targetGearUuid },
+                    { "cartridge", proxyCart }
+                });
+
+                result["rotate_in_results"] = rotateInResults;
+
+                if (rotateInResults["status"] != "RESULT_SUCCESS")
+                {
+                    result["errors"].Add("Rotating in gear in proxies failed");
+                    return result;
+                }
+            }
+
+            result["status"] = "RESULT_SUCCESS";
+
+            return result;
+        }
+
+        public RubyHash UpdateProxyStatus(RubyHash options)
+        {
+            string action = options["action"];
+
+            if (action != "enable" && action != "disable")
+            {
+                throw new ArgumentException("action must either be :enable or :disable");
+            }
+
+            if (options["gear_uuid"] == null)
+            {
+                throw new ArgumentException("gear_uuid is required");
+            }
+
+            string gearUuid = options["gear_uuid"];
+
+            Manifest cartridge;
+
+            if (options["cartridge"] == null)
+            {
+                cartridge = this.Cartridge.WebProxy();
+            }
+            else
+            {
+                cartridge = options["cartridge"];
+            }
+
+            if (cartridge == null)
+            {
+                throw new ArgumentException("Unable to update proxy status - no proxy cartridge found");
+            }
+
+            dynamic persist = options["persist"];
+
+            Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+            RubyHash result = new RubyHash() {
+                { "status", "RESULT_SUCCESS" },
+                { "target_gear_uuid", gearUuid },
+                { "proxy_results", new RubyHash() }
+            };
+
+            RubyHash gearResult = new RubyHash();
+
+            if (gearEnv["OPENSHIFT_APP_DNS"] != gearEnv["OPENSHIFT_GEAR_DNS"])
+            {
+                gearResult = this.UpdateLocalProxyStatus(new RubyHash(){
+                    { "cartridge", cartridge },
+                    { "action", action },
+                    { "proxy_gear", this.Uuid },
+                    { "target_gear", gearUuid },
+                    { "persist", persist }
+                });
+
+                result["proxy_results"][this.Uuid] = gearResult;
+            }
+            else
+            {
+                // only update the other proxies if we're the currently elected proxy
+                // TODO the way we determine this needs to change so gears other than
+                // the initial proxy gear can be elected
+                GearRegistry.Entry[] proxyEntries = this.gearRegistry.Entries["proxy"].Values.ToArray();
+
+                // TODO: vladi: Make this parallel
+                RubyHash[] parallelResults = proxyEntries.Select(entry =>
+                    this.UpdateRemoteProxyStatus(new RubyHash()
+                    {
+                        { "current_gear", this.Uuid },
+                        { "proxy_gear", entry },
+                        { "target_gear", gearUuid },
+                        { "cartridge", cartridge },
+                        { "action", action },
+                        { "persist", persist },
+                        { "gear_env", gearEnv }
+                    })).ToArray();
+                
+                foreach (RubyHash parallelResult in parallelResults)
+                {
+                    if (parallelResult.ContainsKey("proxy_results"))
+                    {
+                        result["proxy_results"] = result["proxy_results"].Merge(parallelResult["proxy_results"]);
+                    }
+                    else
+                    {
+                        result["proxy_results"][parallelResult["proxy_gear_uuid"]] = parallelResult;
+                    }
+                }
+            }
+
+            // if any results failed, consider the overall operation a failure
+            foreach (RubyHash proxyResult in result["proxy_results"].Values)
+            {
+                if (proxyResult["status"] != "RESULT_SUCCESS")
+                {
+                    result["status"] = "RESULT_FAILURE";
+                }
+            }
+
+            return result;
+        }
+
+        public RubyHash UpdateLocalProxyStatus(RubyHash args)
+        {
+            RubyHash result = new RubyHash();
+
+            object cartridge = args["cartridge"];
+            object action = args["action"];
+            object targetGear =args["target_gear"];
+            object persist = args["persist"];
+
+            try
+            {
+                RubyHash output = this.UpdateProxyStatusForGear(new RubyHash(){
+                    { "cartridge", cartridge },
+                    { "action", action },
+                    { "gear_uuid", targetGear },
+                    { "persist", persist }
+                });
+
+                result = new RubyHash()
+                {
+                    { "status", "RESULT_SUCCESS" },
+                    { "proxy_gear_uuid", this.Uuid },
+                    { "target_gear_uuid", targetGear },
+                    { "messages", new List<string>() },
+                    { "errors", new List<string>() }
+                };
+            }
+            catch (Exception ex)
+            {
+                result = new RubyHash()
+                {
+                    { "status", "RESULT_FAILURE" },
+                    { "proxy_gear_uuid", this.Uuid },
+                    { "target_gear_uuid", targetGear },
+                    { "messages", new List<string>() },
+                    { "errors", new List<string>() { string.Format("An exception occured updating the proxy status: {0}\n{1}", ex.Message, ex.StackTrace) } }
+                };
+            }
+
+            return result;
+        }
+
+        public dynamic UpdateProxyStatusForGear(RubyHash options)
+        {
+            string action = options["action"];
+
+            if (action != "enable" && action != "disable")
+            {
+                new ArgumentException("action must either be :enable or :disable");
+            }
+
+            string gearUuid = options["gear_uuid"];
+
+            if (gearUuid == null)
+            {
+                new ArgumentException("gear_uuid is required");
+            }
+
+            Manifest cartridge = options["cartridge"] ?? this.Cartridge.WebProxy();
+
+            if (cartridge == null)
+            {
+                throw new ArgumentNullException("Unable to update proxy status - no proxy cartridge found");
+            }
+
+            bool persist = options["persist"] != null && options["persist"] == true;
+            string control = string.Format("{0}-server", action);
+
+            List<string> args = new List<string>();
+
+            if (persist)
+            {
+                args.Add("persist");
+            }
+
+            args.Add(gearUuid);
+
+            this.Cartridge.DoControl(
+                control, cartridge, string.Join(" ", args), new Dictionary<string, object>()
+                {
+                    { "pre_action_hooks_enabled", false },
+                    { "post_action_hooks_enabled", false }
+                });
+            //args << 'persist' if persist
+            //args << gear_uuid
+
+            //@cartridge_model.do_control(control,
+            //                            cartridge,
+            //                            args: args.join(' '),
+            //                            pre_action_hooks_enabled:  false,
+            //                            post_action_hooks_enabled: false)
+            return null;
+        }
+
+        public RubyHash UpdateRemoteProxyStatus(RubyHash args)
+        {
+            RubyHash result = new RubyHash();
+            //current_gear = args[:current_gear]
+            //proxy_gear = args[:proxy_gear]
+            //target_gear = args[:target_gear]
+            //cartridge = args[:cartridge]
+            //action = args[:action]
+            //persist = args[:persist]
+            //gear_env = args[:gear_env]
+
+            //if current_gear == proxy_gear.uuid
+            //  # self, no need to ssh
+            //  return update_local_proxy_status(cartridge: cartridge, action: action, target_gear: target_gear, persist: persist)
+            //end
+
+            //direction = if :enable == action
+            //  'in'
+            //else
+            //  'out'
+            //end
+
+            //persist_option = if persist
+            //  '--persist'
+            //else
+            //  ''
+            //end
+
+            //url = "#{proxy_gear.uuid}@#{proxy_gear.proxy_hostname}"
+
+            //command = "/usr/bin/oo-ssh #{url} gear rotate-#{direction} --gear #{target_gear} #{persist_option} --cart #{cartridge.name}-#{cartridge.version} --as-json"
+
+            //begin
+            //  out, err, rc = run_in_container_context(command,
+            //                                          env: gear_env,
+            //                                          expected_exitstatus: 0)
+
+            //  raise "No result JSON was received from the remote proxy update call" if out.nil? || out.empty?
+
+            //  result = HashWithIndifferentAccess.new(JSON.load(out))
+
+            //  raise "Invalid result JSON received from remote proxy update call: #{result.inspect}" unless result.has_key?(:status)
+            //rescue => e
+            //  result = {
+            //    status: RESULT_FAILURE,
+            //    proxy_gear_uuid: proxy_gear.uuid,
+            //    messages: [],
+            //    errors: ["An exception occured updating the proxy status: #{e.message}\n#{e.backtrace.join("\n")}"]
+            //  }
+            //end
+
+            return result;
         }
 
         public string RestartGear(object targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
