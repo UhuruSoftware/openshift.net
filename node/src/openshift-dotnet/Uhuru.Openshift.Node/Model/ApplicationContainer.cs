@@ -16,6 +16,8 @@ using Uhuru.Openshift.Utilities;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using System.Text.RegularExpressions;
+using System.Net;
+
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -177,13 +179,6 @@ namespace Uhuru.Openshift.Runtime
             return Cartridge.ConnectorExecute(cartName, hookName, publishingCartName, connectionType, inputArgs);
         }
 
-        public string PostConfigure()
-        {
-            string output = RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init");
-            output += RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init");
-            return output;
-        }
-
         public string Start(string cartName, dynamic options = null)
         {
             if (options == null)
@@ -247,7 +242,7 @@ namespace Uhuru.Openshift.Runtime
             pi.Arguments = string.Format(
 @"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}", 
                 configureScript, 
-                this.ApplicationUuid, 
+                this.Uuid, 
                 NodeConfig.Values["SSHD_BASE_DIR"], 
                 this.ContainerDir,
                 NodeConfig.Values["GEAR_SHELL"],
@@ -255,7 +250,7 @@ namespace Uhuru.Openshift.Runtime
 
             Process p = Process.Start(pi);
             p.WaitForExit(60000);
-            output += this.ApplicationUuid;
+            output += this.Uuid;
             output += p.StandardError.ReadToEnd();
             output += p.StandardOutput.ReadToEnd();
 
@@ -277,39 +272,16 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        private DateTime CreateDeploymentDir()
-        {
-            DateTime deploymentdateTime = DateTime.Now;
-
-            string fullPath = Path.Combine(this.ContainerDir, "app-deployments", deploymentdateTime.ToString("yyyy-MM-dd_HH-mm-s"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "repo"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "dependencies"));
-            Directory.CreateDirectory(Path.Combine(fullPath, "build-depedencies"));
-            SetRWPermissions(fullPath);
-            PruneDeployments();
-            return deploymentdateTime;
-        }
-
         private void PruneDeployments()
-        {}
-
-        public void Activate(dynamic options)
         {
-            Dictionary<string, object> opts = new Dictionary<string, object>();
-            opts["secondaryOnly"] = true;
-            opts["userInitiated"] = true;
-            //opts["hotDeploy"] = options["hotDeploy"];
-            StartGear(opts);
+            // TODO implement this!
         }
 
-        private void StartGear(dynamic options)
-        {
-            this.Cartridge.StartGear(options);
-        }
 
-        private void ActivateLocalGear(dynamic options)
-        {
 
+        private string StartGear(dynamic options)
+        {
+            return this.Cartridge.StartGear(options);
         }
 
         public void SetRWPermissions(string filename)
@@ -324,14 +296,51 @@ namespace Uhuru.Openshift.Runtime
 
         public string Restart(string cartName, dynamic options)
         {
-            WithGearRotation(options,
-                (GearRotationCallback)delegate(string targetGear, Dictionary<string, string> localGearEnv, dynamic opts)
+            string result = WithGearRotation(options,
+                (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
                 {
-                    RestartGear(targetGear, localGearEnv, cartName, opts);
+                    return RestartGear(targetGear, localGearEnv, cartName, opts);
                 });
 
 
-            return string.Empty;
+            return result;
+        }
+
+        public void ReportDeployments(Dictionary<string, string> gearEnv)
+        {
+            string brokerAddr = NodeConfig.Values["BROKER_HOST"];
+            string domain = gearEnv["OPENSHIFT_NAMESPACE"];
+            string appName = gearEnv["OPENSHIFT_APP_NAME"];
+            string appUuid = gearEnv["OPENSHIFT_APP_UUID"];
+            string url = string.Format("https://{0}/broker/rest/domain/{1}/application/{2}/deployments", brokerAddr, domain, appName);
+            Dictionary<string, string> param = BrokerAuthParams();
+            if (param != null)
+            {
+                List<RubyHash> deployments = CalculateDeployments();
+                param["deployments[]"] = JsonConvert.SerializeObject(deployments);
+                param["applicaition_id"] = appUuid;
+                string payload = JsonConvert.SerializeObject(param);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "POST";
+                request.Headers.Add("accept", "application/json;version=1.6");
+                request.Headers.Add("user_agent", "OpenShift");
+                using (StreamWriter sw = new StreamWriter(request.GetRequestStream()))
+                {
+                    sw.Write(payload);
+                    sw.Flush();
+                    sw.Close();
+                }
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if ((int)response.StatusCode >= 300)
+                {
+                    string result;
+                    using (var sr = new StreamReader(response.GetResponseStream()))
+                    {
+                        result = sr.ReadToEnd();
+                    }
+                    throw new Exception(result);
+                }
+            }
         }
 
         public void SetAutoDeploy(bool autoDeploy)
@@ -355,28 +364,28 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar("DEPLOYMENT_TYPE", deploymentType, true);
         }
 
-        public delegate void GearRotationCallback(string targetGear, Dictionary<string, string> localGearEnv, dynamic options);
-        public string WithGearRotation(dynamic options, GearRotationCallback action)
+        public delegate dynamic GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options);
+        public dynamic WithGearRotation(dynamic options, GearRotationCallback action)
         {
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
             Manifest proxyCart = this.Cartridge.WebProxy();
-            List<string> gears = new List<string>();
+            List<object> gears = new List<object>();
             if (options.ContainsKey("all") && proxyCart != null)
             {
                 if ((bool)options["all"])
                 {
-                    gears = (List<string>)this.GearRegist.Entries["web"];
+                    gears = this.GearRegist.Entries["web"].Keys.ToList<object>();
                 }
                 else if (options.ContainsKey("gears"))
                 {
                     List<string> g = (List<string>)options["gears"];
-                    gears = ((List<string>)this.GearRegist.Entries["web"]).Where(e => g.Contains(e)).ToList<string>();
+                    gears = this.GearRegist.Entries["web"].Keys.Where(e => g.Contains(e)).ToList<object>();
                 }
                 else
                 {
                     try
                     {
-                        gears.Add(((Dictionary<string, object>)this.GearRegist.Entries["web"])[this.Uuid].ToString());
+                        gears.Add(this.GearRegist.Entries["web"][this.Uuid]);
                     }
                     catch
                     {
@@ -399,25 +408,343 @@ namespace Uhuru.Openshift.Runtime
 
             int threads = Math.Max(batchSize, MAX_THREADS);
 
+            dynamic result = new List<object>();
+
             // need to parallelize
-            foreach (string targetGear in gears)
+            foreach (var targetGear in gears)
             {
-                RotateAndYield(targetGear, localGearEnv, options, action);
+                result.Add(RotateAndYield(targetGear, localGearEnv, options, action));
             }
 
-            return string.Empty;
+            return result;
         }
 
-        public string RotateAndYield(string targetGear, Dictionary<string, string> localGearEnv, dynamic options, GearRotationCallback action)
+        public RubyHash RotateAndYield(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options, GearRotationCallback action)
         {
-            StringBuilder output = new StringBuilder();
+            RubyHash result = new RubyHash()
+            {
+                { "status", "RESULT_FAILURE" },
+                { "messages", new List<string>() },
+                { "errors", new List<string>() }
+            };
 
-            action(targetGear, localGearEnv, options);
+            string proxyCart = options["proxy_cart"];
 
-            return output.ToString();
+            string targetGearUuid = targetGear is string ? (string)targetGear : ((GearRegistry.Entry)targetGear).Uuid;
+
+            // TODO: vladi: check if this condition also needs boolean verification on the value in the hash
+            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            {
+                result["messages"].Add("Rotating out gear in proxies");
+
+                RubyHash rotateOutResults = this.UpdateProxyStatus(new RubyHash()
+                    {
+                        { "action", "disable" },
+                        { "gear_uuid", targetGearUuid },
+                        { "cartridge", proxyCart }
+                    });
+
+                result["rotate_out_results"] = rotateOutResults;
+
+                if (rotateOutResults["errors"] != "RESULT_SUCCESS")
+                {
+                    result["errors"].Add("Rotating out gear in proxies failed.");
+                    return result;
+                }
+            }
+
+            RubyHash yieldResult = action(targetGear, localGearEnv, options);
+
+            dynamic yieldStatus = yieldResult.Delete("status");
+            dynamic yieldMessages = yieldResult.Delete("messages");
+            dynamic yieldErrors = yieldResult.Delete("errors");
+
+            result["messages"].AddRange(yieldMessages);
+            result["errors"].AddRange(yieldErrors);
+
+            result = result.Merge(yieldResult);
+
+            if (yieldStatus != "RESULT_SUCCESS")
+            {
+                return result;
+            }
+
+            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            {
+                result["messages"].Add("Rotating in gear in proxies");
+
+                RubyHash rotateInResults = this.UpdateProxyStatus(new RubyHash()
+                {
+                    { "action", "enable" },
+                    { "gear_uuid", targetGearUuid },
+                    { "cartridge", proxyCart }
+                });
+
+                result["rotate_in_results"] = rotateInResults;
+
+                if (rotateInResults["status"] != "RESULT_SUCCESS")
+                {
+                    result["errors"].Add("Rotating in gear in proxies failed");
+                    return result;
+                }
+            }
+
+            result["status"] = "RESULT_SUCCESS";
+
+            return result;
         }
 
-        public string RestartGear(string targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
+        public RubyHash UpdateProxyStatus(RubyHash options)
+        {
+            string action = options["action"];
+
+            if (action != "enable" && action != "disable")
+            {
+                throw new ArgumentException("action must either be :enable or :disable");
+            }
+
+            if (options["gear_uuid"] == null)
+            {
+                throw new ArgumentException("gear_uuid is required");
+            }
+
+            string gearUuid = options["gear_uuid"];
+
+            Manifest cartridge;
+
+            if (options["cartridge"] == null)
+            {
+                cartridge = this.Cartridge.WebProxy();
+            }
+            else
+            {
+                cartridge = options["cartridge"];
+            }
+
+            if (cartridge == null)
+            {
+                throw new ArgumentException("Unable to update proxy status - no proxy cartridge found");
+            }
+
+            dynamic persist = options["persist"];
+
+            Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+            RubyHash result = new RubyHash() {
+                { "status", "RESULT_SUCCESS" },
+                { "target_gear_uuid", gearUuid },
+                { "proxy_results", new RubyHash() }
+            };
+
+            RubyHash gearResult = new RubyHash();
+
+            if (gearEnv["OPENSHIFT_APP_DNS"] != gearEnv["OPENSHIFT_GEAR_DNS"])
+            {
+                gearResult = this.UpdateLocalProxyStatus(new RubyHash(){
+                    { "cartridge", cartridge },
+                    { "action", action },
+                    { "proxy_gear", this.Uuid },
+                    { "target_gear", gearUuid },
+                    { "persist", persist }
+                });
+
+                result["proxy_results"][this.Uuid] = gearResult;
+            }
+            else
+            {
+                // only update the other proxies if we're the currently elected proxy
+                // TODO the way we determine this needs to change so gears other than
+                // the initial proxy gear can be elected
+                GearRegistry.Entry[] proxyEntries = this.gearRegistry.Entries["proxy"].Values.ToArray();
+
+                // TODO: vladi: Make this parallel
+                RubyHash[] parallelResults = proxyEntries.Select(entry =>
+                    this.UpdateRemoteProxyStatus(new RubyHash()
+                    {
+                        { "current_gear", this.Uuid },
+                        { "proxy_gear", entry },
+                        { "target_gear", gearUuid },
+                        { "cartridge", cartridge },
+                        { "action", action },
+                        { "persist", persist },
+                        { "gear_env", gearEnv }
+                    })).ToArray();
+                
+                foreach (RubyHash parallelResult in parallelResults)
+                {
+                    if (parallelResult.ContainsKey("proxy_results"))
+                    {
+                        result["proxy_results"] = result["proxy_results"].Merge(parallelResult["proxy_results"]);
+                    }
+                    else
+                    {
+                        result["proxy_results"][parallelResult["proxy_gear_uuid"]] = parallelResult;
+                    }
+                }
+            }
+
+            // if any results failed, consider the overall operation a failure
+            foreach (RubyHash proxyResult in result["proxy_results"].Values)
+            {
+                if (proxyResult["status"] != "RESULT_SUCCESS")
+                {
+                    result["status"] = "RESULT_FAILURE";
+                }
+            }
+
+            return result;
+        }
+
+        public RubyHash UpdateLocalProxyStatus(RubyHash args)
+        {
+            RubyHash result = new RubyHash();
+
+            object cartridge = args["cartridge"];
+            object action = args["action"];
+            object targetGear =args["target_gear"];
+            object persist = args["persist"];
+
+            try
+            {
+                RubyHash output = this.UpdateProxyStatusForGear(new RubyHash(){
+                    { "cartridge", cartridge },
+                    { "action", action },
+                    { "gear_uuid", targetGear },
+                    { "persist", persist }
+                });
+
+                result = new RubyHash()
+                {
+                    { "status", "RESULT_SUCCESS" },
+                    { "proxy_gear_uuid", this.Uuid },
+                    { "target_gear_uuid", targetGear },
+                    { "messages", new List<string>() },
+                    { "errors", new List<string>() }
+                };
+            }
+            catch (Exception ex)
+            {
+                result = new RubyHash()
+                {
+                    { "status", "RESULT_FAILURE" },
+                    { "proxy_gear_uuid", this.Uuid },
+                    { "target_gear_uuid", targetGear },
+                    { "messages", new List<string>() },
+                    { "errors", new List<string>() { string.Format("An exception occured updating the proxy status: {0}\n{1}", ex.Message, ex.StackTrace) } }
+                };
+            }
+
+            return result;
+        }
+
+        public dynamic UpdateProxyStatusForGear(RubyHash options)
+        {
+            string action = options["action"];
+
+            if (action != "enable" && action != "disable")
+            {
+                new ArgumentException("action must either be :enable or :disable");
+            }
+
+            string gearUuid = options["gear_uuid"];
+
+            if (gearUuid == null)
+            {
+                new ArgumentException("gear_uuid is required");
+            }
+
+            Manifest cartridge = options["cartridge"] ?? this.Cartridge.WebProxy();
+
+            if (cartridge == null)
+            {
+                throw new ArgumentNullException("Unable to update proxy status - no proxy cartridge found");
+            }
+
+            bool persist = options["persist"] != null && options["persist"] == true;
+            string control = string.Format("{0}-server", action);
+
+            List<string> args = new List<string>();
+
+            if (persist)
+            {
+                args.Add("persist");
+            }
+
+            args.Add(gearUuid);
+
+            this.Cartridge.DoControl(
+                control, cartridge, new Dictionary<string, object>()
+                {
+                    { "args", string.Join(" ", args) },
+                    { "pre_action_hooks_enabled", false },
+                    { "post_action_hooks_enabled", false }
+                });
+            //args << 'persist' if persist
+            //args << gear_uuid
+
+            //@cartridge_model.do_control(control,
+            //                            cartridge,
+            //                            args: args.join(' '),
+            //                            pre_action_hooks_enabled:  false,
+            //                            post_action_hooks_enabled: false)
+            return null;
+        }
+
+        public RubyHash UpdateRemoteProxyStatus(RubyHash args)
+        {
+            RubyHash result = new RubyHash();
+            //current_gear = args[:current_gear]
+            //proxy_gear = args[:proxy_gear]
+            //target_gear = args[:target_gear]
+            //cartridge = args[:cartridge]
+            //action = args[:action]
+            //persist = args[:persist]
+            //gear_env = args[:gear_env]
+
+            //if current_gear == proxy_gear.uuid
+            //  # self, no need to ssh
+            //  return update_local_proxy_status(cartridge: cartridge, action: action, target_gear: target_gear, persist: persist)
+            //end
+
+            //direction = if :enable == action
+            //  'in'
+            //else
+            //  'out'
+            //end
+
+            //persist_option = if persist
+            //  '--persist'
+            //else
+            //  ''
+            //end
+
+            //url = "#{proxy_gear.uuid}@#{proxy_gear.proxy_hostname}"
+
+            //command = "/usr/bin/oo-ssh #{url} gear rotate-#{direction} --gear #{target_gear} #{persist_option} --cart #{cartridge.name}-#{cartridge.version} --as-json"
+
+            //begin
+            //  out, err, rc = run_in_container_context(command,
+            //                                          env: gear_env,
+            //                                          expected_exitstatus: 0)
+
+            //  raise "No result JSON was received from the remote proxy update call" if out.nil? || out.empty?
+
+            //  result = HashWithIndifferentAccess.new(JSON.load(out))
+
+            //  raise "Invalid result JSON received from remote proxy update call: #{result.inspect}" unless result.has_key?(:status)
+            //rescue => e
+            //  result = {
+            //    status: RESULT_FAILURE,
+            //    proxy_gear_uuid: proxy_gear.uuid,
+            //    messages: [],
+            //    errors: ["An exception occured updating the proxy status: #{e.message}\n#{e.backtrace.join("\n")}"]
+            //  }
+            //end
+
+            return result;
+        }
+
+        public string RestartGear(object targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
         {
             return this.Cartridge.StartCartridge("restart", cartName, options);
         }
@@ -537,6 +864,7 @@ namespace Uhuru.Openshift.Runtime
             string deploymentsDir = Path.Combine(homeDir, "app-deployments");
             Directory.CreateDirectory(deploymentsDir);
             AddEnvVar("DEPLOYMENTS_DIR", deploymentsDir, true);
+            Directory.CreateDirectory(Path.Combine(deploymentsDir, "by-id"));
 
             CreateDeploymentDir();
 
@@ -651,6 +979,23 @@ namespace Uhuru.Openshift.Runtime
                 {
                     return string.Empty;
                 }
+            }
+        }
+
+        protected Dictionary<string, string> BrokerAuthParams()
+        {
+            string authToken = Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid, ".auth", "token");
+            string authIv = Path.Combine(NodeConfig.Values["GEAR_BASE_DIR"], this.Uuid, ".auth", "iv");
+            if (File.Exists(authToken) && File.Exists(authIv))
+            {
+                Dictionary<string, string> param = new Dictionary<string, string>();
+                param["broker_auth_key"] = File.ReadAllText(authToken);
+                param["broker_auth_iv"] = File.ReadAllText(authIv);
+                return param;
+            }
+            else
+            {
+                return null;
             }
         }
     }

@@ -48,7 +48,7 @@ namespace Uhuru.Openshift.Common.Models
         public string PublicPortName { get; set; }
         public string WebsocketPortName { get; set; }
         public string WebsocketPort { get; set; }
-        public string Options { get; set; }
+        public Dictionary<object, object> Options { get; set; }
         public string Description { get; set; }
         public string[] Protocols { get; set; }
         public List<Mapping> Mappings { get; set; }

@@ -268,6 +268,22 @@ module MCollective
         run_command(__method__, args)
       end
 
+      def oo_activate(args)
+        @logger.debug "oo_activate"
+        # deployment_id  = args['--with-deployment-id']
+        # out = StringIO.new
+        # err = StringIO.new
+        # addtl_params = nil
+
+        # rc, output = with_container_from_args(args) do |container|
+        #  container.activate(deployment_id: deployment_id, out: out, err: err)
+        #  addtl_params = {deployments: container.calculate_deployments}
+        # end
+
+        # return rc, output, addtl_params
+        run_command(__method__, args)
+      end
+
       def oo_authorized_ssh_key_add(args)
         @logger.debug "oo_authorized_ssh_key_add"
         # ssh_key  = args['--with-ssh-key']
@@ -1216,6 +1232,10 @@ module MCollective
           reply[:output] = false
         end
         reply[:exitcode] = 0
+      end
+
+      def oo_update_cluster(args)
+        return 0, ''
       end
     end
   end

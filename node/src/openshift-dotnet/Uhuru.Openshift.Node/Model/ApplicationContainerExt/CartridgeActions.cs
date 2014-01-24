@@ -1,13 +1,18 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -113,6 +118,51 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
+        public string PostConfigure(string cartName, string templateGitUrl = null)
+        {
+            StringBuilder output = new StringBuilder();
+            Manifest cartridge = this.Cartridge.GetCartridge(cartName);
+
+            bool performInitialBuild = !Git.EmptyCloneSpec(templateGitUrl) && (cartridge.InstallBuildRequired || !string.IsNullOrEmpty(templateGitUrl)) && cartridge.Buildable;
+
+            if (performInitialBuild)
+            {
+                Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init"));
+                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init"));
+            }
+            else if (cartridge.Deployable)
+            {
+                string deploymentDatetime = LatestDeploymentDateTime();
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDatetime);
+                if (deploymentMetadata.Activations.Count == 0)
+                {
+                    Prepare(new Dictionary<string, object>() { { "deployment_datetime", deploymentDatetime } });
+                    deploymentMetadata.Load();
+                    ApplicationRepository applicationRepository = new ApplicationRepository(this);
+                    string gitRef = "master";
+                    string gitSha1 = applicationRepository.GetSha1(gitRef);
+                    string deploymentsDir = Path.Combine(this.ContainerDir, "app-deployments");
+                    SetRWPermissions(deploymentsDir);
+                    // TODO reset_permission_R(deployments_dir)
+
+                    deploymentMetadata.RecordActivation();
+                    deploymentMetadata.Save();
+
+                    UpdateCurrentDeploymentDateTimeSymlink(deploymentDatetime);
+                }
+            }
+
+            output.AppendLine(this.Cartridge.PostConfigure(cartName));
+
+            if (performInitialBuild)
+            {
+                // grep build log
+            }
+
+            return output.ToString();
+        }
+
         public void PostReceive(dynamic options)
         {
 
@@ -129,6 +179,236 @@ namespace Uhuru.Openshift.Runtime
             Activate(options);
         }
 
+        public string Activate(dynamic options = null)
+        {
+            if(options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
+
+            bool onlyJson = options.ContainsKey("out") && options["out"];
+
+            StringBuilder output = new StringBuilder();
+            dynamic result = new Dictionary<string, object>();
+
+            if (!onlyJson)
+            {
+                output.Append("Activating deployment");
+            }
+
+            if (!options.ContainsKey("deployment_id"))
+            {
+                throw new Exception("deployment_id must be supplied");
+            }
+            string deploymentId = options["deployment_id"];
+            string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
+            DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+       
+            options["hot_deploy"] = deploymentMetadata.HotDeploy;
+            if (options.ContainsKey("post_install") || options.ContainsKey("restore"))
+            {
+                options["hot_deploy"] = false;
+            }
+
+            dynamic parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
+                {
+                    string targetGearUuid;
+                    if (targetGear is string)
+                    {
+                        targetGearUuid = targetGear.ToString();
+                    }
+                    else
+                    {
+                        targetGearUuid = ((Model.GearRegistry.Entry)targetGear).Uuid;
+                    }
+                    if (targetGearUuid == this.Uuid)
+                    {
+                        return ActivateLocalGear(options);
+                    }
+                    else
+                    {                        
+                        return ActivateRemoteGear((GearRegistry.Entry)targetGear, localGearEnv, options);
+                    }
+                });
+
+            List<string> activatedGearUuids = new List<string>();
+
+            if ((options.ContainsKey("all") && options["all"]) || (options.ContainsKey("gears") && options["gears"]))
+            {
+                result["status"] = "RESULT_SUCCESS";
+                result["gear_results"] = new Dictionary<string, object>();
+
+                foreach (dynamic gearResult in parallelResults)
+                {
+                    string gearUuid = gearResult["gear_uuid"];
+                    activatedGearUuids.Add(gearUuid);
+
+                    result["gear_results"][gearUuid] = gearResult;
+
+                    if (gearResult["status"] != "RESULT_SUCCESS")
+                    {
+                        result["status"] = "RESULT_FAILURE";
+                    }
+                }
+            }
+            else
+            {
+                activatedGearUuids.Add(this.Uuid);
+                result = parallelResults[0];
+            }
+
+            output.Append(JsonConvert.SerializeObject(result));
+
+            return output.ToString();
+        }
+
+        private RubyHash ActivateLocalGear(dynamic options)
+        {
+            string deploymentId = options["deployment_id"];
+
+            RubyHash result = new RubyHash();
+            result["status"] = RESULT_FAILURE;
+            result["gear_uuid"] = this.Uuid;
+            result["deployment_id"] = deploymentId;
+            result["messages"] = new List<string>();
+            result["errors"] = new List<string>();
+
+            if (!DeploymentExists(deploymentId))
+            {
+                result["errors"].Add(string.Format("No deployment with id {0} found on gear", deploymentId));
+                return result;
+            }
+
+            try
+            {
+                string deploymentDateTime = GetDeploymentDateTimeForDeploymentId(deploymentId);
+                string deploymentDir = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
+
+                Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
+
+                string output = string.Empty;
+
+                if (State.Value() == Runtime.State.STARTED.ToString())
+                {
+                    options["exclude_web_proxy"] = true;
+                    output = StopGear(options);
+                    result["messages"].Add(output);
+                }
+
+                SyncDeploymentRepoDirToRuntime(deploymentDateTime);
+                SyncDeploymentDependenciesDirToRuntime(deploymentDateTime);
+                SyncDeploymentBuildDependenciesDirToRuntime(deploymentDateTime);
+
+                UpdateCurrentDeploymentDateTimeSymlink(deploymentDateTime);
+
+                Manifest primaryCartridge = this.Cartridge.GetPrimaryCartridge();
+                
+                this.Cartridge.DoControl("update-configuration", primaryCartridge);
+
+                result["messages"].Add("Starting application " + ApplicationName);
+
+                Dictionary<string, object> opts = new Dictionary<string,object>();
+                opts["secondary_only"] = true;
+                opts["user_initiated"] = true;
+                opts["hot_deploy"] = options["hot_deploy"];
+                output = StartGear(opts);
+                result["messages"].Add(output);
+
+                this.State.Value(Runtime.State.DEPLOYING);
+
+                opts = new Dictionary<string, object>();
+                opts["pre_action_hooks_enabled"] = false;
+                opts["prefix_action_hooks"] = false;
+                output = this.Cartridge.DoControl("deploy", primaryCartridge, opts);
+                result["messages"].Add(output);
+
+                opts = new Dictionary<string, object>();
+                opts["primary_only"] = true;
+                opts["user_initiated"] = true;
+                opts["hot_deploy"] = options["hot_deploy"];
+                output = StartGear(opts);
+                result["messages"].Add(output);
+
+                opts = new Dictionary<string, object>();
+                opts["pre_action_hooks_enabled"] = false;
+                opts["prefix_action_hooks"] = false;
+                output = this.Cartridge.DoControl("post-deploy", primaryCartridge, opts);
+                result["messages"].Add(output);
+
+                if (options.ContainsKey("post_install"))
+                {
+                    string primaryCartEnvDir = Path.Combine(this.ContainerDir, primaryCartridge.Dir, "env");
+                    Dictionary<string, string> primaryCartEnv = Environ.Load(primaryCartEnvDir);
+                    string ident = (from kvp in primaryCartEnv
+                                    where Regex.Match(kvp.Key, "^OPENSHIFT_.*_IDENT").Success
+                                    select kvp.Value).FirstOrDefault();
+                    string version = Manifest.ParseIdent(ident)[2];
+                    this.Cartridge.PostInstall(primaryCartridge, version);
+                }
+
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+                deploymentMetadata.RecordActivation();
+                deploymentMetadata.Save();
+
+                if (options.ContainsKey("report_deployments") && gearEnv["OPENSHIFT_APP_DNS"] == gearEnv["OPENSHIFT_GEAR_DNS"])
+                {
+                    ReportDeployments(gearEnv);
+                }
+
+                result["status"] = RESULT_SUCCESS;
+            }
+            catch(Exception e)
+            {
+                result["status"] = RESULT_FAILURE;
+                result["errors"].Add(string.Format("Error activating gear: {0}", e.ToString()));
+            }
+
+            return result;
+        }
+
+        private RubyHash ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, dynamic options)
+        {
+            string gearUuid = gear.Uuid;
+
+            RubyHash result = new RubyHash();
+            result["status"] = RESULT_FAILURE;
+            result["gear_uuid"] = this.Uuid;
+            result["deployment_id"] = options["deployment_id"];
+            result["messages"] = new List<string>();
+            result["errors"] = new List<string>();
+
+            string postInstallOptions = options["post_install"] == true ? "--post-install" : "";
+
+            result["messages"].Add(string.Format("Activating gear {0}, deployment id: {1}, {2}", gearUuid, options["deployment_id"], postInstallOptions));
+            try
+            {
+
+                // TODO implement oo-ssh
+
+                string cmd = string.Format("/usr/bin/oo-ssh {0} gear activate {1} --as-json {2} --no-rotation", gear.ToSshUrl(), options["deployment_id"], postInstallOptions);
+                string output = RunProcessInContainerContext(this.ContainerDir, cmd);
+                if (string.IsNullOrEmpty(output))
+                {
+                    throw new Exception("No result JSON was received from the remote activate call");
+                }
+                Dictionary<string, object> activateResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(output);
+                if (!activateResult.ContainsKey("status"))
+                {
+                    throw new Exception("Invalid result JSON received from remote activate call");
+                }
+
+                result["messages"].Add(activateResult["messages"]);
+                result["errors"].Add(activateResult["errors"]);
+                result["status"] = activateResult["status"];
+            }
+            catch (Exception e)
+            {
+                result["errors"].Add("Gear activation failed: " + e.ToString());                
+            }
+
+            return result;
+        }
+
         public string Deploy(dynamic options)
         {
             StringBuilder output = new StringBuilder();
@@ -141,6 +421,50 @@ namespace Uhuru.Openshift.Runtime
             {
                 output.AppendLine(DeployBinaryArtifact(options));
             }
+            return output.ToString();
+        }
+
+        public string Prepare(Dictionary<string, object> options = null)
+        {
+            if (options == null)
+            {
+                options = new Dictionary<string, object>();
+            }
+            StringBuilder output = new StringBuilder();
+            output.AppendLine("Preparing build for deployment");
+            if (!options.ContainsKey("deployment_datetime"))
+            {
+                throw new ArgumentException("deployment_datetime is required");
+            }
+            string deploymentDatetime = options["deployment_datetime"].ToString();
+            Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+
+            // TODO clean runtime dirs, extract archive
+
+            this.Cartridge.DoActionHook("prepare", env, options);
+            string deploymentId = CalculateDeploymentId();
+            LinkDeploymentId(deploymentDatetime, deploymentId);
+
+            try
+            {
+                SyncRuntimeRepoDirToDeployment(deploymentDatetime);
+                SyncRuntimeDependenciesDirToDeployment(deploymentDatetime);
+                SyncRuntimeBuildDependenciesDirToDeployment(deploymentDatetime);
+
+                DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDatetime);
+                deploymentMetadata.Id = deploymentId;
+                deploymentMetadata.Checksum = CalculateDeploymentChecksum(deploymentId);
+                deploymentMetadata.Save();
+
+                options["deployment_id"] = deploymentId;
+                output.AppendLine("Deployment id is " + deploymentId);
+            }
+            catch (Exception e)
+            {
+                output.AppendLine("Error preparing deployment " + deploymentId);
+                UnlinkDeploymentId(deploymentId);
+            }
+
             return output.ToString();
         }
 

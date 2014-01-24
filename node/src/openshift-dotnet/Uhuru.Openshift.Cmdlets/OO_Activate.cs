@@ -4,12 +4,11 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using Uhuru.Openshift.Runtime;
-using Uhuru.Openshift.Runtime.Utils;
 
 namespace Uhuru.Openshift.Cmdlets
 {
-    [Cmdlet("OO", "Post-Configure")]
-    public class OO_Post_Configure : System.Management.Automation.Cmdlet 
+    [Cmdlet("OO", "Activate")]
+    public class OO_Activate : System.Management.Automation.Cmdlet 
     {
         [Parameter]
         public string WithAppUuid;
@@ -42,20 +41,26 @@ namespace Uhuru.Openshift.Cmdlets
         public string CartridgeVendor;
 
         [Parameter]
-        public string TemplateGitUrl;
+        public string DeploymentId;
 
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-               WithNamespace, null, null, new Hourglass(235));
+            ReturnStatus status = new ReturnStatus();
+            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                            WithContainerName, WithNamespace, null, null, null);
             try
             {
-                this.WriteObject(container.PostConfigure(CartName, TemplateGitUrl));
+                Dictionary<string, object> options = new Dictionary<string,object>();
+                options["deployment_id"] = DeploymentId;
+                status.Output = container.Activate(options);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

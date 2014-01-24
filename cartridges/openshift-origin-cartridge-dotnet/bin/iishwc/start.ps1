@@ -102,7 +102,7 @@ function AddBinding([ref]$applicationHost)
     $bindings = $applicationHost.Value.CreateElement("bindings")	
     $element = $applicationHost.Value.CreateElement("binding")
     $element.SetAttribute('protocol', "http")
-    $element.SetAttribute("bindingInformation", [String]::Format("*:{0}:{1}", $script:appPort, $vhost))	
+    $element.SetAttribute("bindingInformation", [String]::Format("*:{0}:{1}", $script:appPort, "*"))	
     $null = $bindings.AppendChild($element)
     $null = $applicationHost.Value.configuration."system.applicationHost".sites.site.AppendChild($bindings)	
 }
