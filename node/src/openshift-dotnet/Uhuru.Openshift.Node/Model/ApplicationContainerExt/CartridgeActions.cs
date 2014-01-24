@@ -366,9 +366,47 @@ namespace Uhuru.Openshift.Runtime
             return result;
         }
 
-        private void ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, dynamic options)
+        private RubyHash ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, dynamic options)
         {
-            // TODO
+            string gearUuid = gear.Uuid;
+
+            RubyHash result = new RubyHash();
+            result["status"] = RESULT_FAILURE;
+            result["gear_uuid"] = this.Uuid;
+            result["deployment_id"] = options["deployment_id"];
+            result["messages"] = new List<string>();
+            result["errors"] = new List<string>();
+
+            string postInstallOptions = options["post_install"] == true ? "--post-install" : "";
+
+            result["messages"].Add(string.Format("Activating gear {0}, deployment id: {1}, {2}", gearUuid, options["deployment_id"], postInstallOptions));
+            try
+            {
+
+                // TODO implement oo-ssh
+
+                string cmd = string.Format("/usr/bin/oo-ssh {0} gear activate {1} --as-json {2} --no-rotation", gear.ToSshUrl(), options["deployment_id"], postInstallOptions);
+                string output = RunProcessInContainerContext(this.ContainerDir, cmd);
+                if (string.IsNullOrEmpty(output))
+                {
+                    throw new Exception("No result JSON was received from the remote activate call");
+                }
+                Dictionary<string, object> activateResult = JsonConvert.DeserializeObject<Dictionary<string, object>>(output);
+                if (!activateResult.ContainsKey("status"))
+                {
+                    throw new Exception("Invalid result JSON received from remote activate call");
+                }
+
+                result["messages"].Add(activateResult["messages"]);
+                result["errors"].Add(activateResult["errors"]);
+                result["status"] = activateResult["status"];
+            }
+            catch (Exception e)
+            {
+                result["errors"].Add("Gear activation failed: " + e.ToString());                
+            }
+
+            return result;
         }
 
         public string Deploy(dynamic options)
