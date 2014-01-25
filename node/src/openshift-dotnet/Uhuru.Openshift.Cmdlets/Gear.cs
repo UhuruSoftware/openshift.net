@@ -8,6 +8,7 @@ using System.Text;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -157,6 +158,8 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            Logger.Debug("Running gear command: '{0}'", Environment.CommandLine);
+
             ReturnStatus status = new ReturnStatus();
             try
             {
@@ -183,7 +186,7 @@ namespace Uhuru.Openshift.Cmdlets
                 }
                 else if (Postreceive)
                 {
-                    Dictionary<string, object> options = new Dictionary<string, object>();
+                    RubyHash options = new RubyHash();
                     options["init"] = Init;
                     options["all"] = true;
                     options["reportDeployment"] = true;
@@ -209,7 +212,7 @@ namespace Uhuru.Openshift.Cmdlets
                     {
                         throw new Exception("Git ref " + refToDeploy + " is not valid");
                     }
-                    Dictionary<string, object> options = new Dictionary<string,object>();
+                    RubyHash options = new RubyHash();
                     options["hot_deploy"] = this.HotDeploy;
                     options["force_clean_build"] = this.ForceCleanBuild;
                     options["ref"] = this.DeployRefId;
@@ -219,7 +222,7 @@ namespace Uhuru.Openshift.Cmdlets
                 }
                 else if (Activate)
                 {
-                    string result = container.Activate(new Dictionary<string, object>
+                    status.Output = container.Activate(new RubyHash
                     {
                         {"deployment_id", this.DeploymentId},
                         {"post_install", this.PostInstall.ToBool()},
@@ -228,14 +231,13 @@ namespace Uhuru.Openshift.Cmdlets
                         {"report_deployments", true},
                         {"out", !this.AsJson.ToBool()}
                     });
-                    
-                    status.Output = @"{""status"":""success"",""messages"":[""Starting application windows"",""Starting Ruby cartridge\n[Thu Jan 23 06:37:16.534153 2014] [core:warn] [pid 25164] AH00117: Ignoring deprecated use of DefaultType in line 112 of /var/lib/openshift/52e1291054bdb43e620006c2/ruby/etc/conf/httpd_nolog.conf.\n""],""errors"":[],""gear_uuid"":""52e1291054bdb43e620006c2"",""deployment_id"":""6307a54a""}";
                 }
                 status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                status.Output = ex.Message;
+                Logger.Error("Error running gear command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = string.Format("{0}", ex.Message, ex.StackTrace);
                 status.ExitCode = 255;
             }
             this.WriteObject(status);

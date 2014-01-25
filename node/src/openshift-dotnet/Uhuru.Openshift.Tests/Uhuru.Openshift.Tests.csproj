@@ -60,6 +60,7 @@
     <Compile Include="Unit\ConfigTest.cs" />
     <Compile Include="Unit\NodeTest.cs" />
     <Compile Include="Unit\ContainerTest.cs" />
+    <Compile Include="Unit\LoggerTest.cs" />
     <Compile Include="Unit\ParseConfigTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +71,10 @@
     <ProjectReference Include="..\Uhuru.Openshift.Node\Uhuru.Openshift.Node.csproj">
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj">
+      <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
+      <Name>Uhuru.Openshift.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

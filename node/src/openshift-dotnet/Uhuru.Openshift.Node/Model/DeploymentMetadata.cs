@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return this.metadata["git_ref"].ToString();
+                return this.metadata["git_ref"] as string;
             }
             set
             {
@@ -25,7 +26,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return this.metadata["git_sha"].ToString();
+                return this.metadata["git_sha"] as string;
             }
             set
             {
@@ -37,7 +38,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return this.metadata["id"].ToString();
+                return this.metadata["id"] as string;
             }
             set
             {
@@ -50,7 +51,7 @@ namespace Uhuru.Openshift.Runtime
             get
             {
                 bool result = false;
-                bool.TryParse(this.metadata["hot_deploy"].ToString(), out result);
+                bool.TryParse(this.metadata["hot_deploy"] as string, out result);
                 return result;                
             }
             set
@@ -64,7 +65,7 @@ namespace Uhuru.Openshift.Runtime
             get
             {
                 bool result = false;
-                bool.TryParse(this.metadata["force_clean_build"].ToString(), out result);
+                bool.TryParse(this.metadata["force_clean_build"] as string, out result);
                 return result;
             }
             set
@@ -77,7 +78,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return (List<float>)this.metadata["activations"];
+                return ((JArray)this.metadata["activations"]).Select(t => t.ToObject<float>()).ToList();
             }
             set
             {
@@ -89,7 +90,7 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return this.metadata["checksum"].ToString();
+                return this.metadata["checksum"] as string;
             }
             set
             {

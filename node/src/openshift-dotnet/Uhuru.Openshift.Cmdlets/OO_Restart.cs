@@ -4,6 +4,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using Uhuru.Openshift.Runtime;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -50,7 +51,7 @@ namespace Uhuru.Openshift.Cmdlets
         {
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                 WithContainerName, WithNamespace, null, null, null);
-            Dictionary<string, object> options = new Dictionary<string, object>();
+            RubyHash options = new RubyHash();
             options["all"] = All;
             options["parallelConcurrencyRatio"] = ParallelConcurrencyRatio;
             try

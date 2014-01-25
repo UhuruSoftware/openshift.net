@@ -35,6 +35,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\lib\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="ProcessPrivileges">
+      <HintPath>..\lib\ProcessPrivileges.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -71,6 +77,8 @@
     <Compile Include="Utils\Etc.cs" />
     <Compile Include="Utils\EtcUser.cs" />
     <Compile Include="Utils\Hourglass.cs" />
+    <Compile Include="Utils\LinuxFiles.cs" />
+    <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\Sdk.cs" />
   </ItemGroup>
   <ItemGroup>

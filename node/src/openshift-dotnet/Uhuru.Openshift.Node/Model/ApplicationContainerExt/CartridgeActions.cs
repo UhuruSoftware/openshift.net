@@ -120,6 +120,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string PostConfigure(string cartName, string templateGitUrl = null)
         {
+            Logger.Debug("Running PostConfigure for '{0}' with cart '{1}' and git url '{2}'", this.Uuid, cartName, templateGitUrl);
+
             StringBuilder output = new StringBuilder();
             Manifest cartridge = this.Cartridge.GetCartridge(cartName);
 
@@ -127,9 +129,16 @@ namespace Uhuru.Openshift.Runtime
 
             if (performInitialBuild)
             {
-                Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
-                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init"));
-                output.AppendLine(RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init"));
+                try
+                {
+                    Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+                    RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init");
+                    RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init");
+                }
+                catch (Exception ex)
+                {
+                    // TODO: vladi: implement exception handling for initial build
+                }
             }
             else if (cartridge.Deployable)
             {
@@ -144,7 +153,7 @@ namespace Uhuru.Openshift.Runtime
                     string gitSha1 = applicationRepository.GetSha1(gitRef);
                     string deploymentsDir = Path.Combine(this.ContainerDir, "app-deployments");
                     SetRWPermissions(deploymentsDir);
-                    // TODO reset_permission_R(deployments_dir)
+                    // TODO: reset_permission_R(deployments_dir)
 
                     deploymentMetadata.RecordActivation();
                     deploymentMetadata.Save();
@@ -157,13 +166,13 @@ namespace Uhuru.Openshift.Runtime
 
             if (performInitialBuild)
             {
-                // grep build log
+                // TODO: grep build log
             }
 
             return output.ToString();
         }
 
-        public void PostReceive(dynamic options)
+        public void PostReceive(RubyHash options)
         {
 
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
@@ -179,19 +188,19 @@ namespace Uhuru.Openshift.Runtime
             Activate(options);
         }
 
-        public string Activate(dynamic options = null)
+        public string Activate(RubyHash options = null)
         {
             if(options == null)
             {
-                options = new Dictionary<string, object>();
+                options = new RubyHash();
             }
 
-            bool onlyJson = options.ContainsKey("out") && options["out"];
+            bool useOutput = options.ContainsKey("out") && options["out"];
 
             StringBuilder output = new StringBuilder();
             dynamic result = new Dictionary<string, object>();
 
-            if (!onlyJson)
+            if (useOutput)
             {
                 output.Append("Activating deployment");
             }
@@ -210,7 +219,7 @@ namespace Uhuru.Openshift.Runtime
                 options["hot_deploy"] = false;
             }
 
-            dynamic parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
+            List<RubyHash> parallelResults = WithGearRotation(options, (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
                 {
                     string targetGearUuid;
                     if (targetGear is string)
@@ -235,19 +244,19 @@ namespace Uhuru.Openshift.Runtime
 
             if ((options.ContainsKey("all") && options["all"]) || (options.ContainsKey("gears") && options["gears"]))
             {
-                result["status"] = "RESULT_SUCCESS";
+                result["status"] = RESULT_SUCCESS;
                 result["gear_results"] = new Dictionary<string, object>();
 
-                foreach (dynamic gearResult in parallelResults)
+                foreach (RubyHash gearResult in parallelResults)
                 {
                     string gearUuid = gearResult["gear_uuid"];
                     activatedGearUuids.Add(gearUuid);
 
                     result["gear_results"][gearUuid] = gearResult;
 
-                    if (gearResult["status"] != "RESULT_SUCCESS")
+                    if (gearResult["status"] != RESULT_SUCCESS)
                     {
-                        result["status"] = "RESULT_FAILURE";
+                        result["status"] = RESULT_FAILURE;
                     }
                 }
             }
@@ -366,7 +375,7 @@ namespace Uhuru.Openshift.Runtime
             return result;
         }
 
-        private RubyHash ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, dynamic options)
+        private RubyHash ActivateRemoteGear(GearRegistry.Entry gear, Dictionary<string, string> gearEnv, RubyHash options)
         {
             string gearUuid = gear.Uuid;
 
@@ -382,11 +391,18 @@ namespace Uhuru.Openshift.Runtime
             result["messages"].Add(string.Format("Activating gear {0}, deployment id: {1}, {2}", gearUuid, options["deployment_id"], postInstallOptions));
             try
             {
+                string ooSSH = @"/cygpath/c/openshift/oo-bin/oo-ssh";
+                string bashBinary = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin\bash.exe");
 
-                // TODO implement oo-ssh
+                string sshCommand = string.Format("{0} {1} gear activate {2} --as-json {3} --no-rotation",
+                    ooSSH, gear.ToSshUrl(), options["deployment_id"], postInstallOptions);
 
-                string cmd = string.Format("/usr/bin/oo-ssh {0} gear activate {1} --as-json {2} --no-rotation", gear.ToSshUrl(), options["deployment_id"], postInstallOptions);
-                string output = RunProcessInContainerContext(this.ContainerDir, cmd);
+                string bashArgs = string.Format("--norc --login -c '{0}'", sshCommand);
+
+                string command = string.Format("{0} {1}", bashBinary, bashArgs);
+
+                string output = RunProcessInContainerContext(this.ContainerDir, command).StdOut;
+
                 if (string.IsNullOrEmpty(output))
                 {
                     throw new Exception("No result JSON was received from the remote activate call");
@@ -409,10 +425,10 @@ namespace Uhuru.Openshift.Runtime
             return result;
         }
 
-        public string Deploy(dynamic options)
+        public string Deploy(RubyHash options)
         {
             StringBuilder output = new StringBuilder();
-            if (!((Dictionary<string, object>)options).ContainsKey("artifact_url"))
+            if (!options.ContainsKey("artifact_url"))
             {
                 output.AppendLine(PreReceive(options));
                 PostReceive(options);

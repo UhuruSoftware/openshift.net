@@ -6,6 +6,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Security.Principal;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Tests.Unit
 {
@@ -38,7 +39,7 @@ namespace Uhuru.Openshift.Tests.Unit
         public void Test_PostReceive_Init()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
-            Dictionary<string, object> options = new Dictionary<string, object>();
+            RubyHash options = new RubyHash();
             options["init"] = true;
             options["all"] = true;
             options["reportDeployment"] = true;

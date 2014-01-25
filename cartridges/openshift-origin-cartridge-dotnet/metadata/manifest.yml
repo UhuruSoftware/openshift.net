@@ -69,7 +69,7 @@ Subscribes:
     #ENV:* pulls in environment variables from all add-on cartridges within an application
 Scaling:
   Min: 1
-  Max: -1
+  Max: 2
 Endpoints:
 #Endpoints are where front-end httpd mappings for your cartridge are declared to route traffic from the outside world to your cartridge’s services.
   - Private-IP-Name:   IP

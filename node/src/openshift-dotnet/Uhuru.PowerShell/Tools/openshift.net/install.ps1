@@ -278,7 +278,7 @@ Setup-OOAliases $binLocation
 
 
 # setup env vars in c:\openshift\env
-Setup-GlobalEnv
+Setup-GlobalEnv $binLocation
 
 Remove-Service 'openshift.mcollectived' $sshdCygwinDir
 Remove-Service 'openshift.sshd' $sshdCygwinDir

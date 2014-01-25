@@ -33,6 +33,7 @@
     <CodeSigningCert />
     <OutputDirectory>$(SolutionDir)\..\..\..\output\powershell</OutputDirectory>
     <MCollectiveOutputDirectory>$(SolutionDir)\..\..\..\output\mcollective</MCollectiveOutputDirectory>
+    <CartridgeSDKOutputDirectory>$(SolutionDir)\..\..\..\output\cartridge_sdk</CartridgeSDKOutputDirectory>
     <SignOutput>False</SignOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -113,6 +114,7 @@
     <Content Include="Tools\mcollective\openshift.rb.template" />
     <Content Include="Tools\mcollective\server.cfg.template" />
     <Content Include="Tools\mcollective\update-facts.ps1" />
+    <Content Include="Tools\openshift.net\oo-ssh.template" />
     <Content Include="Tools\openshift.net\service-helpers.ps1" />
     <Content Include="Tools\openshift.net\openshift-node-service.ps1" />
     <Content Include="Tools\openshift.net\setup-helpers.ps1" />
@@ -144,10 +146,18 @@
       <Output TaskParameter="Include" ItemName="AllFiles" />
     </CreateItem>
     <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(OutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Message Text="Copying mcollective agent to output directory '$(MCollectiveOutputDirectory)' ..." Importance="high" />
     <CreateItem Include="..\..\mcollective_agent\**" Exclude="..\..\mcollective_agent\.idea\**">
       <Output TaskParameter="Include" ItemName="MCollectiveFiles" />
     </CreateItem>
     <Copy SourceFiles="@(MCollectiveFiles)" DestinationFiles="@(MCollectiveFiles->'$(MCollectiveOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Message Text="Copying cartridge SDKs to output directory '$(CartridgeSDKOutputDirectory)' ..." Importance="high" />
+    <CreateItem Include="..\..\..\misc\usr\lib\cartridge_sdk\**">
+      <Output TaskParameter="Include" ItemName="CartridgeSDKFiles" />
+    </CreateItem>
+    <Copy SourceFiles="@(CartridgeSDKFiles)" DestinationFiles="@(CartridgeSDKFiles->'$(CartridgeSDKOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
   <Target Name="Clean">
     <Message Text="Deleting the output directory '$(OutputDirectory)' ..." Importance="high" />
@@ -155,6 +165,9 @@
     </RemoveDir>
     <Message Text="Deleting the output directory '$(MCollectiveOutputDirectory)' ..." Importance="high" />
     <RemoveDir Directories="$(MCollectiveOutputDirectory)">
+    </RemoveDir>
+    <Message Text="Deleting the output directory '$(CartridgeSDKOutputDirectory)' ..." Importance="high" />
+    <RemoveDir Directories="$(CartridgeSDKOutputDirectory)">
     </RemoveDir>
   </Target>
 </Project>

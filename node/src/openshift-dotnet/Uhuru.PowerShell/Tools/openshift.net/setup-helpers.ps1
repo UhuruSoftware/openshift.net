@@ -65,9 +65,14 @@ function Setup-OOAliases($binLocation)
         $aliasUnixPath = & $cygpath $aliasPath
         & $chmod +x $aliasUnixPath
     }
+
+    Write-Host "Setting up oo-ssh ..."
+    $ooSSHScriptPath = (Join-Path $ooBinDir "oo-ssh")
+    Write-Template (Join-Path $currentDir "oo-ssh.template") $ooSSHScriptPath @{}
+    & $chmod +x $ooSSHScriptPath
 }
 
-function Setup-GlobalEnv
+function Setup-GlobalEnv($binLocation)
 {
     $ooBinDir = "c:\openshift\oo-bin"
     $envDir = "c:\openshift\env"
@@ -77,6 +82,7 @@ function Setup-GlobalEnv
     New-Item -path $envDir -type directory -Force | Out-Null
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_BROKER_HOST'), $brokerHost)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CLOUD_DOMAIN'), $cloudDomain)
+    [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_POWERSHELL'), (Join-Path $binLocation 'cartridge_sdk\powershell\sdk.ps1'))
 
     $pathEnvEntries =@('/usr/local/bin',
         '/usr/bin',

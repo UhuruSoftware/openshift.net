@@ -13,6 +13,7 @@ using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -311,6 +312,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string DoControlWithDirectory(string action, dynamic options)
         {
+            // TODO: vladi: complete implementation of this method
+
             StringBuilder output = new StringBuilder();
             string cartridgeDirectory = options["cartridgeDir"];
             
@@ -318,9 +321,13 @@ namespace Uhuru.Openshift.Runtime
             {
                 string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
                 string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
-                
-                output.AppendLine(container.RunProcessInContainerContext(container.ContainerDir, cmd));               
+
+                ProcessResult processResult = container.RunProcessInContainerContext(container.ContainerDir, cmd);
+
+                output.AppendLine(processResult.StdOut);
+                output.AppendLine(processResult.StdErr);
             });
+
             return output.ToString();
         }
 
@@ -473,11 +480,14 @@ namespace Uhuru.Openshift.Runtime
             }
             if (renderErbs)
             {
-                // TODO render erb
+                // TODO: render erb
             }
 
+            // TODO: vladi: implement hourglass
             string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} --version {1}", action, softwareVersion);
-            string output = this.container.RunProcessInContainerContext(cartridgeHome, cmd);
+            string output = this.container.RunProcessInContainerContext(cartridgeHome, cmd, 0).StdOut;
+
+            // TODO: vladi: add logging
             return output;
         }
 
@@ -490,7 +500,11 @@ namespace Uhuru.Openshift.Runtime
             if (File.Exists(actionHook))
             {
                 string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0}", actionHook);
-                output.AppendLine(container.RunProcessInContainerContext(container.ContainerDir, cmd));
+
+                ProcessResult processResult = container.RunProcessInContainerContext(container.ContainerDir, cmd);
+
+                output.AppendLine(processResult.StdOut);
+                output.AppendLine(processResult.StdErr);
             }
             return output.ToString();
         }
@@ -538,10 +552,17 @@ namespace Uhuru.Openshift.Runtime
                 }
             }
 
-            // TODO: RunProcessInContainerContext should return exit code so we can validate return code
-            string output = this.container.RunProcessInContainerContext(this.container.ContainerDir, string.Format("cd {0} ; {1} {2}", cartridgeHome, script, inputArgs));
+            // TODO: vladi: add hourglass
+            ProcessResult processResult = this.container.RunProcessInContainerContext(this.container.ContainerDir, string.Format("cd {0} ; {1} {2}", cartridgeHome, script, inputArgs));
 
-            return output;
+            if (processResult.ExitCode == 0)
+            {
+                // TODO: vladi: add logging
+                return processResult.StdOut;
+            }
+
+            // TODO: vladi: add error logging
+            throw new Exception(string.Format("Control action '{0}' returned an error. rc={1}\n{2}", connector, processResult.ExitCode, processResult.StdErr));
         }
 
         private void SetConnectionHookEnvVars(string cartName, string pubCartName, string args)

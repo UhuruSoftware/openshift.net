@@ -12,7 +12,11 @@ function start-cartridge
 {
   Write-Host "Starting"
   "Starting" > $IISHWC_PID_FILE
-  $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat" -passthru -windowstyle hidden
+
+  $logDir = (Join-Path $env:OPENSHIFT_DOTNET_DIR 'log')
+  New-Item -path $logDir -type directory -Force | Out-Null
+
+  $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat  1>> ${logDir}\stdout.log 2>> ${logDir}\stderr.log" -passthru -windowstyle hidden
   $job.Id > $IISHWC_PID_FILE
 }
 
@@ -22,10 +26,9 @@ function stop-cartridge
   Write-Host "Stopping"
   $jobid = [int](Get-Content $IISHWC_PID_FILE)
   Remove-Item $IISHWC_PID_FILE
-  taskkill /F /T /PID $jobid
-  Stop-Process -Id $jobid -Force -ErrorAction SilentlyContinue
+  Start-Process -Wait -PassThru -NoNewWindow "taskkill" "/F /T /PID ${jobid}"
+
   #need one more get request
-  
 }
 
 #Return an 0 exit status if the cartridge code is running

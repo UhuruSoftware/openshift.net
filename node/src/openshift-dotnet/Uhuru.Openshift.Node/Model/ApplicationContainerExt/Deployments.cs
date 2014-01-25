@@ -39,12 +39,19 @@ namespace Uhuru.Openshift.Runtime
             {
                 return null;
             }
-            return new FileInfo(FileUtil.GetSymlinkTargetLocation(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId))).Directory.Name;
+
+            string symlinkTarget = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
+
+            string datetime = Path.GetFileName(FileUtil.GetSymlinkTargetLocation(symlinkTarget));
+
+            Logger.Debug("Deployment datetime (symlink) for {0} is {1}", symlinkTarget, datetime);
+
+            return datetime;
         }
 
         public bool DeploymentExists(string deploymentId)
         {
-            return File.Exists(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId));
+            return Directory.Exists(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId));
         }
 
         public List<string> AllDeployments()
@@ -97,6 +104,8 @@ namespace Uhuru.Openshift.Runtime
 
         public void LinkDeploymentId(string deploymentDateTime, string deploymentId)
         {
+            Logger.Debug("Linking deployment id {0} to datetime {1}, for gear {2}", deploymentId, deploymentDateTime, this.Uuid);
+
             string target = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
             string link = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
             DirectoryUtil.CreateSymbolicLink(link, target, DirectoryUtil.SymbolicLink.Directory);
@@ -134,7 +143,7 @@ namespace Uhuru.Openshift.Runtime
             string deploymentDir = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
             string binPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
             string command = string.Format(@"{0}\tar.exe -c --exclude metadata.json . | {0}\tar.exe -xO | {0}\sha1sum.exe | {0}\cut.exe -f 1 -d ' '", binPath);
-            return RunProcessInContainerContext(deploymentDir, command);
+            return RunProcessInContainerContext(deploymentDir, command).StdOut.Trim();
         }
 
         public void UpdateCurrentDeploymentDateTimeSymlink(string deploymentDateTime)

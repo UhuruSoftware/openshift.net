@@ -294,9 +294,9 @@ namespace Uhuru.Openshift.Runtime
             return this.Cartridge.StopGear(options);
         }
 
-        public string Restart(string cartName, dynamic options)
+        public List<RubyHash> Restart(string cartName, RubyHash options)
         {
-            string result = WithGearRotation(options,
+            List<RubyHash> result = WithGearRotation(options,
                 (GearRotationCallback)delegate(object targetGear, Dictionary<string, string> localGearEnv, RubyHash opts)
                 {
                     return RestartGear(targetGear, localGearEnv, cartName, opts);
@@ -365,7 +365,7 @@ namespace Uhuru.Openshift.Runtime
         }
 
         public delegate dynamic GearRotationCallback(object targetGear, Dictionary<string, string> localGearEnv, RubyHash options);
-        public dynamic WithGearRotation(dynamic options, GearRotationCallback action)
+        public List<RubyHash> WithGearRotation(RubyHash options, GearRotationCallback action)
         {
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
             Manifest proxyCart = this.Cartridge.WebProxy();
@@ -408,7 +408,7 @@ namespace Uhuru.Openshift.Runtime
 
             int threads = Math.Max(batchSize, MAX_THREADS);
 
-            dynamic result = new List<object>();
+            List<RubyHash> result = new List<RubyHash>();
 
             // need to parallelize
             foreach (var targetGear in gears)
@@ -423,7 +423,7 @@ namespace Uhuru.Openshift.Runtime
         {
             RubyHash result = new RubyHash()
             {
-                { "status", "RESULT_FAILURE" },
+                { "status", RESULT_FAILURE },
                 { "messages", new List<string>() },
                 { "errors", new List<string>() }
             };
@@ -446,7 +446,7 @@ namespace Uhuru.Openshift.Runtime
 
                 result["rotate_out_results"] = rotateOutResults;
 
-                if (rotateOutResults["errors"] != "RESULT_SUCCESS")
+                if (rotateOutResults["errors"] != RESULT_SUCCESS)
                 {
                     result["errors"].Add("Rotating out gear in proxies failed.");
                     return result;
@@ -464,7 +464,7 @@ namespace Uhuru.Openshift.Runtime
 
             result = result.Merge(yieldResult);
 
-            if (yieldStatus != "RESULT_SUCCESS")
+            if (yieldStatus != RESULT_SUCCESS)
             {
                 return result;
             }
@@ -482,14 +482,14 @@ namespace Uhuru.Openshift.Runtime
 
                 result["rotate_in_results"] = rotateInResults;
 
-                if (rotateInResults["status"] != "RESULT_SUCCESS")
+                if (rotateInResults["status"] != RESULT_SUCCESS)
                 {
                     result["errors"].Add("Rotating in gear in proxies failed");
                     return result;
                 }
             }
 
-            result["status"] = "RESULT_SUCCESS";
+            result["status"] = RESULT_SUCCESS;
 
             return result;
         }
@@ -531,7 +531,7 @@ namespace Uhuru.Openshift.Runtime
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
 
             RubyHash result = new RubyHash() {
-                { "status", "RESULT_SUCCESS" },
+                { "status", RESULT_SUCCESS },
                 { "target_gear_uuid", gearUuid },
                 { "proxy_results", new RubyHash() }
             };
@@ -586,9 +586,9 @@ namespace Uhuru.Openshift.Runtime
             // if any results failed, consider the overall operation a failure
             foreach (RubyHash proxyResult in result["proxy_results"].Values)
             {
-                if (proxyResult["status"] != "RESULT_SUCCESS")
+                if (proxyResult["status"] != RESULT_SUCCESS)
                 {
-                    result["status"] = "RESULT_FAILURE";
+                    result["status"] = RESULT_FAILURE;
                 }
             }
 
@@ -606,7 +606,7 @@ namespace Uhuru.Openshift.Runtime
 
             try
             {
-                RubyHash output = this.UpdateProxyStatusForGear(new RubyHash(){
+                string output = this.UpdateProxyStatusForGear(new RubyHash(){
                     { "cartridge", cartridge },
                     { "action", action },
                     { "gear_uuid", targetGear },
@@ -615,7 +615,7 @@ namespace Uhuru.Openshift.Runtime
 
                 result = new RubyHash()
                 {
-                    { "status", "RESULT_SUCCESS" },
+                    { "status", RESULT_SUCCESS },
                     { "proxy_gear_uuid", this.Uuid },
                     { "target_gear_uuid", targetGear },
                     { "messages", new List<string>() },
@@ -626,7 +626,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 result = new RubyHash()
                 {
-                    { "status", "RESULT_FAILURE" },
+                    { "status", RESULT_FAILURE },
                     { "proxy_gear_uuid", this.Uuid },
                     { "target_gear_uuid", targetGear },
                     { "messages", new List<string>() },
@@ -637,7 +637,7 @@ namespace Uhuru.Openshift.Runtime
             return result;
         }
 
-        public dynamic UpdateProxyStatusForGear(RubyHash options)
+        public string UpdateProxyStatusForGear(RubyHash options)
         {
             string action = options["action"];
 
@@ -672,74 +672,79 @@ namespace Uhuru.Openshift.Runtime
 
             args.Add(gearUuid);
 
-            this.Cartridge.DoControl(
+            return this.Cartridge.DoControl(
                 control, cartridge, new Dictionary<string, object>()
                 {
                     { "args", string.Join(" ", args) },
                     { "pre_action_hooks_enabled", false },
                     { "post_action_hooks_enabled", false }
                 });
-            //args << 'persist' if persist
-            //args << gear_uuid
-
-            //@cartridge_model.do_control(control,
-            //                            cartridge,
-            //                            args: args.join(' '),
-            //                            pre_action_hooks_enabled:  false,
-            //                            post_action_hooks_enabled: false)
-            return null;
         }
 
         public RubyHash UpdateRemoteProxyStatus(RubyHash args)
         {
             RubyHash result = new RubyHash();
-            //current_gear = args[:current_gear]
-            //proxy_gear = args[:proxy_gear]
-            //target_gear = args[:target_gear]
-            //cartridge = args[:cartridge]
-            //action = args[:action]
-            //persist = args[:persist]
-            //gear_env = args[:gear_env]
+            string currentGear = args["current_gear"];
+            GearRegistry.Entry proxyGear = args["proxy_gear"];
+            object targetGear = args["target_gear"];
+            Manifest cartridge = args["cartridge"];
+            string action = args["action"];
+            bool persist = args["persist"] != null && args["persist"] == true;
+            object gearEnv = args["gear_env"];
 
-            //if current_gear == proxy_gear.uuid
-            //  # self, no need to ssh
-            //  return update_local_proxy_status(cartridge: cartridge, action: action, target_gear: target_gear, persist: persist)
-            //end
+            if (currentGear == proxyGear.Uuid)
+            {
+                // self, no need to ssh
+                return this.UpdateLocalProxyStatus(new RubyHash()
+                {
+                    { "cartridge", cartridge }, 
+                    { "action", action }, 
+                    { "target_gear", targetGear }, 
+                    { "persist", persist }
+                });
+            }
 
-            //direction = if :enable == action
-            //  'in'
-            //else
-            //  'out'
-            //end
+            string direction = action == "enable" ? "in" : "out";
+            string persistOption = persist ? "--persist" : "";
 
-            //persist_option = if persist
-            //  '--persist'
-            //else
-            //  ''
-            //end
+            string url = string.Format("{0}@{1}", proxyGear.Uuid, proxyGear.ProxyHostname);
 
-            //url = "#{proxy_gear.uuid}@#{proxy_gear.proxy_hostname}"
+            string ooSSH = @"/cygpath/c/openshift/oo-bin/oo-ssh";
+            string bashBinary = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin\bash.exe");
 
-            //command = "/usr/bin/oo-ssh #{url} gear rotate-#{direction} --gear #{target_gear} #{persist_option} --cart #{cartridge.name}-#{cartridge.version} --as-json"
+            string sshCommand = string.Format("{0} {1} gear rotate-{2} --gear {3} {4} --cart {5}-{6} --as-json", 
+                ooSSH, url, direction, targetGear, persistOption, cartridge.Name, cartridge.Version);
 
-            //begin
-            //  out, err, rc = run_in_container_context(command,
-            //                                          env: gear_env,
-            //                                          expected_exitstatus: 0)
+            string bashArgs = string.Format("--norc --login -c '{0}'", sshCommand);
 
-            //  raise "No result JSON was received from the remote proxy update call" if out.nil? || out.empty?
+            string command = string.Format("{0} {1}", bashBinary, bashArgs);
 
-            //  result = HashWithIndifferentAccess.new(JSON.load(out))
+            try
+            {
+                ProcessResult processResult = this.RunProcessInContainerContext(this.ContainerDir, command, 0);
 
-            //  raise "Invalid result JSON received from remote proxy update call: #{result.inspect}" unless result.has_key?(:status)
-            //rescue => e
-            //  result = {
-            //    status: RESULT_FAILURE,
-            //    proxy_gear_uuid: proxy_gear.uuid,
-            //    messages: [],
-            //    errors: ["An exception occured updating the proxy status: #{e.message}\n#{e.backtrace.join("\n")}"]
-            //  }
-            //end
+                if (string.IsNullOrEmpty(processResult.StdOut))
+                {
+                    throw new Exception("No result JSON was received from the remote proxy update call");
+                }
+
+                result = JsonConvert.DeserializeObject<RubyHash>(processResult.StdOut);
+
+                if (!result.ContainsKey("status"))
+                {
+                    throw new Exception(string.Format("Invalid result JSON received from remote proxy update call: {0}", processResult.StdOut));
+                }
+            }
+            catch (Exception ex)
+            {
+                result = new RubyHash()
+                {
+                    { "status", RESULT_FAILURE },
+                    { "proxy_gear_uuid", proxyGear.Uuid },
+                    { "messages", new List<string>() },
+                    { "errors", new List<string> { string.Format("An exception occured updating the proxy status: {0}\n{1}", ex.Message, ex.StackTrace) } }
+                };
+            }
 
             return result;
         }
@@ -761,29 +766,30 @@ namespace Uhuru.Openshift.Runtime
             }
         }
 
-        public string RunProcessInContainerContext(string gearDirectory, string cmd)
+        public ProcessResult RunProcessInContainerContext(string gearDirectory, string cmd, int expectedExitStatus = -1, int timeout = 3600000)
         {
             StringBuilder output = new StringBuilder();
+            StringBuilder outputErr = new StringBuilder();
 
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
-            pi.EnvironmentVariables["HOME"] = this.ContainerDir;
-            pi.UseShellExecute = false;
-            pi.CreateNoWindow = true;
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true;
-            pi.WorkingDirectory = gearDirectory;
+            ProcessStartInfo processStartInfo = new ProcessStartInfo();
+            processStartInfo.EnvironmentVariables["PATH"] = Environment.GetEnvironmentVariable("PATH") + ";" + Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin");
+            processStartInfo.EnvironmentVariables["HOME"] = this.ContainerDir;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.WorkingDirectory = gearDirectory;
 
-            pi.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
-            pi.Arguments = "-c \"" + cmd.Replace('\\','/') + "\"";
+            processStartInfo.FileName = Path.Combine(Path.GetDirectoryName(typeof(ApplicationContainer).Assembly.Location), "oo-trap-user.exe");
+            processStartInfo.Arguments = "-c \"" + cmd.Replace('\\','/') + "\"";
             
-            Process p = new Process();
-            p.StartInfo = pi;
+            Process process = new Process();
+            process.StartInfo = processStartInfo;
 
             using (AutoResetEvent outputWaitHandle = new AutoResetEvent(false))
             using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
             {
-                p.OutputDataReceived += (sender, e) =>
+                process.OutputDataReceived += (sender, e) =>
                 {
                     if (e.Data == null)
                     {
@@ -794,7 +800,7 @@ namespace Uhuru.Openshift.Runtime
                         output.AppendLine(e.Data);
                     }
                 };
-                p.ErrorDataReceived += (sender, e) =>
+                process.ErrorDataReceived += (sender, e) =>
                 {
                     if (e.Data == null)
                     {
@@ -802,27 +808,42 @@ namespace Uhuru.Openshift.Runtime
                     }
                     else
                     {
-                        output.AppendLine(e.Data);
+                        outputErr.AppendLine(e.Data);
                     }
                 };
 
-                p.Start();
+                process.Start();
 
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
 
-                if (p.WaitForExit(30000) &&
-                    outputWaitHandle.WaitOne(30000) &&
-                    errorWaitHandle.WaitOne(30000))
+                if (process.WaitForExit(timeout) &&
+                    outputWaitHandle.WaitOne(timeout) &&
+                    errorWaitHandle.WaitOne(timeout))
                 {
-                    // Process completed. Check process.ExitCode here.
+                    Logger.Debug("Shell command '{0}' ran. rc={1} out={2} err={3}", cmd, process.ExitCode, output, outputErr);
+
+                    if (expectedExitStatus != -1 && process.ExitCode != expectedExitStatus)
+                    {
+                        Logger.Warning("Shell command '{0}' returned an error. rc={1}", cmd, process.ExitCode);
+                        throw new Exception(string.Format("Shell command '{0}' returned an error. rc={1}", cmd, process.ExitCode));
+                    }
                 }
                 else
                 {
-                    // Timed out.
+                    // Timed out. Kill process tree.
+                    process.KillProcessAndChildren();
+                    Logger.Warning("Shell command '{0}' exceeded timeout of {1}", cmd, timeout / 1000);
+                    throw new Exception(string.Format("Shell command '{0}' exceeded timeout of {1}", cmd, timeout / 1000));
                 }
             }
-            return output.ToString();
+
+            return new ProcessResult()
+            {
+                ExitCode = process.ExitCode,
+                StdOut = output.ToString(),
+                StdErr = outputErr.ToString()
+            };
         }
 
         internal void SetRoPermissions(string hooks)
@@ -956,10 +977,10 @@ namespace Uhuru.Openshift.Runtime
             StringBuilder output = new StringBuilder();
             string gitPath = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe");
             string cmd = string.Format("{0} prune", gitPath);
-            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd));
+            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd).StdOut);
 
             cmd = string.Format("{0} gc --aggressive", gitPath);
-            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd));
+            output.AppendLine(RunProcessInContainerContext(gearRepoDir, cmd).StdOut);
             return output.ToString();
         }
 
