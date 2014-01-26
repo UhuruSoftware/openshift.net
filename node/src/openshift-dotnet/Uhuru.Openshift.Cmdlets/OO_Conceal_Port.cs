@@ -47,6 +47,7 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
+                this.WriteObject(container.DeletePublicEndpoints(this.CartName)); 
             }
             catch (Exception ex)
             {

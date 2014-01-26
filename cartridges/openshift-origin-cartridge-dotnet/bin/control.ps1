@@ -4,20 +4,29 @@ param(
 
 . $env:OPENSHIFT_CARTRIDGE_SDK_POWERSHELL
 
-$IISHWC_PID_FILE = $env:OPENSHIFT_DOTNET_DIR+"\run\iishwc.pid"
+$IISHWC_PID_FILE = Join-Path $env:OPENSHIFT_DOTNET_DIR 'run\iishwc.pid'
 $env:IISHWC_PID_FILE = $IISHWC_PID_FILE
 
 #Start the software the cartridge controls
 function start-cartridge
 {
-  Write-Host "Starting"
-  "Starting" > $IISHWC_PID_FILE
+    if (process_running "powershell" $IISHWC_PID_FILE)
+    {
+        Write-Host "Cartridge already running"
+    }
+    else
+    {
+        Write-Host "Starting the .NET cartridge"
+        "Starting" > $IISHWC_PID_FILE
 
-  $logDir = (Join-Path $env:OPENSHIFT_DOTNET_DIR 'log')
-  New-Item -path $logDir -type directory -Force | Out-Null
+        $logDir = (Join-Path $env:OPENSHIFT_DOTNET_DIR 'log')
+        New-Item -path $logDir -type directory -Force | Out-Null
 
-  $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat  1>> ${logDir}\stdout.log 2>> ${logDir}\stderr.log" -passthru -windowstyle hidden
-  $job.Id > $IISHWC_PID_FILE
+        $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat  1>> ${logDir}\stdout.log 2>> ${logDir}\stderr.log" -passthru -windowstyle hidden
+        $job.Id > $IISHWC_PID_FILE
+    }
+
+    exit 0
 }
 
 #Stop the software the cartridge controls

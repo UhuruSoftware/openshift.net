@@ -38,5 +38,13 @@ namespace Uhuru.Openshift.Common.Utils
 
             openPorts.Add(openPort);
         }
+
+        public static void CloseFirewallPort(string port)
+        {
+            Type netFwMgrType = Type.GetTypeFromProgID("HNetCfg.FwMgr", false);
+            INetFwMgr mgr = (INetFwMgr)Activator.CreateInstance(netFwMgrType);
+            INetFwOpenPorts openPorts = (INetFwOpenPorts)mgr.LocalPolicy.CurrentProfile.GloballyOpenPorts;
+            openPorts.Remove(Convert.ToInt32(port), NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP);
+        }
     }
 }

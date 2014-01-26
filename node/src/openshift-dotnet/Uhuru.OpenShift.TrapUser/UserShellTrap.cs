@@ -74,8 +74,6 @@ namespace Uhuru.OpenShift.TrapUser
             shellStartInfo.FileName = "bash";
             SetupGearEnv(shellStartInfo.EnvironmentVariables);
 
-            shellStartInfo.EnvironmentVariables["TEMP"] = shellStartInfo.EnvironmentVariables["TMP"];
-
             string args = Environment.CommandLine;
             string arguments = string.Empty;
             if (args.StartsWith("\""))

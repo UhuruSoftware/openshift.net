@@ -150,7 +150,7 @@ namespace Uhuru.Openshift.Runtime
         {
             string file = Path.Combine(this.ContainerDir, "app-deployments", "current");
             Directory.Delete(file);
-            DirectoryUtil.CreateSymbolicLink(deploymentDateTime, file, DirectoryUtil.SymbolicLink.Directory);
+            DirectoryUtil.CreateSymbolicLink(file, deploymentDateTime, DirectoryUtil.SymbolicLink.Directory);
         }
 
         public void SyncDeploymentRepoDirToRuntime(string deploymentDateTime)

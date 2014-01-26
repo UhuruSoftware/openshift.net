@@ -59,7 +59,7 @@ function client_debug($text)
 function client_out($type, $output) 
 {
     $output -split "`r`n" | ForEach-Object {
-		$text = "{0}: $_" -f $type
+        $text = "{0}: $_" -f $type
         Write-Host $text
     }
 }
@@ -296,10 +296,27 @@ function print_user_running_processes
 # Arguments:
 #  - Process name
 #  - Pidfile
-#  - UID to check (optional)
-function process_running 
+#  - User to check (optional)
+function process_running($processName, $pidFile, $user = $null)
 {
-    Throw "Not implemented"
+    if ((Test-Path $pidFile) -eq $false)
+    {
+        return $false
+    }
+
+    $processId = Get-Content $pidFile -ErrorAction SilentlyContinue
+
+    $process = $null
+    if ($user -ne $null)
+    {
+        $process = Get-Process -IncludeUserName | Where-Object {($_.id -eq $processId.ToString().Trim()) -and ($_.ProcessName -eq $processName) -and ($_.UserName -ne $null) -and ($_.Username.Split('\')[1] -eq $user)}
+    }
+    else
+    {
+        $process = Get-Process -IncludeUserName | Where-Object {($_.id -eq $processId.ToString().Trim()) -and ($_.ProcessName -eq $processName) -and ($_.UserName -ne $null)}
+    }
+    
+    return ($process -ne $null)
 }
 
 function pid_is_httpd() 

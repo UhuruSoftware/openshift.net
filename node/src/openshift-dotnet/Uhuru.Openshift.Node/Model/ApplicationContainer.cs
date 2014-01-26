@@ -159,6 +159,9 @@ namespace Uhuru.Openshift.Runtime
             StringBuilder output = new StringBuilder();
             output.AppendLine(this.Cartridge.Destroy());
             output.AppendLine(this.RemoveSshdUser());
+
+            this.Cartridge.EachCartridge(cart => output.AppendLine(this.DeletePublicEndpoints(cart.Name)));
+
             output.AppendLine(this.containerPlugin.Destroy());            
             return output.ToString();
         }

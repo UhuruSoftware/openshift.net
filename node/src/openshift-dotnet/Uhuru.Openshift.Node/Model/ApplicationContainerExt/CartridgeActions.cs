@@ -46,9 +46,32 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        public string DeletePublicEndpoint()
+        public string DeletePublicEndpoints(string cartName)
         {
-            return string.Empty;
+            Manifest cart = Cartridge.GetCartridge(cartName);
+            StringBuilder output = new StringBuilder();
+            Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+
+            try
+            {
+                foreach (Endpoint endpoint in cart.Endpoints)
+                {
+                    string port = env[endpoint.PrivatePortName];
+
+                    // TODO: will have to change this once prison is integrated
+                    Network.CloseFirewallPort(port);
+
+                    output.AppendFormat("NOTIFY_ENDPOINT_DELETE: {0} {1}", NodeConfig.Values["PUBLIC_IP"], port);
+                }
+
+                Logger.Warning(@"Deleted all public endpoints for cart {0} in gear {1}", cartName, this.Uuid);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(@"Couldn't delete all public endpoints for cart {0} in gear {1}: {2} - {3}", cartName, this.Uuid, ex.Message, ex.StackTrace);
+            }
+
+            return output.ToString();
         }
 
         public string GenerateEndpointCreationNotificationMsg(Manifest cart, Endpoint endpoint, string privateIpValue, string publicPortValue)
@@ -174,7 +197,6 @@ namespace Uhuru.Openshift.Runtime
 
         public void PostReceive(RubyHash options)
         {
-
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
             
             string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
@@ -320,6 +342,7 @@ namespace Uhuru.Openshift.Runtime
                 opts["secondary_only"] = true;
                 opts["user_initiated"] = true;
                 opts["hot_deploy"] = options["hot_deploy"];
+
                 output = StartGear(opts);
                 result["messages"].Add(output);
 
