@@ -20,7 +20,17 @@ namespace Uhuru.Openshift.Runtime
 
         public void Create()
         {
-            // create user
+            Uhuru.Prison.Prison prison = new Uhuru.Prison.Prison(Guid.Parse(container.Uuid));
+            prison.Tag = "oo";
+
+            Uhuru.Prison.PrisonRules prisonRules = new Uhuru.Prison.PrisonRules();
+            prisonRules.Id = container.Uuid;
+            prisonRules.CellType = Uhuru.Prison.RuleType.None;
+            prisonRules.CellType = Uhuru.Prison.RuleType.WindowStation;
+            prisonRules.PrisonHomePath = container.ContainerDir;
+
+            prison.Lockdown(prisonRules);
+
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
         }
 

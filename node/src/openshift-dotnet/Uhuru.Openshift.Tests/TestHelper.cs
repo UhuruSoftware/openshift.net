@@ -26,7 +26,7 @@ namespace Uhuru.Openshift.Tests
             string applicationUuid = Guid.NewGuid().ToString("N");
             string containerUuid = applicationUuid;
             NodeConfig config = new NodeConfig();
-            EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
+            // EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
             string userId = WindowsIdentity.GetCurrent().Name;
             string applicationName = "testApp";
             string containerName = applicationName;
@@ -36,7 +36,7 @@ namespace Uhuru.Openshift.Tests
             Hourglass hourglass = null;
 
             ApplicationContainer container = new ApplicationContainer(
-                applicationUuid, containerUuid, etcUser,
+                applicationUuid, containerUuid, null,
                 applicationName, containerName, namespaceName,
                 quotaBlocks, quotaFiles, hourglass);
 

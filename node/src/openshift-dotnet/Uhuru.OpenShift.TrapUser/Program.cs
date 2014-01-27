@@ -14,7 +14,7 @@ namespace Uhuru.OpenShift.TrapUser
     {
         static int Main(string[] args)
         {
-            return UserShellTrap.StartShell();
+            return UserShellTrap.StartShell(Environment.CommandLine);
         }
     }
 }
