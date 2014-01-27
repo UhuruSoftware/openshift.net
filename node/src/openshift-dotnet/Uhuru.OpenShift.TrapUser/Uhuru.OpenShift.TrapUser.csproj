@@ -61,6 +61,10 @@
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
     </ProjectReference>
+    <ProjectReference Include="..\windows-prison\src\Uhuru.Prison\Uhuru.Prison.csproj">
+      <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>
+      <Name>Uhuru.Prison</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
