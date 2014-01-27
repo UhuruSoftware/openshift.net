@@ -21,7 +21,6 @@ namespace Uhuru.Openshift.Runtime
         public void Create()
         {
             // create user
-
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
         }
 

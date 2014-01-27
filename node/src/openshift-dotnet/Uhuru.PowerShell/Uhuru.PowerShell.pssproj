@@ -78,6 +78,7 @@
     <Content Include="Common\template-mechanism.ps1">
       <Publish>False</Publish>
     </Content>
+    <Content Include="OO-Cmdlets\get-gear-envs-action.ps1" />
     <Content Include="OO-Cmdlets\has-app-cartridge-action.ps1" />
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
@@ -100,6 +101,7 @@
     <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
     <Content Include="OO-Cmdlets\gear.ps1" />
     <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-unsubscribe.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-add.ps1" />
     <Content Include="OO-Cmdlets\oo-update-configuration.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-list.ps1" />
@@ -146,13 +148,11 @@
       <Output TaskParameter="Include" ItemName="AllFiles" />
     </CreateItem>
     <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(OutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
     <Message Text="Copying mcollective agent to output directory '$(MCollectiveOutputDirectory)' ..." Importance="high" />
     <CreateItem Include="..\..\mcollective_agent\**" Exclude="..\..\mcollective_agent\.idea\**">
       <Output TaskParameter="Include" ItemName="MCollectiveFiles" />
     </CreateItem>
     <Copy SourceFiles="@(MCollectiveFiles)" DestinationFiles="@(MCollectiveFiles->'$(MCollectiveOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
-
     <Message Text="Copying cartridge SDKs to output directory '$(CartridgeSDKOutputDirectory)' ..." Importance="high" />
     <CreateItem Include="..\..\..\misc\usr\lib\cartridge_sdk\**">
       <Output TaskParameter="Include" ItemName="CartridgeSDKFiles" />

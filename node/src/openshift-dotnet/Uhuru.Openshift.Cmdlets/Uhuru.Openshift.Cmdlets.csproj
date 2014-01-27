@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Get_Gear_Envs_Action.cs" />
     <Compile Include="Has_App_Cartridge_Action.cs" />
     <Compile Include="OO_Activate.cs" />
     <Compile Include="OO_Force_Stop.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="OO_Restart.cs" />
     <Compile Include="OO_Start.cs" />
     <Compile Include="OO_Stop.cs" />
+    <Compile Include="OO_Unsubscribe.cs" />
     <Compile Include="OO_User_Var_Add.cs" />
     <Compile Include="OO_Update_Configuration.cs" />
     <Compile Include="OO_User_Var_List.cs" />

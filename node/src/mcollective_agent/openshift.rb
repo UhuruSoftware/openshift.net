@@ -40,6 +40,7 @@ module MCollective
       # Handles all incoming messages. Validates the input, executes the action, and constructs
       # a reply.
       def cartridge_do_action
+        @logger.debug "cartridge_do_action"
         validate :cartridge, :shellsafe
         validate :action, :shellsafe
         cartridge                  = request[:cartridge]
@@ -763,6 +764,8 @@ module MCollective
 
       def oo_unsubscribe(args)
         @logger.debug "oo_unsubscribe"
+        run_command(__method__, args)
+
         # cart_name     = args['--cart-name']
         # pub_cart_name = args['--publishing-cart-name']
 
@@ -963,11 +966,13 @@ module MCollective
       #
       def get_gear_envs_action
         @logger.debug "get_gear_envs_action"
-        # validate :uuid, /^[a-zA-Z0-9]+$/
+         validate :uuid, /^[a-zA-Z0-9]+$/
         # dir = OpenShift::Runtime::ApplicationContainer.from_uuid(request[:uuid].to_s).container_dir
         # env_hash = OpenShift::Runtime::Utils::Environ.for_gear(dir)
-        # reply[:output] = env_hash
-        # reply[:exitcode] = 0
+        args = "-Uuid #{request[:uuid]}"
+        rc, output = run_command(__method__, args)
+        reply[:output] =  JSON.parse(output)
+        reply[:exitcode] = rc
       end
 
       #

@@ -131,6 +131,18 @@ namespace Uhuru.Openshift.Runtime
                 });
         }
 
+        /// <summary>
+        /// Let a cart perform some action when another cart is being removed
+        /// Today, it is used to cleanup environment variables
+        /// </summary>
+        /// <param name="cartName">Unsubscribing cartridge name.</param>
+        /// <param name="pubCartName">Publishing cartridge name.</param>
+        public void Unsubscribe(string cartName, string pubCartName)
+        {
+            string envDirPath = Path.Combine(container.ContainerDir, ".env", ShortNameFromFullCartName(pubCartName));
+            Directory.Delete(envDirPath, true);
+        }
+
         public string Destroy()
         {
             StringBuilder output = new StringBuilder();

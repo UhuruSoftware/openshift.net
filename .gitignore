@@ -14,3 +14,4 @@ cartridges/openshift-origin-cartridge-dotnet/bin/iishwc_src/x86
 obj/
 TestResults/
 /output/
+uhuru-openshift-winnode.exe
