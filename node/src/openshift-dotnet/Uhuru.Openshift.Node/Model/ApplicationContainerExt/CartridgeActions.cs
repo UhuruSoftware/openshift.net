@@ -293,6 +293,18 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
+        /// <summary>
+        /// Unsubscribes from a cartridge
+        /// </summary>
+        /// <param name="cartName">Unsubscribing cartridge name.</param>
+        /// <param name="pubCartName">Publishing cartridge name.</param>
+        /// <returns>The output</returns>
+        public string Unsubscribe(string cartName, string pubCartName)
+        {
+            Cartridge.Unsubscribe(cartName, pubCartName);
+            return string.Empty;
+        }
+
         private RubyHash ActivateLocalGear(dynamic options)
         {
             string deploymentId = options["deployment_id"];

@@ -101,6 +101,7 @@
     <Content Include="OO-Cmdlets\oo-deconfigure.ps1" />
     <Content Include="OO-Cmdlets\gear.ps1" />
     <Content Include="OO-Cmdlets\oo-post-configure.ps1" />
+    <Content Include="OO-Cmdlets\oo-unsubscribe.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-add.ps1" />
     <Content Include="OO-Cmdlets\oo-update-configuration.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-list.ps1" />

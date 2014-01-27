@@ -764,6 +764,8 @@ module MCollective
 
       def oo_unsubscribe(args)
         @logger.debug "oo_unsubscribe"
+        run_command(__method__, args)
+
         # cart_name     = args['--cart-name']
         # pub_cart_name = args['--publishing-cart-name']
 
