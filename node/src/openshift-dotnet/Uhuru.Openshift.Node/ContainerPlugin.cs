@@ -21,6 +21,9 @@ namespace Uhuru.Openshift.Runtime
         public void Create()
         {
             // create user
+            // container.Uuid container.ContainerDir
+            // TODO: add prison code here
+            // 
 
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
         }
