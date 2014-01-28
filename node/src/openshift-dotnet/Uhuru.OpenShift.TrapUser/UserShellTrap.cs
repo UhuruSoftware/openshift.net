@@ -76,21 +76,10 @@ namespace Uhuru.OpenShift.TrapUser
 
             // SetupGearEnv(shellStartInfo.EnvironmentVariables);
             string gearUuid = shellStartInfo.EnvironmentVariables.ContainsKey("OPENSHIFT_GEAR_UUID") ? shellStartInfo.EnvironmentVariables["OPENSHIFT_GEAR_UUID"] : string.Empty;
-
-            var userToTrap = gearUuid; // TODO: get the prison's username from the process arguments or environment variables
            
             var prisons = Prison.Prison.Load();
 
-            //var prison = prisons.First(p => p.Tag == userToTrap);
-            #region test
-            Uhuru.Prison.Prison prison = new Uhuru.Prison.Prison();
-            prison.Tag = "oo";
-            Uhuru.Prison.PrisonRules prisonRules = new Uhuru.Prison.PrisonRules();
-            prisonRules.CellType = Uhuru.Prison.RuleType.None;
-            prisonRules.CellType = Uhuru.Prison.RuleType.WindowStation;
-
-            prison.Lockdown(prisonRules);
-            #endregion
+            var prison = prisons.First(p => p.ID.ToString() == gearUuid);
 
             string arguments = string.Empty;
             if (args.StartsWith("\""))
