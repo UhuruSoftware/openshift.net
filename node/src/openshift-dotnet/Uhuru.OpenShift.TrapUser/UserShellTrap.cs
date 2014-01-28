@@ -79,7 +79,7 @@ namespace Uhuru.OpenShift.TrapUser
            
             var prisons = Prison.Prison.Load();
 
-            var prison = prisons.First(p => p.ID.ToString() == gearUuid);
+            var prison = prisons.First(p => p.ID == Guid.Parse(gearUuid.PadLeft(32, '0')));
 
             string arguments = string.Empty;
             if (args.StartsWith("\""))
