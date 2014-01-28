@@ -20,7 +20,11 @@ namespace Uhuru.Openshift.Runtime
 
         public void Create()
         {
-            Uhuru.Prison.Prison prison = new Uhuru.Prison.Prison(Guid.Parse(container.Uuid.PadLeft(32, '0')));
+            Guid prisonGuid = Guid.Parse(container.Uuid.PadLeft(32, '0'));
+
+            Logger.Debug("Creating prinson with guid: {0}", prisonGuid);
+
+            Uhuru.Prison.Prison prison = new Uhuru.Prison.Prison(prisonGuid);
             prison.Tag = "oo";
 
             Uhuru.Prison.PrisonRules prisonRules = new Uhuru.Prison.PrisonRules();
