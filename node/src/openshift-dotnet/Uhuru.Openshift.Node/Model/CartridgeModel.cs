@@ -216,6 +216,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string StopCartridge(Manifest cartridge, dynamic options)
         {
+            Logger.Debug("Stopping cartridge {0} for gear {1}", cartridge.Name, this.container.Uuid);
+
             if (options == null)
             {
                 options = new Dictionary<string, object>();

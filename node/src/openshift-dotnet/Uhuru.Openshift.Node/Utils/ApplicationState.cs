@@ -16,6 +16,22 @@ namespace Uhuru.Openshift.Runtime
         STOPPED,
         UNKNOWN
     }
+
+    public static class StateMethods
+    {
+        public static bool EqualsString(this State state, string value)
+        {
+            State parsedState;
+            bool valueOk = Enum.TryParse(value, true, out parsedState);
+
+            if (!valueOk)
+            {
+                return false;
+            }
+
+            return parsedState == state;
+        }
+    }
 }
 
 namespace Uhuru.Openshift.Runtime.Utils

@@ -155,7 +155,7 @@ Modified files (in the PoC):
  
     Added a new field to the group instance model, called 'kernel'. Its default value is 'Linux'.
 
-- [`./origin-server/controller/app/models/pending_ops/create_group_instance_op.rb`](https://github.com/UhuruSoftware/origin-server/blob/master/controller/app/models/pending_ops/create_group_instance_op.rb)
+- [`./origin-server/controller/app/models/pending_ops/init_gear_op.rb`](https://github.com/UhuruSoftware/origin-server/blob/master/controller/app/models/pending_ops/init_gear_op.rb)
 
 	Added a 'kernel' field and changed the creation of the GroupInstance object to include the 'kernel'. 
 

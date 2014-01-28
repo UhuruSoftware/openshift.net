@@ -32,31 +32,27 @@ function start-cartridge
 #Stop the software the cartridge controls
 function stop-cartridge
 {
-  Write-Host "Stopping"
-  $jobid = [int](Get-Content $IISHWC_PID_FILE)
-  Remove-Item $IISHWC_PID_FILE
-  Start-Process -Wait -PassThru -NoNewWindow "taskkill" "/F /T /PID ${jobid}"
-
-  #need one more get request
+    if (process_running "powershell" $IISHWC_PID_FILE)
+    {
+        Write-Host "Stopping"
+        $jobid = [int](Get-Content $IISHWC_PID_FILE)
+        Start-Process -Wait -PassThru -NoNewWindow "taskkill" "/F /T /PID ${jobid}"
+        Remove-Item $IISHWC_PID_FILE -Force
+    }
+    else
+    {
+        Write-Host "Cartridge not running"
+    }
+  
+    #need one more get request
 }
 
 #Return an 0 exit status if the cartridge code is running
 function status-cartridge
 {
-  Write-Host "Retrieving cartridge"
-  if (Test-Path $IISHWC_PID_FILE)
-  {
-    $processId = [int](Get-Content $HTTPD_PID_FILE)
-    $exists = $true
-    Try
-    {
-        $process = Get-Process -Id $processId -ErrorAction Stop
-    }
-    Catch  [System.Management.Automation.ActionPreferenceStopException]
-    {
-        $exists = $false
-    }
-    if (($exists) -and ($process.HasExited -eq $false))
+    Write-Host "Retrieving cartridge"
+
+    if (process_running "powershell" $IISHWC_PID_FILE)
     {
         client_result "Application is running"
     }
@@ -64,12 +60,6 @@ function status-cartridge
     {
         client_result "Application is either stopped or inaccessible"
     }
-    
-  }
-  else
-  {
-    client_result "Application is either stopped or inaccessible"
-  }
 }
 
 #The cartridge and the packaged software needs to re-read their configuration information 

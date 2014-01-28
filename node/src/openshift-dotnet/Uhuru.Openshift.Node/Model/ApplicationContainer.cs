@@ -759,7 +759,7 @@ namespace Uhuru.Openshift.Runtime
 
         public string Reload(string cartName)
         {
-            if (string.Equals(this.State.Value(), Runtime.State.STARTED.ToString(), StringComparison.InvariantCultureIgnoreCase))
+            if (Runtime.State.STARTED.EqualsString(this.State.Value()))
             {
                 return this.Cartridge.DoControl("reload", cartName);
             }
@@ -989,13 +989,13 @@ namespace Uhuru.Openshift.Runtime
 
         private string StoppedStatusAttr()
         {
-            if (this.State.Value() == Uhuru.Openshift.Runtime.State.STARTED.ToString() || this.Cartridge.StopLockExists)
+            if (Runtime.State.STARTED.EqualsString(this.State.Value()) || this.Cartridge.StopLockExists)
             {
                 return "ATTR: status=ALREADY_STOPPED" + Environment.NewLine;
             }
             else
             {
-                if (this.State.Value() == Uhuru.Openshift.Runtime.State.IDLE.ToString())
+                if (Runtime.State.IDLE.EqualsString(this.State.Value()))
                 {
                     return "ATTR: status=ALREADY_IDLED" + Environment.NewLine;
                 }

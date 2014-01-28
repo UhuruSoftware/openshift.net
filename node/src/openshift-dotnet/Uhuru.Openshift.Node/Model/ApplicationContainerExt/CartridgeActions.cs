@@ -309,6 +309,8 @@ namespace Uhuru.Openshift.Runtime
         {
             string deploymentId = options["deployment_id"];
 
+            Logger.Debug("Activating local gear with deployment id {0}", deploymentId);
+
             RubyHash result = new RubyHash();
             result["status"] = RESULT_FAILURE;
             result["gear_uuid"] = this.Uuid;
@@ -318,6 +320,7 @@ namespace Uhuru.Openshift.Runtime
 
             if (!DeploymentExists(deploymentId))
             {
+                Logger.Warning("No deployment with id {0} found on gear", deploymentId);
                 result["errors"].Add(string.Format("No deployment with id {0} found on gear", deploymentId));
                 return result;
             }
@@ -331,7 +334,9 @@ namespace Uhuru.Openshift.Runtime
 
                 string output = string.Empty;
 
-                if (State.Value() == Runtime.State.STARTED.ToString())
+                Logger.Debug("Current deployment state for deployment {0} is {1}", deploymentId, this.State.Value());
+
+                if (Runtime.State.STARTED.EqualsString(State.Value()))
                 {
                     options["exclude_web_proxy"] = true;
                     output = StopGear(options);
