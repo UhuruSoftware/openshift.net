@@ -296,8 +296,7 @@ function print_user_running_processes
 # Arguments:
 #  - Process name
 #  - Pidfile
-#  - User to check (optional)
-function process_running($processName, $pidFile, $user = $null)
+function process_running($processName, $pidFile)
 {
     if ((Test-Path $pidFile) -eq $false)
     {
@@ -306,15 +305,7 @@ function process_running($processName, $pidFile, $user = $null)
 
     $processId = Get-Content $pidFile -ErrorAction SilentlyContinue
 
-    $process = $null
-    if ($user -ne $null)
-    {
-        $process = Get-Process -IncludeUserName | Where-Object {($_.id -eq $processId.ToString().Trim()) -and ($_.ProcessName -eq $processName) -and ($_.UserName -ne $null) -and ($_.Username.Split('\')[1] -eq $user)}
-    }
-    else
-    {
-        $process = Get-Process -IncludeUserName | Where-Object {($_.id -eq $processId.ToString().Trim()) -and ($_.ProcessName -eq $processName) -and ($_.UserName -ne $null)}
-    }
+    $process = Get-Process | Where-Object {($_.id -eq $processId.ToString().Trim()) -and ($_.ProcessName -eq $processName)}
     
     return ($process -ne $null)
 }

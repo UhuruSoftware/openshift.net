@@ -33,7 +33,7 @@ namespace Uhuru.Openshift.Runtime.Utils
 
         private static string Cygpath(string directory)
         {
-            return RunCommandAndGetOutput(CygpathBinary, directory).Trim();
+            return ProcessExtensions.RunCommandAndGetOutput(CygpathBinary, directory).StdOut.Trim();
         }
 
         public static void FixSymlinks(string directory)
@@ -44,8 +44,8 @@ namespace Uhuru.Openshift.Runtime.Utils
             string symlinkArguments = string.Format(@"--norc --login -c ""find -L {0} -xtype l -print0 | sort -z | xargs -0 -I {{}} cygpath --windows {{}}{1}""", linuxDir, DummySymlinkSuffix);
             string targetArguments = string.Format(@"--norc --login -c ""find -L {0} -xtype l -print0 | sort -z | xargs -0 -I {{}} cygpath --windows {{}}""", linuxDir);
 
-            string[] symlinks = RunCommandAndGetOutput(BashBinary, symlinkArguments).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            string[] targets = RunCommandAndGetOutput(BashBinary, targetArguments).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] symlinks = ProcessExtensions.RunCommandAndGetOutput(BashBinary, symlinkArguments).StdOut.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] targets = ProcessExtensions.RunCommandAndGetOutput(BashBinary, targetArguments).StdOut.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (symlinks.Length != targets.Length)
             {
@@ -85,22 +85,6 @@ namespace Uhuru.Openshift.Runtime.Utils
             using (new ProcessPrivileges.PrivilegeEnabler(Process.GetCurrentProcess(), ProcessPrivileges.Privilege.Restore))
             {
                 dirInfo.SetAccessControl(dirSecurity);
-            }
-        }
-
-        private static string RunCommandAndGetOutput(string command, string arguments)
-        {
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = command;
-            start.Arguments = arguments;
-            start.UseShellExecute = false;
-            start.CreateNoWindow = true;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError = true;
-            using (Process process = Process.Start(start))
-            {
-                string result = process.StandardOutput.ReadToEnd();
-                return result;
             }
         }
     }

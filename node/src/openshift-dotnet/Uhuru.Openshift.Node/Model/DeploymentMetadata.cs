@@ -78,7 +78,14 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return ((JArray)this.metadata["activations"]).Select(t => t.ToObject<float>()).ToList();
+                if (this.metadata["activations"] is List<float>)
+                {
+                    return (List<float>)this.metadata["activations"];
+                }
+                else
+                {
+                    return ((JArray)this.metadata["activations"]).Select(t => t.ToObject<float>()).ToList();
+                }
             }
             set
             {

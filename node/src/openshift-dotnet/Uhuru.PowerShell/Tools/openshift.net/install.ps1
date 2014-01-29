@@ -94,6 +94,22 @@
     This is useful for testing, when the caller is sure MCollective is already present in c:\openshift\mcollective. 
     Configuration of MCollective will still happen, even if this parameter is present.
 
+.PARAMETER skipChecks
+    This is a switch parameter that allows the user to skip checking for prerequisites.
+    This should only be used for debugging/development purposes.
+
+.PARAMETER skipGlobalEnv
+    This is a switch parameter that allows the user to skip setting up global environment variables and aliases.
+    This is useful for testing, when the user wants to manually set these variables.
+
+.PARAMETER skipServicesSetup
+    This is a switch parameter that allows the user to skip setting up Windows Services for MCollective and SSHD.
+    This is useful in development environments, when it's not necessary to restart services (e.g. the developer only wants to update the .NET binaries)
+
+.PARAMETER skipBinDirCleanup
+    This is a switch parameter that allows the user to skip cleaning up the binary directory.
+    This is useful in development environments, when presistence of logs and configurations is required.
+
 .NOTES
     Author: Vlad Iovanov
     Date:   January 17, 2014
@@ -141,7 +157,11 @@ param (
     # parameters used for skipping some installation steps
     [Switch] $skipRuby = $false,
     [Switch] $skipCygwin = $false,
-    [Switch] $skipMCollective = $false
+    [Switch] $skipMCollective = $false,
+    [Switch] $skipChecks = $false,
+    [Switch] $skipGlobalEnv = $false,
+    [Switch] $skipServicesSetup = $false,
+    [Switch] $skipBinDirCleanup = $false
 )
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
@@ -193,16 +213,17 @@ if ([string]::IsNullOrWhitespace($publicHostname)) { Write-Error "Public hostnam
 if ([string]::IsNullOrWhitespace($brokerHost)) { Write-Error "Broker host cannot be empty."; exit 1; }
 if ([string]::IsNullOrWhitespace($cloudDomain)) { Write-Error "Cloud domain cannot be empty."; exit 1; }
 
-
-Write-Host 'Verifying prerequisites ...'
-Check-Elevation
-Check-WindowsVersion
-$windowsFeatures = @('NET-Framework-Features', 'NET-Framework-Core', 'NET-Framework-45-Features', 'NET-Framework-45-Core', 'NET-Framework-45-ASPNET', 'NET-WCF-Services45', 'NET-WCF-TCP-PortSharing45') 
-$windowsFeatures | ForEach-Object { Check-WindowsFeature $_ }
-$iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
-$iisFeatures | ForEach-Object { Check-WindowsFeature $_ }
-Check-SQLServer2008
-
+if ($skipChecks -eq $false)
+{
+    Write-Host 'Verifying prerequisites ...'
+    Check-Elevation
+    Check-WindowsVersion
+    $windowsFeatures = @('NET-Framework-Features', 'NET-Framework-Core', 'NET-Framework-45-Features', 'NET-Framework-45-Core', 'NET-Framework-45-ASPNET', 'NET-WCF-Services45', 'NET-WCF-TCP-PortSharing45') 
+    $windowsFeatures | ForEach-Object { Check-WindowsFeature $_ }
+    $iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
+    $iisFeatures | ForEach-Object { Check-WindowsFeature $_ }
+    Check-SQLServer2008
+}
 
 # TODO: stop all services, gears, etc., or tell the user to do it
 
@@ -228,7 +249,10 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
 
 # copy binaries
 Write-Host 'Copying binaries ...'
-Cleanup-Directory $binLocation
+if ($skipBinDirCleanup -eq $false)
+{
+    Cleanup-Directory $binLocation
+}
 Write-Verbose "Creating bin directory '${binLocation}' ..."
 New-Item -path $binLocation -type directory -Force | Out-Null
 $sourceItems = (Join-Path $currentDir '..\..\..\*')
@@ -272,30 +296,36 @@ New-Item -path $cartridgeBasePath -type directory -Force | Out-Null
 $sourceItems = (Join-Path $currentDir '..\..\..\cartridges\*')
 Copy-Item -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -Path $sourceItems $cartridgeBasePath
 
+if ($skipGlobalEnv -eq $false)
+{
+    # setup oo-bin alias paths
+    Setup-OOAliases $binLocation
 
-# setup oo-bin alias paths
-Setup-OOAliases $binLocation
+    # setup env vars in c:\openshift\env
+    Setup-GlobalEnv $binLocation
+}
 
+if ($skipServicesSetup -eq $false)
+{
+    Remove-Service 'openshift.mcollectived' $sshdCygwinDir
+    Remove-Service 'openshift.sshd' $sshdCygwinDir
 
-# setup env vars in c:\openshift\env
-Setup-GlobalEnv $binLocation
+    $mcollectivePath = 'c:\openshift\mcollective\'
 
-Remove-Service 'openshift.mcollectived' $sshdCygwinDir
-Remove-Service 'openshift.sshd' $sshdCygwinDir
+    $mcollectiveLib = (Join-Path $mcollectivePath 'lib').Replace("\", "/")
+    $mcollectiveBin = (Join-Path $mcollectivePath 'bin\mcollectived')
+    $mcollectiveConfig = (Join-Path $mcollectivePath 'etc\server.cfg')
 
-$mcollectivePath = 'c:\openshift\mcollective\'
+    Create-Service 'openshift.mcollectived' (Join-Path $rubyInstallLocation 'bin\ruby.exe') "-I'${mcollectiveLib};' -- '${mcollectiveBin}' --config '${mcollectiveConfig}'" "OpenShift Windows Node MCollective Service" $sshdCygwinDir
 
-$mcollectiveLib = (Join-Path $mcollectivePath 'lib').Replace("\", "/")
-$mcollectiveBin = (Join-Path $mcollectivePath 'bin\mcollectived')
-$mcollectiveConfig = (Join-Path $mcollectivePath 'etc\server.cfg')
+    $runSSHDScript = (Join-Path $binLocation 'powershell\tools\sshd\run-sshd.ps1')
+    $cygwinInstallationPath = (Join-Path $sshdCygwinDir 'installation')
 
-Create-Service 'openshift.mcollectived' (Join-Path $rubyInstallLocation 'bin\ruby.exe') "-I'${mcollectiveLib};' -- '${mcollectiveBin}' --config '${mcollectiveConfig}'" "OpenShift Windows Node MCollective Service" $sshdCygwinDir
+    Create-Service 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
 
-$runSSHDScript = (Join-Path $binLocation 'powershell\tools\sshd\run-sshd.ps1')
-$cygwinInstallationPath = (Join-Path $sshdCygwinDir 'installation')
+    Write-Host 'Starting services ...'
+    net start openshift.mcollectived
+    net start openshift.sshd
+}
 
-Create-Service 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
-
-Write-Host 'Starting services ...'
-net start openshift.mcollectived
-net start openshift.sshd
+Write-Host "Done." -ForegroundColor Green

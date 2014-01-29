@@ -234,7 +234,6 @@ namespace Uhuru.Openshift.Runtime
             string key = string.Format("{0} {1} {2}", keyType, sshKey, comment);
 
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\configure-sshd.ps1"));
             string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\add-key.ps1"));
 
             ProcessStartInfo pi = new ProcessStartInfo();            
@@ -242,27 +241,12 @@ namespace Uhuru.Openshift.Runtime
             pi.RedirectStandardError = true;
             pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
             
-            pi.Arguments = string.Format(
-@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}", 
-                configureScript, 
-                this.Uuid, 
-                NodeConfig.Values["SSHD_BASE_DIR"], 
-                this.ContainerDir,
-                NodeConfig.Values["GEAR_SHELL"],
-                Environment.UserName);
-
-            Process p = Process.Start(pi);
-            p.WaitForExit(60000);
-            output += this.Uuid;
-            output += p.StandardError.ReadToEnd();
-            output += p.StandardOutput.ReadToEnd();
-
             pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser {3} -key ""{1}""", 
                 addKeyScript, 
-                key, 
+                key,
                 NodeConfig.Values["SSHD_BASE_DIR"],
                 Environment.UserName);
-            p = Process.Start(pi);
+            Process p = Process.Start(pi);
             p.WaitForExit(60000);
             output += p.StandardError.ReadToEnd();
             output += p.StandardOutput.ReadToEnd();           

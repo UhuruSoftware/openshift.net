@@ -148,9 +148,14 @@ namespace Uhuru.Openshift.Runtime
 
         public void UpdateCurrentDeploymentDateTimeSymlink(string deploymentDateTime)
         {
-            string file = Path.Combine(this.ContainerDir, "app-deployments", "current");
-            Directory.Delete(file);
-            DirectoryUtil.CreateSymbolicLink(file, deploymentDateTime, DirectoryUtil.SymbolicLink.Directory);
+            string dir = Path.Combine(this.ContainerDir, "app-deployments", "current");
+
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, true);
+            }
+            
+            DirectoryUtil.CreateSymbolicLink(dir, deploymentDateTime, DirectoryUtil.SymbolicLink.Directory);
         }
 
         public void SyncDeploymentRepoDirToRuntime(string deploymentDateTime)

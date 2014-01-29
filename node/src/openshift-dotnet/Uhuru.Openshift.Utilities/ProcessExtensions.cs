@@ -32,5 +32,34 @@ namespace Uhuru.Openshift.Utilities
                 // Process already exited.
             }
         }
+
+        public static ProcessResult RunCommandAndGetOutput(string command, string arguments, string workingDirectory = null)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = command;
+            start.Arguments = arguments;
+            start.UseShellExecute = false;
+            start.CreateNoWindow = true;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            if (workingDirectory != null)
+            {
+                start.WorkingDirectory = workingDirectory;
+            }
+            using (Process process = Process.Start(start))
+            {
+                string result = process.StandardOutput.ReadToEnd();
+                string resultError = process.StandardError.ReadToEnd();
+
+                process.WaitForExit();
+
+                return new ProcessResult()
+                {
+                    ExitCode = process.ExitCode,
+                    StdErr = resultError,
+                    StdOut = result
+                };
+            }
+        }
     }
 }

@@ -9,13 +9,14 @@ using System.Text.RegularExpressions;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
+using Uhuru.Openshift.Utilities;
 
 
 namespace Uhuru.OpenShift.TrapUser
 {
     public class UserShellTrap
     {
-        private static void LoadEnv(string directory, StringDictionary targetList)
+        private static void LoadEnv(string directory, Dictionary<string, string> targetList)
         {
             if (targetList == null)
             {
@@ -37,7 +38,7 @@ namespace Uhuru.OpenShift.TrapUser
             }
         }
 
-        private static void SetupGearEnv(StringDictionary targetList)
+        private static void SetupGearEnv(Dictionary<string, string>  targetList)
         {
             if (targetList == null)
             {
@@ -70,12 +71,18 @@ namespace Uhuru.OpenShift.TrapUser
             string assemblyLocation = Path.GetDirectoryName(typeof(UserShellTrap).Assembly.Location);
             string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
 
-            ProcessStartInfo shellStartInfo = new ProcessStartInfo();
-            shellStartInfo.EnvironmentVariables["CYGWIN"] = "nodosfilewarning winsymlinks:native";
-            // shellStartInfo.FileName = "bash";
+            Dictionary<string, string> envVars = new Dictionary<string, string>();
 
-            // SetupGearEnv(shellStartInfo.EnvironmentVariables);
-            string gearUuid = shellStartInfo.EnvironmentVariables.ContainsKey("OPENSHIFT_GEAR_UUID") ? shellStartInfo.EnvironmentVariables["OPENSHIFT_GEAR_UUID"] : string.Empty;
+            foreach (string key in Environment.GetEnvironmentVariables().Keys)
+            {
+                envVars[key] = Environment.GetEnvironmentVariable(key);
+            }
+
+            envVars["CYGWIN"] = "nodosfilewarning winsymlinks:native";
+
+            SetupGearEnv(envVars);
+
+            string gearUuid = envVars.ContainsKey("OPENSHIFT_GEAR_UUID") ? envVars["OPENSHIFT_GEAR_UUID"] : string.Empty;
            
             var prisons = Prison.Prison.Load();
 
@@ -94,24 +101,24 @@ namespace Uhuru.OpenShift.TrapUser
             // shellStartInfo.Arguments = string.Format(@"--rcfile ""{0}"" {1}", rcfile, arguments);
             // shellStartInfo.UseShellExecute = false;
 
-
-
             Logger.Debug("Starting trapped bash for gear {0}", gearUuid);
 
             //Process shell = Process.Start(shellStartInfo);
             //shell.WaitForExit();
 
-            var process = prison.Execute(@"C:\cygwin\installation\bin\bash.exe", string.Format(@"--rcfile ""{0}"" {1}", rcfile, arguments));
+            string bashBin = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\bash.exe");
+
+            var process = prison.Execute(bashBin, string.Format("--norc --login --noprofile {0}", arguments), false, envVars);
 
             process.WaitForExit();
 
             // Every time the user's session ends, set ownership of files and fix symlinks in the app deployments dir.
-            if (shellStartInfo.EnvironmentVariables.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(shellStartInfo.EnvironmentVariables["OPENSHIFT_HOMEDIR"]))
+            if (envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]))
             {
                 Logger.Debug("Setting ownership and acls for gear {0}", gearUuid);
                 try
                 {
-                    LinuxFiles.TakeOwnership(shellStartInfo.EnvironmentVariables["OPENSHIFT_HOMEDIR"], Environment.UserName);
+                    LinuxFiles.TakeOwnership(envVars["OPENSHIFT_HOMEDIR"], prison.User.Username);
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +128,7 @@ namespace Uhuru.OpenShift.TrapUser
                 Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
                 try
                 {
-                    LinuxFiles.FixSymlinks(shellStartInfo.EnvironmentVariables["OPENSHIFT_HOMEDIR"]);
+                    LinuxFiles.FixSymlinks(envVars["OPENSHIFT_HOMEDIR"]);
                 }
                 catch (Exception ex)
                 {
@@ -133,7 +140,6 @@ namespace Uhuru.OpenShift.TrapUser
                 Logger.Warning("Not fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
             }
 
-            //return shell.ExitCode;
             return process.ExitCode;
         }
     }

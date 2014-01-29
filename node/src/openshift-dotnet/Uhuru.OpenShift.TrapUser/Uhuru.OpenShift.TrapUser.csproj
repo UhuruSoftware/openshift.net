@@ -51,6 +51,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">
@@ -60,6 +63,10 @@
     <ProjectReference Include="..\Uhuru.Openshift.Node\Uhuru.Openshift.Node.csproj">
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj">
+      <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
+      <Name>Uhuru.Openshift.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\windows-prison\src\Uhuru.Prison\Uhuru.Prison.csproj">
       <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>

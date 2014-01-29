@@ -223,27 +223,22 @@ set GIT_DIR=./{2}.git
             string tempfile = Path.GetTempFileName();
             string batfile = tempfile + ".bat";
             File.WriteAllText(batfile, cmd);
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.WorkingDirectory = this.RepositoryPath;
-            pi.UseShellExecute = true;
-            pi.CreateNoWindow = true;
-            pi.RedirectStandardOutput = true;
-            pi.RedirectStandardError = true;
-            pi.WindowStyle = ProcessWindowStyle.Hidden;
-            pi.FileName = "cmd.exe";
-            pi.Arguments = "/c " + batfile;
-            Process p = Process.Start(pi);
-            p.WaitForExit(30000);
+
+            string arguments = "/c " + batfile;
+
+            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput("cmd.exe", arguments, this.RepositoryPath);
+
             File.Delete(tempfile);
             File.Delete(batfile);
 
-            if (p.ExitCode == 0)
+            if (result.ExitCode == 0)
             {
-                return p.StandardOutput.ReadToEnd();
+                return result.StdOut;
             }
             else
             {
-                return "";
+                Logger.Error("GetSHA failed with error code {0}; out: {1}; err: {2}", result.ExitCode, result.StdOut , result.StdErr);
+                return string.Empty;
             }
         }
 

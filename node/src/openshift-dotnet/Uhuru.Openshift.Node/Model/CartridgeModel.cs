@@ -377,7 +377,7 @@ namespace Uhuru.Openshift.Runtime
             }
             else
             {
-                output.AppendLine(this.StartCartridge("start", cartridge, new Dictionary<string, object>() { { "user_initiated", "true" } }));
+                output.AppendLine(this.StartCartridge("start", cartridge, new Dictionary<string, object>() { { "user_initiated", true } }));
             }
             // TODO call post_install
 
