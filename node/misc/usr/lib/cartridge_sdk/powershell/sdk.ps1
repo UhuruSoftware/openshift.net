@@ -147,7 +147,7 @@ function set_env_var($var, $val, $target)
     {
         error "Must provide a variable name, value, and target directory for environment variables" 64
     }
-    if (!Test-Path $target)
+    if ((Test-Path $target) -ne $true)
     {
         error "Target directory must exist for environment variables" 64
     }

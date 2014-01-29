@@ -206,6 +206,8 @@ namespace Uhuru.Openshift.Runtime
             ApplicationRepository applicationRepository = new ApplicationRepository(this);
             applicationRepository.Archive(repoDir, options["ref"]);
 
+            Prepare(options);
+
             Distribute(options);
             Activate(options);
         }

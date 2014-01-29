@@ -69,9 +69,9 @@ set GIT_DIR=./{2}.git
         private const string GIT_GET_SHA1 = @"set -xe;
 {0} rev-parse --short {1}";
 
-        private const string PRE_RECEIVE = @"gear -Prereceive";
+        private const string PRE_RECEIVE = @"gear prereceive";
 
-        private const string POST_RECEIVE = "gear -Postreceive";
+        private const string POST_RECEIVE = "gear postreceive";
 
         public ApplicationContainer Container { get; set; }
         public string RepositoryPath { get; set; }
@@ -218,7 +218,7 @@ set GIT_DIR=./{2}.git
 
         public string GetSha1(string refId)
         {
-            string cmd = string.Format(GIT_INIT, GIT, refId);
+            string cmd = string.Format(GIT_GET_SHA1, GIT, refId);
 
             string tempfile = Path.GetTempFileName();
             string batfile = tempfile + ".bat";

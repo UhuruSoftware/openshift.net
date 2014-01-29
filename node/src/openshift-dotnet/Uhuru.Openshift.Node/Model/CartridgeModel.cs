@@ -274,7 +274,7 @@ namespace Uhuru.Openshift.Runtime
 
             if (!options["user_initiated"] && StopLockExists)
             {
-                return string.Format("Not starting cartridge #{cartridge.name} because the application was explicitly stopped by the user", cartridge.Name);
+                return string.Format("Not starting cartridge {0} because the application was explicitly stopped by the user", cartridge.Name);
             }
 
             Manifest primaryCartridge = GetPrimaryCartridge();            
