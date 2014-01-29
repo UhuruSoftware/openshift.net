@@ -78,6 +78,7 @@
     <Content Include="Common\template-mechanism.ps1">
       <Publish>False</Publish>
     </Content>
+    <Content Include="OO-Cmdlets\cartridge-repository-action.ps1" />
     <Content Include="OO-Cmdlets\get-all-gears-endpoints-action.ps1" />
     <Content Include="OO-Cmdlets\get-gear-envs-action.ps1" />
     <Content Include="OO-Cmdlets\has-app-cartridge-action.ps1" />
