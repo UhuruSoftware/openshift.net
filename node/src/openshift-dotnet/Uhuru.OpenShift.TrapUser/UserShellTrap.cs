@@ -115,15 +115,15 @@ namespace Uhuru.OpenShift.TrapUser
             // Every time the user's session ends, set ownership of files and fix symlinks in the app deployments dir.
             if (envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]))
             {
-                Logger.Debug("Setting ownership and acls for gear {0}", gearUuid);
-                try
-                {
-                    LinuxFiles.TakeOwnership(envVars["OPENSHIFT_HOMEDIR"], prison.User.Username);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
-                }
+                //Logger.Debug("Setting ownership and acls for gear {0}", gearUuid);
+                //try
+                //{
+                //    LinuxFiles.TakeOwnership(envVars["OPENSHIFT_HOMEDIR"], prison.User.Username);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
+                //}
 
                 Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
                 try

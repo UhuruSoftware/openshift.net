@@ -57,15 +57,15 @@ namespace Uhuru.Openshift.Runtime
 
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
 
-            Logger.Debug("Setting ownership and acls for gear {0}", container.Uuid);
-            try
-            {
-                LinuxFiles.TakeOwnership(container.ContainerDir, prison.User.Username);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", container.Uuid, ex.Message, ex.StackTrace);
-            }
+            //Logger.Debug("Setting ownership and acls for gear {0}", container.Uuid);
+            //try
+            //{
+            //    LinuxFiles.TakeOwnership(container.ContainerDir, prison.User.Username);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", container.Uuid, ex.Message, ex.StackTrace);
+            //}
         }
 
         public string Destroy()
