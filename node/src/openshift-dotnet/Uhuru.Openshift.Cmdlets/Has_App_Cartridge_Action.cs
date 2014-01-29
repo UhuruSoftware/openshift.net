@@ -40,6 +40,7 @@ namespace Uhuru.Openshift.Cmdlets
             catch (Exception ex)
             {
                 //TODO logging
+                Logger.Error(ex.ToString());
                 returnStatus.Output = "false";
                 returnStatus.ExitCode = 1;
             }

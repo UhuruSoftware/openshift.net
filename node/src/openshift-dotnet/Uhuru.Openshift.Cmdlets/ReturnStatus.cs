@@ -8,11 +8,11 @@ namespace Uhuru.Openshift.Cmdlets
     public class ReturnStatus
     {
         public int ExitCode { get; set; }
-        public string Output { get; set; }
+        public object Output { get; set; }
 
         public ReturnStatus() { }
 
-        public ReturnStatus(string output, int exitCode)
+        public ReturnStatus(object output, int exitCode)
         {
             this.ExitCode = exitCode;
             this.Output = output;
