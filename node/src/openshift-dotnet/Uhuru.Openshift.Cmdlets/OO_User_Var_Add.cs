@@ -49,21 +49,18 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
-                List<NameValuePair> vars = new List<NameValuePair>();
+                Dictionary<string, string> variables = new Dictionary<string, string>();
 
                 if (!string.IsNullOrWhiteSpace(WithVariables))
                 {
-                    JArray varsArray = (JArray)JsonConvert.DeserializeObject(WithVariables);
-                    vars = varsArray.ToObject<List<NameValuePair>>();
+                    foreach (string variable in WithVariables.Trim().Split(' '))
+                    {
+                        variables.Add(variable.Split('=')[0].Trim(), variable.Split('=')[1].Trim());
+                    }
+                    
                 }
 
-                Dictionary<string, string> variables = new Dictionary<string, string>();
                 List<string> gears = new List<string>();
-
-                foreach (var varObj in vars)
-                {
-                    variables.Add(varObj.Name, varObj.Value);
-                }
 
                 if (!string.IsNullOrEmpty(WithGears))
                 {

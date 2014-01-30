@@ -62,12 +62,6 @@ module MCollective
         reply[:output]   = output
         reply[:addtl_params] = addtl_params
 
-        # if exitcode == 0
-        # log.instance.info("cartridge_do_action reply (#{exitcode}):\n------\n#{cleanpwd(output)}\n------)")
-        # else
-        # log.instance.info("cartridge_do_action failed (#{exitcode})\n------\n#{cleanpwd(output)}\n------)")
-        # reply.fail! "cartridge_do_action failed #{exitcode}. output #{output}"
-        # end
       end
 
       # Dispatches the given action to a method on the agent.
@@ -79,29 +73,7 @@ module MCollective
 
         exitcode = 0
         output   = action
-        # output   = ""
-
-        # if not self.respond_to?(action_method)
-        # exitcode = 127
-        # output   = "Unsupported action: #{action}/#{action_method}"
-        # else
-        # Log.instance.info("Executing action [#{action}] using method #{action_method} with args [#{args}]")
-        # begin
-        # # OpenShift::Runtime::NodeLogger.context[:request_id]    = request_id if request_id
-        # # OpenShift::Runtime::NodeLogger.context[:action_method] = action_method if action_method
-
         exitcode, output, addtl_params = self.send(action_method.to_sym, args)
-        # rescue => e
-        # Log.instance.error("Unhandled action execution exception for action [#{action}]: #{e.message}")
-        # Log.instance.error(e.backtrace)
-        # exitcode = 127
-        # output   = "An internal exception occured processing action #{action}: #{e.message}"
-        # ensure
-        # # OpenShift::Runtime::NodeLogger.context.delete(:request_id)
-        # # OpenShift::Runtime::NodeLogger.context.delete(:action_method)
-        # end
-        # Log.instance.info("Finished executing action [#{action}] (#{exitcode})")
-        # end
 
         @logger.debug "execute_action - action: #{action}, #{JSON.pretty_generate(args)}"
         return exitcode, output, addtl_params
@@ -117,7 +89,6 @@ module MCollective
       # BZ 876942: Disable threading until we can explore proper concurrency management
       def execute_parallel_action
         @logger.debug "execute_parallel_action - request: #{request}"
-        # Log.instance.info("execute_parallel_action call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
 
         joblist = request[config.identity]
 
@@ -145,41 +116,7 @@ module MCollective
       #
       def upgrade_action
         @logger.debug "upgrade_action"
-        # Log.instance.info("upgrade_action call / action=#{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
-        # validate :uuid, /^[a-zA-Z0-9]+$/
-        # validate :version, /^.+$/
-        # validate :namespace, /^.+$/
-        # uuid = request[:uuid]
-        # namespace = request[:namespace]
-        # version = request[:version]
-        # ignore_cartridge_version = request[:ignore_cartridge_version] == 'true' ? true : false
-        # hostname = Facter.value(:hostname)
-
-        # output = ''
-        # exitcode = 0
-
-        # begin
-        # # require 'openshift-origin-node/model/upgrade'
-
-        # # upgrader = OpenShift::Runtime::Upgrader.new(uuid, namespace, version, hostname, ignore_cartridge_version)
-        # # output, exitcode, json_data = upgrader.execute
-        # rescue LoadError => e
-        # exitcode = 127
-        # output += "upgrade not supported. #{e.message}\n"
-        # rescue OpenShift::Runtime::Utils::ShellExecutionException => e
-        # exitcode = 1
-        # output += "Gear failed to upgrade: #{e.message}\n#{e.stdout}\n#{e.stderr}"
-        # rescue Exception => e
-        # exitcode = 1
-        # output += "Gear failed to upgrade with exception: #{e.message}\n#{e.backtrace}\n"
-        # end
-
-        # Log.instance.info("upgrade_action (#{exitcode})\n------\n#{output}\n------)")
-
-        # reply[:output] = output
-        # reply[:exitcode] = exitcode
-        # reply[:json_data] = json_data
-        # reply.fail! "upgrade_action failed #{exitcode}.  Output #{output}" unless exitcode == 0
+        #TODO we need to implement this
       end
 
       #
@@ -196,172 +133,62 @@ module MCollective
       #
       def get_app_container_from_args(args)
         @logger.debug "get_app_container_from_args"
-        # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
-        # app_name = args['--with-app-name'].to_s if args['--with-app-name']
-        # gear_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
-        # gear_name = args['--with-container-name'].to_s if args['--with-container-name']
-        # namespace = args['--with-namespace'].to_s if args['--with-namespace']
-        # quota_blocks = args['--with-quota-blocks']
-        # quota_files  = args['--with-quota-files']
-        # uid          = args['--with-uid']
-
-        # quota_blocks = nil if quota_blocks && quota_blocks.to_s.empty?
-        # quota_files = nil if quota_files && quota_files.to_s.empty?
-        # uid = nil if uid && uid.to_s.empty?
-
-        # OpenShift::Runtime::ApplicationContainer.new(app_uuid, gear_uuid, uid, app_name, gear_name,
-        # namespace, quota_blocks, quota_files, OpenShift::Runtime::Utils::Hourglass.new(235))
       end
 
       def with_container_from_args(args)
         @logger.debug "with_container_from_args"
         output = ''
-        # begin
-        # container = get_app_container_from_args(args)
-        # yield(container, output)
-        # return 0, output
-        # rescue OpenShift::Runtime::Utils::ShellExecutionException => e
-        # return e.rc, "#{e.message}\n#{e.stdout}\n#{e.stderr}"
-        # rescue Exception => e
-        # Log.instance.error e.message
-        # Log.instance.error e.backtrace.join("\n")
-        # return -1, e.message
-        # end
       end
 
       def oo_app_create(args)
         @logger.debug "oo_app_create"
         exitcode, output = run_command(__method__, args)
         @logger.debug output
-        # begin
-        # container = get_app_container_from_args(args)
-        # container.create
-        # rescue OpenShift::Runtime::UserCreationException => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return 129, e.message
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
         return exitcode, output
       end
 
       def oo_app_destroy(args)
         @logger.debug "oo_app_destroy"
-        # skip_hooks = args['--skip-hooks'] ? args['--skip-hooks'] : false
-        # output     = ""
-        # begin
-        # container    = get_app_container_from_args(args)
-        # out, err, rc = container.destroy(skip_hooks)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # output << out
-        # output << err
-        # return rc, output
-        # end
         run_command(__method__, args)
       end
 
       def oo_activate(args)
         @logger.debug "oo_activate"
-        # deployment_id  = args['--with-deployment-id']
-        # out = StringIO.new
-        # err = StringIO.new
-        # addtl_params = nil
-
-        # rc, output = with_container_from_args(args) do |container|
-        #  container.activate(deployment_id: deployment_id, out: out, err: err)
-        #  addtl_params = {deployments: container.calculate_deployments}
-        # end
-
-        # return rc, output, addtl_params
         run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_add(args)
         @logger.debug "oo_authorized_ssh_key_add"
-        # ssh_key  = args['--with-ssh-key']
-        # key_type = args['--with-ssh-key-type']
-        # comment  = args['--with-ssh-key-comment']
-
-        # with_container_from_args(args) do |container|
-        # container.add_ssh_key(ssh_key, key_type, comment)
-        # end
         run_command(__method__, args)
       end
 
       def oo_authorized_ssh_key_remove(args)
         @logger.debug "oo_authorized_ssh_key_remove"
-        # ssh_key = args['--with-ssh-key']
-        # comment = args['--with-ssh-comment']
-
-        # with_container_from_args(args) do |container|
-        # container.remove_ssh_key(ssh_key, comment)
-        # end
         run_command(__method__, args)
       end
 
       def oo_authorized_ssh_keys_replace(args)
         @logger.debug "oo_authorized_ssh_keys_replace"
-        # ssh_keys  = args['--with-ssh-keys'] || []
-
-        # begin
-        # container = get_app_container_from_args(args)
-        # container.replace_ssh_keys(ssh_keys)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, ""
-        # end
         run_command(__method__, args)
       end
 
       def oo_broker_auth_key_add(args)
         @logger.debug "oo_broker_auth_key_add"
-        # iv    = args['--with-iv']
-        # token = args['--with-token']
-
-        # with_container_from_args(args) do |container|
-        # container.add_broker_auth(iv, token)
-        # end
         return run_command(__method__, args)
       end
 
       def oo_broker_auth_key_remove(args)
         @logger.debug "oo_broker_auth_key_remove"
-        # with_container_from_args(args) do |container|
-        # container.remove_broker_auth
-        # end
         return run_command(__method__, args)
       end
 
       def oo_env_var_add(args)
         @logger.debug "oo_env_var_add"
-        # key   = args['--with-key']
-        # value = args['--with-value']
-
-        # with_container_from_args(args) do |container|
-        # container.add_env_var(key, value)
-        # end
         return run_command(__method__, args)
       end
 
       def oo_env_var_remove(args)
         @logger.debug "oo_env_var_remove"
-        # key = args['--with-key']
-
-        # with_container_from_args(args) do |container|
-        # container.remove_env_var(key)
-        # end
         return run_command(__method__, args)
       end
 
@@ -370,78 +197,25 @@ module MCollective
         exitcode, output = run_command(__method__, args)
         @logger.debug exitcode
         @logger.debug output
-        # list_descriptors = true if args['--with-descriptors']
-        # porcelain = true if args['--porcelain']
-
-        # output = ""
-        # begin
-        # @logger.debug "should lits cartridges"
-        # # output = OpenShift::Runtime::Node.get_cartridge_list(list_descriptors, porcelain, false)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
         return exitcode, output
       end
 
       def oo_app_state_show(args)
         @logger.debug "oo_app_state_show"
         run_command(__method__, args)
-        # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
-        # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.state.value
-        # end
       end
 
       def oo_get_quota(args)
         @logger.debug "oo_get_quota"
-        # uuid = args['--uuid'].to_s if args['--uuid']
-
-        # output = ""
-        # begin
-        # @logger.debug "should get quota"
-        # # output = OpenShift::Runtime::Node.get_quota(uuid)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
       end
 
       def oo_set_quota(args)
         @logger.debug "oo_set_quota"
-        # uuid = args['--uuid'].to_s if args['--uuid']
-        # blocks = args['--blocks']
-        # inodes = args['--inodes']
-
-        # output = ""
-        # begin
-        # @logger.debug "should set quota"
-        # #output = OpenShift::Runtime::Node.set_quota(uuid, blocks, inodes)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
       end
 
       def oo_force_stop(args)
         @logger.debug "oo_force_stop"
-        # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
-        # app_uuid = args['--with-app-uuid'].to_s if args['--with-app-uuid']
-
-        # with_container_from_args(args) do |container|
-        # container.force_stop
-        # end
+        run_command(__method__, args)
       end
 
 
@@ -450,45 +224,20 @@ module MCollective
       # follow proper exception handling pattern.
       #
       def with_frontend_rescue_pattern
+        #TODO See if we can remove this
         @logger.debug "with_frontend_rescue_pattern"
+        raise "HTTP.SYS can take care of proxying requests"
         output = ""
-        # begin
-        # yield(output)
-        # rescue OpenShift::Runtime::FrontendHttpServerExecException => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return e.rc, e.message + e.stdout + e.stderr
-        # rescue OpenShift::Runtime::FrontendHttpServerException => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return 129, e.message
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
       end
 
       def with_frontend_from_args(args)
         @logger.debug "with_frontend_from_args"
-        # container_uuid = args['--with-container-uuid'].to_s if args['--with-container-uuid']
-        # container_name = args['--with-container-name'].to_s if args['--with-container-name']
-        # namespace = args['--with-namespace'].to_s if args['--with-namespace']
-
-        # with_frontend_rescue_pattern do |o|
-        # frontend = OpenShift::Runtime::FrontendHttpServer.new(OpenShift::Runtime::ApplicationContainer.from_uuid(container_uuid))
-        # yield(frontend, o)
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def with_frontend_returns_data(args)
         @logger.debug "with_frontend_returns_data"
-        # with_frontend_from_args(args) do |f, o|
-        # r = yield(f, o)
-        # o << "CLIENT_RESULT: " + r.to_json + "\n"
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       #
@@ -497,24 +246,17 @@ module MCollective
       #
       def oo_frontend_create(args)
         @logger.debug "oo_frontend_create"
-        # with_frontend_from_args(args) do |f, o|
-        # f.create
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_destroy(args)
         @logger.debug "oo_frontend_destroy"
-        # with_frontend_from_args(args) do |f, o|
-        # f.destroy
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_update_name(args)
         @logger.debug "oo_frontend_update_name"
-        # new_container_name = args['--with-new-container-name']
-        # with_frontend_from_args(args) do |f, o|
-        # f.update_name(new_container_name)
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       #
@@ -525,10 +267,7 @@ module MCollective
       #
       def oo_frontend_connect(args)
         @logger.debug "oo_frontend_connect"
-        # path_target_options = args['--with-path-target-options']
-        # with_frontend_from_args(args) do |f, o|
-        # f.connect(*path_target_options)
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       #
@@ -536,117 +275,77 @@ module MCollective
       # ex: [ "", "/health", ... ]
       def oo_frontend_disconnect(args)
         @logger.debug "oo_frontend_disconnect"
-        # paths = args['--with-paths']
-        # with_frontend_from_args(args) do |f, o|
-        # f.disconnect(*paths)
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_connections(args)
         @logger.debug "oo_frontend_connections"
-        # with_frontend_returns_data(args) do |f, o|
-        # f.connections.to_json
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_idle(args)
         @logger.debug "oo_frontend_idle"
-        # with_frontend_from_args(args) do |f, o|
-        # f.idle
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_unidle(args)
         @logger.debug "oo_frontend_unidle"
-        # with_frontend_from_args(args) do |f, o|
-        # f.unidle
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_check_idle(args)
         @logger.debug "oo_frontend_check_idle"
-        # with_frontend_returns_data(args) do |f, o|
-        # f.idle?
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_sts(args)
         @logger.debug "oo_frontend_sts"
-        # max_age = args['--with-max-age']
-        # with_frontend_from_args(args) do |f, o|
-        # f.sts(max_age)
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_no_sts(args)
         @logger.debug "oo_frontend_no_sts"
-        # with_frontend_from_args(args) do |f, o|
-        # f.no_sts
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_frontend_get_sts(args)
         @logger.debug "oo_frontend_get_sts"
-        # with_frontend_returns_data(args) do |f, o|
-        # f.get_sts
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_add_alias(args)
         @logger.debug "oo_add_alias"
-        # alias_name = args['--with-alias-name']
-        # with_frontend_from_args(args) do |f, o|
-        # f.add_alias(alias_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_remove_alias(args)
         @logger.debug "oo_remove_alias"
-        # alias_name = args['--with-alias-name']
-        # with_frontend_from_args(args) do |f, o|
-        # f.remove_alias(alias_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_aliases(args)
         @logger.debug "oo_aliases"
-        # with_frontend_returns_data(args) do |f, o|
-        # f.aliases(alias_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_ssl_cert_add(args)
         @logger.debug "oo_ssl_cert_add"
-        # ssl_cert     = args['--with-ssl-cert']
-        # priv_key     = args['--with-priv-key']
-        # server_alias = args['--with-alias-name']
-        # passphrase   = args['--with-passphrase']
-
-        # with_frontend_from_args(args) do |f, o|
-        # f.add_ssl_cert(ssl_cert, priv_key, server_alias, passphrase)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_ssl_cert_remove(args)
         @logger.debug "oo_ssl_cert_remove"
-        # server_alias = args['--with-alias-name']
-        # with_frontend_from_args(args) do |f, o|
-        # f.remove_ssl_cert(server_alias)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_ssl_certs(args)
         @logger.debug "oo_ssl_certs"
-        # with_frontend_returns_data do |f, o|
-        # f.ssl_certs
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_frontend_to_hash(args)
         @logger.debug "oo_frontend_to_hash"
-        # with_frontend_returns_data(args) do |f, o|
-        # f.to_hash
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       # The backup is just a JSON encoded string
@@ -656,238 +355,107 @@ module MCollective
       #
       def oo_frontend_backup(args)
         @logger.debug "oo_frontend_backup"
-        # oo_frontend_to_hash(args)
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       # Does an implicit instantiation of the FrontendHttpServer class.
       def oo_frontend_restore(args)
         @logger.debug "oo_frontend_restore"
-        # backup = args['--with-backup']
-
-        # with_frontend_rescue_pattern do |o|
-        # OpenShift::Runtime::FrontendHttpServer.json_create({'data' => JSON.parse(backup)})
-        # end
+        raise "HTTP.SYS can take care of proxying requests"
       end
 
       def oo_tidy(args)
         @logger.debug "oo_tidy"
-        # with_container_from_args(args) do |container|
-        # container.tidy
-        # end
         run_command(__method__, args)
       end
 
       def oo_expose_port(args)
         @logger.debug "oo_expose_port"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.create_public_endpoints(cart_name)
-        # end
         run_command(__method__, args)
       end
 
       def oo_conceal_port(args)
         @logger.debug "oo_conceal_port"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.delete_public_endpoints(cart_name)
-        # end
         run_command(__method__, args)
       end
 
       def oo_connector_execute(args)
         @logger.debug "oo_connector_execute"
-        #cart_name        = args['--cart-name']
-        #pub_cart_name    = args['--publishing-cart-name']
-        #hook_name        = args['--hook-name']
-        #connection_type  = args['--connection-type']
-        #input_args       = args['--input-args']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.connector_execute(cart_name, pub_cart_name, connection_type, hook_name, input_args)
-        # end
-
         run_command(__method__, args)
       end
 
       def oo_configure(args)
         @logger.debug "oo_configure"
-        # cart_name        = args['--cart-name']
-        # template_git_url = args['--with-template-git-url']
-        # manifest         = args['--with-cartridge-manifest']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.configure(cart_name, template_git_url, manifest)
-        # end
         run_command(__method__, args)
       end
 
       def oo_update_configuration(args)
         @logger.debug "oo_update_configuration"
-        #config  = args['--with-config']
-        #auto_deploy = config['auto_deploy']
-        #deployment_branch = config['deployment_branch']
-        #keep_deployments = config['keep_deployments']
-        #deployment_type = config['deployment_type']
-
-        #with_container_from_args(args) do |container|
-        #  container.set_auto_deploy(auto_deploy)
-        #  container.set_deployment_branch(deployment_branch)
-        #  container.set_keep_deployments(keep_deployments)
-        #  container.set_deployment_type(deployment_type)
-        #end
         run_command(__method__, args)
       end
 
       def oo_post_configure(args)
         @logger.debug "oo_post_configure"
-        # cart_name = args['--cart-name']
-        # template_git_url = args['--with-template-git-url']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.post_configure(cart_name, template_git_url)
-        # end
         run_command(__method__, args)
       end
 
       def oo_deconfigure(args)
         @logger.debug "oo_deconfigure"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.deconfigure(cart_name)
-        # end
         run_command(__method__, args)
       end
 
       def oo_unsubscribe(args)
         @logger.debug "oo_unsubscribe"
         run_command(__method__, args)
-
-        # cart_name     = args['--cart-name']
-        # pub_cart_name = args['--publishing-cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.unsubscribe(cart_name, pub_cart_name).to_s
-        # end
       end
 
       def oo_deploy_httpd_proxy(args)
         @logger.debug "oo_deploy_httpd_proxy"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container|
-        # container.deploy_httpd_proxy(cart_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_remove_httpd_proxy(args)
         @logger.debug "oo_remove_httpd_proxy"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container|
-        # container.remove_httpd_proxy(cart_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_restart_httpd_proxy(args)
         @logger.debug "oo_restart_httpd_proxy"
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container|
-        # container.restart_httpd_proxy(cart_name)
-        # end
+        raise "Load Balancer will be deployed on Linux"
       end
 
       def oo_system_messages(args)
         @logger.debug "oo_system_messages"
-        # cart_name = args['--cart-name']
-
-        # output = ""
-        # begin
-        # @logger.debug "should find system messages for node"
-        # # output = OpenShift::Runtime::Node.find_system_messages(cart_name)
-        # rescue Exception => e
-        # Log.instance.info e.message
-        # Log.instance.info e.backtrace
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
-      end
+        raise "Load Balancer will be deployed on Linux"      end
 
       def oo_start(args)
         @logger.debug "oo_start"
         run_command(__method__, args)
-        #exitcode, output = Powershell.run_command(__method__, args)
-        #@logger.debug exitcode
-        #@logger.debug output
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.start(cart_name)
-        # end
       end
 
       def oo_stop(args)
         @logger.debug "oo_stoping"
         run_command(__method__, args)
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.stop(cart_name)
-        # end
       end
 
       def oo_restart(args)
         @logger.debug "oo_restart"
         run_command(__method__, args)
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.restart(cart_name)
-        # end
       end
 
       def oo_reload(args)
         @logger.debug "oo_reload"
         run_command(__method__, args)
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.reload(cart_name)
-        # end
       end
 
       def oo_status(args)
         @logger.debug "oo_status"
         run_command(__method__, args)
-        # cart_name = args['--cart-name']
-
-        # with_container_from_args(args) do |container, output|
-        # output << container.status(cart_name)
-        # end
       end
 
       def oo_threaddump(args)
         @logger.debug "oo_threaddump"
-        # cart_name = args['--cart-name']
-
-        # output = ""
-        # begin
-        # container = get_app_container_from_args(args)
-        # output    = container.threaddump(cart_name)
-        # rescue OpenShift::Runtime::Utils::ShellExecutionException => e
-        # Log.instance.info "#{e.message}\n#{e.backtrace}\n#{e.stderr}"
-        # return e.rc, "CLIENT_ERROR: action 'threaddump' failed #{e.message} #{e.stderr}"
-        # rescue Exception => e
-        # Log.instance.info "#{e.message}\n#{e.backtrace}"
-        # return -1, e.message
-        # else
-        # return 0, output
-        # end
+        #TODO we need to implement this
       end
 
       #
@@ -895,36 +463,6 @@ module MCollective
       #
       def set_district_action
         @logger.debug "set_district_action"
-        # Log.instance.info("set_district call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
-        # validate :uuid, /^[a-zA-Z0-9]+$/
-        # uuid = request[:uuid].to_s if request[:uuid]
-        # active = request[:active]
-
-        # begin
-        # district_home = '/var/lib/openshift/.settings'
-        # FileUtils.mkdir_p(district_home)
-
-        # File.open(File.join(district_home, 'district.info'), 'w') { |f|
-        # f.write("#Do not modify manually!\nuuid='#{uuid}'\nactive='#{active}'\n")
-        # }
-
-        # Facter.add(:district_uuid) do
-        # setcode { uuid }
-        # end
-        # Facter.add(:district_active) do
-        # setcode { active }
-        # end
-
-
-        # reply[:output]   = "created/updated district #{uuid} with active = #{active}"
-        # reply[:exitcode] = 0
-        # rescue Exception => e
-        # reply[:output]   = e.message
-        # reply[:exitcode] = 255
-        # reply.fail! "set_district failed #{reply[:exitcode]}.  Output #{reply[:output]}"
-        # end
-
-        # Log.instance.info("set_district (#{reply[:exitcode]})\n------\n#{reply[:output]}\n------)")
         uuid = request[:uuid].to_s if request[:uuid]
         active = request[:active]
         first_uid = request[:first_uid]
@@ -943,44 +481,7 @@ module MCollective
 
       def set_district_uid_limits_action
         @logger.debug "set_district_action"
-        #Log.instance.info("set_district_uid_limits call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
         first_uid = request[:first_uid]
-        max_uid = request[:max_uid]
-        #
-        #begin
-        #  district_home = PathUtils.join(@@config.get('GEAR_BASE_DIR'), '.settings')
-        #  PathUtils.flock('/var/lock/oo-district-info') do
-        #    district_info = PathUtils.join(district_home, 'district.info')
-        #    text = File.read(district_info)
-        #
-        #    new_first_uid = "first_uid=#{first_uid}"
-        #    result = text.gsub!(/first_uid=\d+/, new_first_uid)
-        #    text << "#{new_first_uid}\n" if result.nil?
-        #
-        #    new_max_uid = "max_uid=#{max_uid}"
-        #    result = text.gsub!(/max_uid=\d+/, new_max_uid)
-        #    text << "#{new_max_uid}\n" if result.nil?
-        #
-        #    File.open(district_info, 'w') {|f| f.puts text}
-        #  end
-        #
-        #  Facter.add(:district_first_uid) do
-        #    setcode { first_uid }
-        #  end
-        #  Facter.add(:district_max_uid) do
-        #    setcode { max_uid }
-        #  end
-        #
-        #  reply[:output]   = "updated district uid limits with first_uid = #{first_uid}, max_uid = #{max_uid}"
-        #  reply[:exitcode] = 0
-        #rescue Exception => e
-        #  reply[:output]   = e.message
-        #  reply[:exitcode] = 255
-        #  reply.fail! "set_district_uid_limits failed #{reply[:exitcode]}.  Output #{reply[:output]}"
-        #end
-        #
-
-        #Log.instance.info("set_district_uid_limits (#{reply[:exitcode]})\n------\n#{reply[:output]}\n------)")
         args = "-FirstUid #{first_uid} -MaxUid #{max_uid}"
 
         rc, output = run_command(__method__, args)
@@ -1029,8 +530,6 @@ module MCollective
       def get_gear_envs_action
         @logger.debug "get_gear_envs_action"
         validate :uuid, /^[a-zA-Z0-9]+$/
-        # dir = OpenShift::Runtime::ApplicationContainer.from_uuid(request[:uuid].to_s).container_dir
-        # env_hash = OpenShift::Runtime::Utils::Environ.for_gear(dir)
         args = "-Uuid #{request[:uuid]}"
         rc, output = run_command(__method__, args)
         reply[:output] =  JSON.parse(output)
@@ -1042,15 +541,10 @@ module MCollective
       #
       def has_uid_or_gid_action
         @logger.debug "has_uid_or_gid_action"
-        # validate :uid, /^[0-9]+$/
-        # uid  = request[:uid].to_i
-
-
-        # # FIXME: Etc.getpwuid() and Etc.getgrgid() would be much faster
         #TODO get path from config
         uid  = request[:uid]
-        uids = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
-        gids = IO.readlines("C:/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
+        uids = IO.readlines("C:/openshift/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
+        gids = IO.readlines("C:/openshift/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
 
         if uids.include?(uid) || gids.include?(uid)
           reply[:output] = true
@@ -1065,26 +559,11 @@ module MCollective
       #
       def has_app_cartridge_action
         @logger.debug "has_app_cartridge_action"
-        # validate :app_uuid, /^[a-zA-Z0-9]+$/
-        # validate :gear_uuid, /^[a-zA-Z0-9]+$/
-        # validate :cartridge, /\A[a-zA-Z0-9\.\-\/_]+\z/
 
         app_uuid = request[:app_uuid].to_s if request[:app_uuid]
         gear_uuid = request[:gear_uuid].to_s if request[:gear_uuid]
         cart_name = request[:cartridge]
 
-        # begin
-        # # container = OpenShift::Runtime::ApplicationContainer.from_uuid(gear_uuid)
-        # # cartridge = container.get_cartridge(cart_name)
-        # reply[:output] = (not cartridge.nil?)
-        # reply[:exitcode] = 0
-        # rescue Exception => e
-        # Log.instance.error e.message
-        # Log.instance.error e.backtrace.join("\n")
-        # reply[:output] = false
-        # reply[:exitcode] = 1
-        # end
-        # reply
         args = "-AppUuid #{app_uuid} -GearUuid #{gear_uuid} -CartName #{cart_name}"
         rc, output = run_command(__method__, args)
         reply[:output] = output
@@ -1096,33 +575,11 @@ module MCollective
       #
       def get_all_gears_action
         @logger.debug "get_all_gears_action"
-        # gear_map = {}
-
-        # uid_map          = {}
-        # uids             = IO.readlines("/etc/passwd").map { |line|
-        # uid               = line.split(":")[2]
-        # username          = line.split(":")[0]
-        # uid_map[username] = uid
-        # }
-        # dir              = "/var/lib/openshift/"
-        # filelist         = Dir.foreach(dir) { |file|
-        # if File.directory?(dir+file) and not File.symlink?(dir+file) and not file[0]=='.'
-        # if uid_map.has_key?(file)
-        # if request[:with_broker_key_auth]
-        # next unless File.exists?(File.join(dir, file, ".auth/token"))
-        # end
-
-        # gear_map[file] = uid_map[file]
-        # end
-        # end
-        # }
-        # reply[:output]   = gear_map
-        # reply[:exitcode] = 0
-        @logger.debug "get_all_gears_action"
         gear_map = {}
 
         uid_map          = {}
-        uids             = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line|
+        #TODO get path from config
+        uids             = IO.readlines("C:/openshift/cygwin/installation/etc/passwd").map { |line|
           uid               = line.split(":")[2]
           username          = line.split(":")[0]
           uid_map[username] = uid
@@ -1142,7 +599,6 @@ module MCollective
             end
           end
         }
-
         reply[:output]   = gear_map
         reply[:exitcode] = 0
       end
@@ -1153,6 +609,7 @@ module MCollective
       def get_all_gears_sshkeys_action
         @logger.debug "get_all_gears_sshkeys_action"
         gear_map = {}
+        #TODO get path from config
         dir              = "c:/openshift/gears/"
         filelist         = Dir.foreach(dir) do |gear_file|
           if File.directory?(dir + gear_file) and not File.symlink?(dir + gear_file) and not gear_file[0] == '.'
@@ -1180,6 +637,7 @@ module MCollective
       def get_all_active_gears_action
         @logger.debug "get_all_active_gears_action"
         active_gears     = {}
+        #TODO get path from config
         dir              = "c:/openshift/gears/"
         filelist         = Dir.foreach(dir) { |file|
           if File.directory?(dir+file) and not File.symlink?(dir+file) and not file[0]=='.'
@@ -1211,52 +669,30 @@ module MCollective
         args = args + "-Version #{version} " if version
         args = args + "-CartridgeVersion #{cartridge_version}" if cartridge_version
         rc, output =run_command(__method__, args)
-        # reply[:output] = "#{action} succeeded for #{path}"
-        #begin
-        #  case action
-        #    when 'install'
-        #      @logger.debug "cartridge_repository_action install"
-        #      run_command(__method__, args)
-              # ::OpenShift::Runtime::CartridgeRepository.instance.install(path)
-        #    when 'erase'
-        #      @logger.debug "cartridge_repository_action erase"
-        #      run_command(__method__, args)
-              #::OpenShift::Runtime::CartridgeRepository.instance.erase(name, version, cartridge_version)
-        #    when 'list'
-        #      @logger.debug "cartridge_repository_action list"
-        #      run_command(__method__, args)
-              #reply[:output] = ::OpenShift::Runtime::CartridgeRepository.instance.to_s
-        #    else
-        #      reply.fail(
-        #          "#{action} is not implemented. openshift.ddl may be out of date.",
-        #          2)
-        #      return
-        #  end
-          # rescue Exception => e
-          # Log.instance.info("cartridge_repository_action(#{action}): failed #{e.message}\n#{e.backtrace}")
-          # reply.fail!("#{action} failed for #{path} #{e.message}", 4)
-        #end
         reply[:output] = output
         reply[:exitcode] = rc
       end
 
       def oo_user_var_add(args)
         variables = {}
+        vars = ""
         if args['--with-variables']
-          JSON.parse(args['--with-variables']).each {|env| variables[env['name']] = env['value']}
+          JSON.parse(args['--with-variables']).each {|env|
+            variables[env['name']] = env['value']
+            vars = vars + "#{env['name']}=#{env['value']} "
+          }
+
         end
         gears = args['--with-gears'] ? args['--with-gears'].split(';') : []
 
         if variables.empty? and gears.empty?
           return -1, "In #{__method__} at least user environment variables or gears must be provided for #{args['--with-app-name']}"
         end
+        args['--with-variables'] = "#{vars}"
 
         @logger.debug "ENV_VARIABLES: #{variables}"
 
         rc, output = run_command(__method__, args)
-        #with_container_from_args(args) do |container|
-        #  rc, output = container.user_var_add(variables, gears)
-        #end
         return rc, output
       end
 
@@ -1269,35 +705,12 @@ module MCollective
 
         exitcode, output = run_command(__method__, args)
         return exitcode, output
-        #
-        #keys  = args['--with-keys'].split(' ')
-        #gears = args['--with-gears'] ? args['--with-gears'].split(';') : []
-        #
-        #rc, output = 0, ''
-        #with_container_from_args(args) do |container|
-        #  rc, output = container.user_var_remove(keys, gears)
-        #end
-        #return rc, output
         return 0, ''
       end
 
       def oo_user_var_list(args)
         @logger.debug "oo_user_var_list"
         @logger.debug "method is #{__method__.to_s}"
-        #keys = args['--with-keys'] ? args['--with-keys'].split(' ') : []
-        #
-        #output = ''
-        #begin
-        #  container = get_app_container_from_args(args)
-        #  list      = container.user_var_list(keys)
-        #  output    = 'CLIENT_RESULT: ' + list.to_json
-        #rescue Exception => e
-        #  report_exception e
-        #  Log.instance.info "#{e.message}\n#{e.backtrace}"
-        #  return 1, e.message
-        #else
-        #  return 0, output
-        #end
         exitcode, output = run_command(__method__, args)
         return exitcode, output
       end
@@ -1322,38 +735,6 @@ module MCollective
         gear_map = {}
         @logger.debug "get_all_gears_endpoints_action"
         rc, output = run_command(__method__, '')
-        #  openshift_users.each do |gear_uuid, _|
-        #    cont      = OpenShift::Runtime::ApplicationContainer.from_uuid(gear_uuid)
-        #    env       = OpenShift::Runtime::Utils::Environ::for_gear(cont.container_dir)
-        #    endpoints = []
-        #     cont.cartridge_model.each_cartridge do |cart|
-        #      cart.public_endpoints.each do |ep|
-        #        endpoint_create_hash = {"cartridge_name"   => cart.name+'-'+cart.version,
-        #                                "external_port"    => env[ep.public_port_name],
-        #                                "internal_address" => env[ep.private_ip_name],
-        #                                "internal_port"    => ep.private_port,
-        #                                "protocols"        => ep.protocols,
-        #                                "type"             => []
-        #        }
-        #
-        #        if cart.web_proxy?
-        #          endpoint_create_hash['protocols'] = cont.cartridge_model.primary_cartridge.public_endpoints.first.protocols
-        #          endpoint_create_hash['type']      = ["load_balancer"]
-        #        elsif cart.web_framework?
-        #          endpoint_create_hash['type'] = ["web_framework"]
-        #        elsif cart.categories.include? "database"
-        #          endpoint_create_hash['type'] = ["database"]
-        #        elsif cart.categories.include? "plugin"
-        #          endpoint_create_hash['type'] = ["plugin"]
-        #        else
-        #          endpoint_create_hash['type'] = ["other"]
-        #        end
-        #        endpoint_create_hash['mappings'] = ep.mappings.map { |m| {"frontend" => m.frontend, "backend" => m.backend} } if ep.mappings
-        #        endpoints << endpoint_create_hash
-        #      end
-        #    end
-        #    gear_map[gear_uuid] = endpoints.dup if endpoints.length > 0
-        #  end
 
         reply[:output]   =  JSON.parse(output)
         reply[:exitcode] = rc
