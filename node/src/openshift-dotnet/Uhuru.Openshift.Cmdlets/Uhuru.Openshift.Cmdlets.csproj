@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cartridge_Repository_Action.cs" />
     <Compile Include="Get_All_Gears_Endpoints_Action.cs" />
     <Compile Include="Get_Gear_Envs_Action.cs" />
     <Compile Include="Has_App_Cartridge_Action.cs" />

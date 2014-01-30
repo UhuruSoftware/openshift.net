@@ -820,8 +820,8 @@ module MCollective
 
       def oo_start(args)
         @logger.debug "oo_start"
-		    run_command(__method__, args)
-		    #exitcode, output = Powershell.run_command(__method__, args)
+        run_command(__method__, args)
+        #exitcode, output = Powershell.run_command(__method__, args)
         #@logger.debug exitcode
         #@logger.debug output
         # cart_name = args['--cart-name']
@@ -931,17 +931,17 @@ module MCollective
       #
       def has_app_action
         @logger.debug "has_app_action"
-         validate :uuid, /^[a-zA-Z0-9]+$/
-         validate :application, /^[a-zA-Z0-9]+$/
-         uuid = request[:uuid].to_s if request[:uuid]
-         app_name = request[:application]
+        validate :uuid, /^[a-zA-Z0-9]+$/
+        validate :application, /^[a-zA-Z0-9]+$/
+        uuid = request[:uuid].to_s if request[:uuid]
+        app_name = request[:application]
         if File.exist?("C:/openshift/gears/#{uuid}/#{app_name}")
-         #if File.exist?("/var/lib/openshift/#{uuid}/#{app_name}")
-         reply[:output] = true
-         else
-         reply[:output] = false
-         end
-         reply[:exitcode] = 0
+          #if File.exist?("/var/lib/openshift/#{uuid}/#{app_name}")
+          reply[:output] = true
+        else
+          reply[:output] = false
+        end
+        reply[:exitcode] = 0
       end
 
       #
@@ -949,16 +949,16 @@ module MCollective
       #
       def has_embedded_app_action
         @logger.debug "has_embedded_app_action"
-         validate :uuid, /^[a-zA-Z0-9]+$/
-         validate :embedded_type, /^.+$/
-         uuid = request[:uuid].to_s if request[:uuid]
-         embedded_type = request[:embedded_type]
-         if File.exist?("C:/openshift/gears/#{uuid}/#{embedded_type}")
-         reply[:output] = true
-         else
-         reply[:output] = false
-         end
-         reply[:exitcode] = 0
+        validate :uuid, /^[a-zA-Z0-9]+$/
+        validate :embedded_type, /^.+$/
+        uuid = request[:uuid].to_s if request[:uuid]
+        embedded_type = request[:embedded_type]
+        if File.exist?("C:/openshift/gears/#{uuid}/#{embedded_type}")
+          reply[:output] = true
+        else
+          reply[:output] = false
+        end
+        reply[:exitcode] = 0
       end
 
       #
@@ -966,7 +966,7 @@ module MCollective
       #
       def get_gear_envs_action
         @logger.debug "get_gear_envs_action"
-         validate :uuid, /^[a-zA-Z0-9]+$/
+        validate :uuid, /^[a-zA-Z0-9]+$/
         # dir = OpenShift::Runtime::ApplicationContainer.from_uuid(request[:uuid].to_s).container_dir
         # env_hash = OpenShift::Runtime::Utils::Environ.for_gear(dir)
         args = "-Uuid #{request[:uuid]}"
@@ -986,16 +986,16 @@ module MCollective
 
         # # FIXME: Etc.getpwuid() and Etc.getgrgid() would be much faster
         #TODO get path from config
-         uid  = request[:uid]
-         uids = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
-         gids = IO.readlines("C:/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
+        uid  = request[:uid]
+        uids = IO.readlines("C:/cygwin/installation/etc/passwd").map { |line| line.split(":")[2].to_i }
+        gids = IO.readlines("C:/cygwin/installation/etc/group").map { |line| line.split(":")[2].to_i }
 
-         if uids.include?(uid) || gids.include?(uid)
-         reply[:output] = true
-         else
-         reply[:output] = false
-         end
-         reply[:exitcode] = 0
+        if uids.include?(uid) || gids.include?(uid)
+          reply[:output] = true
+        else
+          reply[:output] = false
+        end
+        reply[:exitcode] = 0
       end
 
       #
@@ -1137,31 +1137,45 @@ module MCollective
       def cartridge_repository_action
         @logger.debug "cartridge_repository_action"
         # Log.instance.info("action: #{request.action}_action, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
-        # action            = request[:action]
-        # path              = request[:path]
-        # name              = request[:name]
-        # version           = request[:version]
-        # cartridge_version = request[:cartridge_version]
+        action            = request[:action]
+        path              = request[:path]
+        name              = request[:name]
+        version           = request[:version]
+        cartridge_version = request[:cartridge_version]
 
+        args = "-Action #{action} "
+        args = args + "-Path #{path} " if path
+        args = args + "-Name #{name} " if name
+        args = args + "-Version #{version} " if version
+        args = args + "-CartridgeVersion #{cartridge_version}" if cartridge_version
+        rc, output =run_command(__method__, args)
         # reply[:output] = "#{action} succeeded for #{path}"
-        # begin
-        # case action
-        # when 'install'
-        # ::OpenShift::Runtime::CartridgeRepository.instance.install(path)
-        # when 'erase'
-        # ::OpenShift::Runtime::CartridgeRepository.instance.erase(name, version, cartridge_version)
-        # when 'list'
-        # reply[:output] = ::OpenShift::Runtime::CartridgeRepository.instance.to_s
-        # else
-        # reply.fail(
-        # "#{action} is not implemented. openshift.ddl may be out of date.",
-        # 2)
-        # return
-        # end
-        # rescue Exception => e
-        # Log.instance.info("cartridge_repository_action(#{action}): failed #{e.message}\n#{e.backtrace}")
-        # reply.fail!("#{action} failed for #{path} #{e.message}", 4)
-        # end
+        #begin
+        #  case action
+        #    when 'install'
+        #      @logger.debug "cartridge_repository_action install"
+        #      run_command(__method__, args)
+              # ::OpenShift::Runtime::CartridgeRepository.instance.install(path)
+        #    when 'erase'
+        #      @logger.debug "cartridge_repository_action erase"
+        #      run_command(__method__, args)
+              #::OpenShift::Runtime::CartridgeRepository.instance.erase(name, version, cartridge_version)
+        #    when 'list'
+        #      @logger.debug "cartridge_repository_action list"
+        #      run_command(__method__, args)
+              #reply[:output] = ::OpenShift::Runtime::CartridgeRepository.instance.to_s
+        #    else
+        #      reply.fail(
+        #          "#{action} is not implemented. openshift.ddl may be out of date.",
+        #          2)
+        #      return
+        #  end
+          # rescue Exception => e
+          # Log.instance.info("cartridge_repository_action(#{action}): failed #{e.message}\n#{e.backtrace}")
+          # reply.fail!("#{action} failed for #{path} #{e.message}", 4)
+        #end
+        reply[:output] = output
+        reply[:exitcode] = rc
       end
 
       def oo_user_var_add(args)
@@ -1246,38 +1260,38 @@ module MCollective
         gear_map = {}
         @logger.debug "get_all_gears_endpoints_action"
         rc, output = run_command(__method__, '')
-      #  openshift_users.each do |gear_uuid, _|
-      #    cont      = OpenShift::Runtime::ApplicationContainer.from_uuid(gear_uuid)
-      #    env       = OpenShift::Runtime::Utils::Environ::for_gear(cont.container_dir)
-      #    endpoints = []
-      #     cont.cartridge_model.each_cartridge do |cart|
-      #      cart.public_endpoints.each do |ep|
-      #        endpoint_create_hash = {"cartridge_name"   => cart.name+'-'+cart.version,
-      #                                "external_port"    => env[ep.public_port_name],
-      #                                "internal_address" => env[ep.private_ip_name],
-      #                                "internal_port"    => ep.private_port,
-      #                                "protocols"        => ep.protocols,
-      #                                "type"             => []
-      #        }
-      #
-      #        if cart.web_proxy?
-      #          endpoint_create_hash['protocols'] = cont.cartridge_model.primary_cartridge.public_endpoints.first.protocols
-      #          endpoint_create_hash['type']      = ["load_balancer"]
-      #        elsif cart.web_framework?
-      #          endpoint_create_hash['type'] = ["web_framework"]
-      #        elsif cart.categories.include? "database"
-      #          endpoint_create_hash['type'] = ["database"]
-      #        elsif cart.categories.include? "plugin"
-      #          endpoint_create_hash['type'] = ["plugin"]
-      #        else
-      #          endpoint_create_hash['type'] = ["other"]
-      #        end
-      #        endpoint_create_hash['mappings'] = ep.mappings.map { |m| {"frontend" => m.frontend, "backend" => m.backend} } if ep.mappings
-      #        endpoints << endpoint_create_hash
-      #      end
-      #    end
-      #    gear_map[gear_uuid] = endpoints.dup if endpoints.length > 0
-      #  end
+        #  openshift_users.each do |gear_uuid, _|
+        #    cont      = OpenShift::Runtime::ApplicationContainer.from_uuid(gear_uuid)
+        #    env       = OpenShift::Runtime::Utils::Environ::for_gear(cont.container_dir)
+        #    endpoints = []
+        #     cont.cartridge_model.each_cartridge do |cart|
+        #      cart.public_endpoints.each do |ep|
+        #        endpoint_create_hash = {"cartridge_name"   => cart.name+'-'+cart.version,
+        #                                "external_port"    => env[ep.public_port_name],
+        #                                "internal_address" => env[ep.private_ip_name],
+        #                                "internal_port"    => ep.private_port,
+        #                                "protocols"        => ep.protocols,
+        #                                "type"             => []
+        #        }
+        #
+        #        if cart.web_proxy?
+        #          endpoint_create_hash['protocols'] = cont.cartridge_model.primary_cartridge.public_endpoints.first.protocols
+        #          endpoint_create_hash['type']      = ["load_balancer"]
+        #        elsif cart.web_framework?
+        #          endpoint_create_hash['type'] = ["web_framework"]
+        #        elsif cart.categories.include? "database"
+        #          endpoint_create_hash['type'] = ["database"]
+        #        elsif cart.categories.include? "plugin"
+        #          endpoint_create_hash['type'] = ["plugin"]
+        #        else
+        #          endpoint_create_hash['type'] = ["other"]
+        #        end
+        #        endpoint_create_hash['mappings'] = ep.mappings.map { |m| {"frontend" => m.frontend, "backend" => m.backend} } if ep.mappings
+        #        endpoints << endpoint_create_hash
+        #      end
+        #    end
+        #    gear_map[gear_uuid] = endpoints.dup if endpoints.length > 0
+        #  end
 
         reply[:output]   =  JSON.parse(output)
         reply[:exitcode] = rc
