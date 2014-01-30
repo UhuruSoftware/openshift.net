@@ -110,6 +110,8 @@
     <Content Include="OO-Cmdlets\oo-reload.ps1" />
     <Content Include="OO-Cmdlets\oo-restart.ps1" />
     <Content Include="OO-Cmdlets\oo-user-var-remove.ps1" />
+    <Content Include="OO-Cmdlets\set-district-action.ps1" />
+    <Content Include="OO-Cmdlets\set-district-uid-limits-action.ps1" />
     <Content Include="Tools\mcollective\any_validator.ddl" />
     <Content Include="Tools\mcollective\any_validator.rb" />
     <Content Include="Tools\mcollective\client.cfg.template" />

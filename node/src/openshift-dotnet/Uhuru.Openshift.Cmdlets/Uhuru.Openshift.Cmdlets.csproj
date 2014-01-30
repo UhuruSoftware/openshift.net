@@ -96,6 +96,8 @@
     <Compile Include="OO_User_Var_Remove.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnStatus.cs" />
+    <Compile Include="Set_District_Action.cs" />
+    <Compile Include="Set_District_Uid_Limits_Action.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">

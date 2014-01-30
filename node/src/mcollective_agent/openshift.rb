@@ -915,6 +915,7 @@ module MCollective
         # setcode { active }
         # end
 
+
         # reply[:output]   = "created/updated district #{uuid} with active = #{active}"
         # reply[:exitcode] = 0
         # rescue Exception => e
@@ -924,6 +925,67 @@ module MCollective
         # end
 
         # Log.instance.info("set_district (#{reply[:exitcode]})\n------\n#{reply[:output]}\n------)")
+        uuid = request[:uuid].to_s if request[:uuid]
+        active = request[:active]
+        first_uid = request[:first_uid]
+        max_uid = request[:max_uid]
+
+        args = "-Uuid #{uuid} " if uuid
+        args = args + "-Active #{active} " if active
+        args = args + "-FirstUid #{first_uid} " if first_uid
+        args = args + "-MaxUid #{max_uid} " if max_uid
+
+        rc, output = run_command(__method__, args)
+        reply[:output] = output
+        reply[:exitcode] = rc
+
+      end
+
+      def set_district_uid_limits_action
+        @logger.debug "set_district_action"
+        #Log.instance.info("set_district_uid_limits call / action: #{request.action}, agent=#{request.agent}, data=#{request.data.pretty_inspect}")
+        first_uid = request[:first_uid]
+        max_uid = request[:max_uid]
+        #
+        #begin
+        #  district_home = PathUtils.join(@@config.get('GEAR_BASE_DIR'), '.settings')
+        #  PathUtils.flock('/var/lock/oo-district-info') do
+        #    district_info = PathUtils.join(district_home, 'district.info')
+        #    text = File.read(district_info)
+        #
+        #    new_first_uid = "first_uid=#{first_uid}"
+        #    result = text.gsub!(/first_uid=\d+/, new_first_uid)
+        #    text << "#{new_first_uid}\n" if result.nil?
+        #
+        #    new_max_uid = "max_uid=#{max_uid}"
+        #    result = text.gsub!(/max_uid=\d+/, new_max_uid)
+        #    text << "#{new_max_uid}\n" if result.nil?
+        #
+        #    File.open(district_info, 'w') {|f| f.puts text}
+        #  end
+        #
+        #  Facter.add(:district_first_uid) do
+        #    setcode { first_uid }
+        #  end
+        #  Facter.add(:district_max_uid) do
+        #    setcode { max_uid }
+        #  end
+        #
+        #  reply[:output]   = "updated district uid limits with first_uid = #{first_uid}, max_uid = #{max_uid}"
+        #  reply[:exitcode] = 0
+        #rescue Exception => e
+        #  reply[:output]   = e.message
+        #  reply[:exitcode] = 255
+        #  reply.fail! "set_district_uid_limits failed #{reply[:exitcode]}.  Output #{reply[:output]}"
+        #end
+        #
+
+        #Log.instance.info("set_district_uid_limits (#{reply[:exitcode]})\n------\n#{reply[:output]}\n------)")
+        args = "-FirstUid #{first_uid} -MaxUid #{max_uid}"
+
+        rc, output = run_command(__method__, args)
+        reply[:output] = output
+        reply[:exitcode] = rc
       end
 
       #
