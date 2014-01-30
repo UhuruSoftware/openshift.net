@@ -87,5 +87,29 @@ namespace Uhuru.Openshift.Runtime.Utils
                 dirInfo.SetAccessControl(dirSecurity);
             }
         }
+
+        public static void TakeOwnershipOfGearHome(string gearHome, string prisonUser)
+        {
+            Logger.Debug("Setting ownership and acls for gear {0}", gearHome);
+
+            string[] userDirectories = Directory.GetDirectories(gearHome);
+
+            foreach (string dir in userDirectories)
+            {
+                if (new string[] { ".ssh" }.Contains(Path.GetFileName(dir)))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    LinuxFiles.TakeOwnership(dir, prisonUser);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", gearHome, ex.Message, ex.StackTrace);
+                }
+            }
+        }
     }
 }

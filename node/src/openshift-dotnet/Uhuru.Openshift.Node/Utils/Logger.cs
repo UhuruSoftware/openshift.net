@@ -15,6 +15,7 @@ namespace Uhuru.Openshift.Runtime
     using Uhuru.Openshift.Runtime.Config;
     using System.IO;
     using NLog.Config;
+    using System;
 
     /// <summary>
     /// This is a helper logger class that is used throughout the code.
@@ -34,7 +35,18 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                return logFile == null ? NodeConfig.Values["PLATFORM_LOG_FILE"] : logFile;
+                if (logFile != null)
+                {
+                    return logFile;
+                }
+                else if (Environment.GetEnvironmentVariable("OPENSHIFT_HOMEDIR") != null)
+                {
+                    return Path.Combine(Environment.GetEnvironmentVariable("OPENSHIFT_HOMEDIR"), @"log\platform.log");
+                }
+                else
+                {
+                    return NodeConfig.Values["PLATFORM_LOG_FILE"];
+                }
             }
             set
             {

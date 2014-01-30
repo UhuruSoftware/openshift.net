@@ -10,7 +10,7 @@ $env:IISHWC_PID_FILE = $IISHWC_PID_FILE
 #Start the software the cartridge controls
 function start-cartridge
 {
-    if (process_running "powershell" $IISHWC_PID_FILE)
+    if (process_running "cmd" $IISHWC_PID_FILE)
     {
         Write-Host "Cartridge already running"
     }
@@ -22,7 +22,7 @@ function start-cartridge
         $logDir = (Join-Path $env:OPENSHIFT_DOTNET_DIR 'log')
         New-Item -path $logDir -type directory -Force | Out-Null
 
-        $job = Start-Process powershell -argument "$env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat  1>> ${logDir}\stdout.log 2>> ${logDir}\stderr.log" -passthru -windowstyle hidden
+        $job = Start-Process -PassThru -WindowStyle Hidden 'cmd' "/c $env:OPENSHIFT_DOTNET_DIR\bin\iishwc\start.bat  1>> ${logDir}\stdout.log 2>> ${logDir}\stderr.log"
         $job.Id > $IISHWC_PID_FILE
     }
 
@@ -32,7 +32,7 @@ function start-cartridge
 #Stop the software the cartridge controls
 function stop-cartridge
 {
-    if (process_running "powershell" $IISHWC_PID_FILE)
+    if (process_running "cmd" $IISHWC_PID_FILE)
     {
         Write-Host "Stopping"
         $jobid = [int](Get-Content $IISHWC_PID_FILE)
@@ -52,7 +52,7 @@ function status-cartridge
 {
     Write-Host "Retrieving cartridge"
 
-    if (process_running "powershell" $IISHWC_PID_FILE)
+    if (process_running "cmd" $IISHWC_PID_FILE)
     {
         client_result "Application is running"
     }

@@ -24,12 +24,12 @@ $node = $webConfig.SelectSingleNode("/configuration/system.web/compilation/@targ
 if ($node)
 {
     Write-Host("Application requires asp.net v4.0");
-	$version = 40
+    $version = 40
 }
 else
 {
     Write-Host("Application requires asp.net v2.0");
-	$version = 20
+    $version = 20
 }
 
 $rootWebConfigFileName = "rootWeb" + $version + $bitness + ".config"

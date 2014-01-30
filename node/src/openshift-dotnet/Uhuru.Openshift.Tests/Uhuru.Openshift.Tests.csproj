@@ -61,6 +61,7 @@
     <Compile Include="Unit\NodeTest.cs" />
     <Compile Include="Unit\ContainerTest.cs" />
     <Compile Include="Unit\LoggerTest.cs" />
+    <Compile Include="Unit\UniquePredictablePortTest.cs" />
     <Compile Include="Unit\ParseConfigTest.cs" />
   </ItemGroup>
   <ItemGroup>

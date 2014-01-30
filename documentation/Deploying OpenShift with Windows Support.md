@@ -13,7 +13,16 @@ Next to this we're going to setup a Windows VM that will connect to the Linux Op
 Linux VM download location
 
 RPM fedora location
+RPMs can be found [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required to download the packages.
 
+Installation:
+
+	wget http://<user>:<password>@winjenkins.hosts.uhuruos.com/uhuruorigin-0.<version>.rpm
+	yum remove uhuruorigin
+	yum install uhuruorigin-0.<version>.rpm
+	service mcollective restart
+	service openshift-broker restart
+	(cd /var/www/openshift/broker/; bundle exec rake tmp:clear)
 
 ## Windows Prerequisites ##
 

@@ -165,7 +165,7 @@ $null = $appSettings.AppendChild($element)
 
 $webConfig.Save($webConfigPath)
 
-New-Item -Path (Join-Path $env:OPENSHIFT_DOTNET_DIR '\tmp\IIS Temporary Compressed Files') -Force -ErrorAction SilentlyContinue -Type Directory | Out-Null
+# New-Item -Path (Join-Path $env:OPENSHIFT_DOTNET_DIR '\tmp\IIS Temporary Compressed Files') -Force -ErrorAction SilentlyContinue -Type Directory | Out-Null
 
 Write-Output("Starting IIS Process")
 

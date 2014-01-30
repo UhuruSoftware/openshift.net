@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Utilities;
@@ -33,7 +34,13 @@ namespace Uhuru.Openshift.Runtime
 
             prisonRules.CellType = Uhuru.Prison.RuleType.None;
             prisonRules.CellType = Uhuru.Prison.RuleType.WindowStation;
+            prisonRules.CellType = Prison.RuleType.Httpsys;
+
+
             prisonRules.PrisonHomePath = container.ContainerDir;
+            prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
+
+            Logger.Debug("Assigning port {0} to gear {1}", prisonRules.UrlPortAccess, container.Uuid);
 
             prison.Lockdown(prisonRules);
 
@@ -57,15 +64,9 @@ namespace Uhuru.Openshift.Runtime
 
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
 
-            //Logger.Debug("Setting ownership and acls for gear {0}", container.Uuid);
-            //try
-            //{
-            //    LinuxFiles.TakeOwnership(container.ContainerDir, prison.User.Username);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", container.Uuid, ex.Message, ex.StackTrace);
-            //}
+            container.AddEnvVar("PRISON_PORT", prisonRules.UrlPortAccess.ToString());
+
+            LinuxFiles.TakeOwnershipOfGearHome(this.container.ContainerDir, prison.User.Username);
         }
 
         public string Destroy()

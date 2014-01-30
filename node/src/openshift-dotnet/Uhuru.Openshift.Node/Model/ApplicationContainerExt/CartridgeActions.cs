@@ -207,7 +207,6 @@ namespace Uhuru.Openshift.Runtime
             applicationRepository.Archive(repoDir, options["ref"]);
 
             Prepare(options);
-
             Distribute(options);
             Activate(options);
         }

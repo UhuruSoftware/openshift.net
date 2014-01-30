@@ -1,8 +1,10 @@
 ﻿using NetFwTypeLib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -10,19 +12,6 @@ namespace Uhuru.Openshift.Common.Utils
 {
     public class Network
     {
-        /// <summary>
-        /// This method returns a free port.
-        /// </summary>
-        /// <returns>An int that is the free port.</returns>
-        public static int GrabEphemeralPort()
-        {
-            TcpListener socket = new TcpListener(IPAddress.Any, 0);
-            socket.Start();
-            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
-            socket.Stop();
-            return port;
-        }
-
         public static void OpenFirewallPort(string port, string name)
         {
             Type netFwOpenPortType = Type.GetTypeFromProgID("HNetCfg.FWOpenPort");
@@ -45,6 +34,45 @@ namespace Uhuru.Openshift.Common.Utils
             INetFwMgr mgr = (INetFwMgr)Activator.CreateInstance(netFwMgrType);
             INetFwOpenPorts openPorts = (INetFwOpenPorts)mgr.LocalPolicy.CurrentProfile.GloballyOpenPorts;
             openPorts.Remove(Convert.ToInt32(port), NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP);
+        }
+
+        public static int GetUniquePredictablePort(string portCounterFile)
+        {
+            if (string.IsNullOrWhiteSpace(portCounterFile))
+            {
+                throw new ArgumentNullException("portCounterFile");
+            }
+
+            int counter = 0;
+
+            if (File.Exists(portCounterFile))
+            {
+                string strCounter = File.ReadAllText(portCounterFile);
+                Int32.TryParse(strCounter, out counter);
+            }
+
+            int port = 0;
+
+            bool isAvailable = false;
+            while (!isAvailable)
+            {
+                counter++;
+                port = counter % 40000 + 10000;
+
+                TcpClient tcpClient = new TcpClient();
+                try
+                {
+                    tcpClient.Connect("127.0.0.1", port);
+                }
+                catch (Exception)
+                {
+                    isAvailable = true;
+                }
+            }
+
+            File.WriteAllText(portCounterFile, counter.ToString());
+
+            return port;
         }
     }
 }

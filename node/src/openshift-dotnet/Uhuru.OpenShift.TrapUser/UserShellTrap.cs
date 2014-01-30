@@ -69,7 +69,6 @@ namespace Uhuru.OpenShift.TrapUser
         public static int StartShell(string args)
         {
             string assemblyLocation = Path.GetDirectoryName(typeof(UserShellTrap).Assembly.Location);
-            string rcfile = Path.Combine(assemblyLocation, @"mcollective\cmdlets\powershell-alias.sh");
 
             Dictionary<string, string> envVars = new Dictionary<string, string>();
 
@@ -82,12 +81,6 @@ namespace Uhuru.OpenShift.TrapUser
 
             SetupGearEnv(envVars);
 
-            string gearUuid = envVars.ContainsKey("OPENSHIFT_GEAR_UUID") ? envVars["OPENSHIFT_GEAR_UUID"] : string.Empty;
-           
-            var prisons = Prison.Prison.Load();
-
-            var prison = prisons.First(p => p.ID == Guid.Parse(gearUuid.PadLeft(32, '0')));
-
             string arguments = string.Empty;
             if (args.StartsWith("\""))
             {
@@ -98,49 +91,58 @@ namespace Uhuru.OpenShift.TrapUser
                 arguments = Regex.Replace(args, @"\A[^\s]+", "");
             }
 
-            // shellStartInfo.Arguments = string.Format(@"--rcfile ""{0}"" {1}", rcfile, arguments);
-            // shellStartInfo.UseShellExecute = false;
-
-            Logger.Debug("Starting trapped bash for gear {0}", gearUuid);
-
-            //Process shell = Process.Start(shellStartInfo);
-            //shell.WaitForExit();
-
             string bashBin = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\bash.exe");
+            string gearUuid = envVars.ContainsKey("OPENSHIFT_GEAR_UUID") ? envVars["OPENSHIFT_GEAR_UUID"] : string.Empty;
 
-            var process = prison.Execute(bashBin, string.Format("--norc --login --noprofile {0}", arguments), false, envVars);
+            int exitCode = 0;
 
-            process.WaitForExit();
-
-            // Every time the user's session ends, set ownership of files and fix symlinks in the app deployments dir.
-            if (envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]))
+            if (Environment.UserName.StartsWith(Prison.PrisonUser.GlobalPrefix))
             {
-                //Logger.Debug("Setting ownership and acls for gear {0}", gearUuid);
-                //try
-                //{
-                //    LinuxFiles.TakeOwnership(envVars["OPENSHIFT_HOMEDIR"], prison.User.Username);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Logger.Error("There was an error while trying to take ownership for files in gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
-                //}
+                ProcessStartInfo shellStartInfo = new ProcessStartInfo();
+                foreach (string key in envVars.Keys)
+                {
+                    shellStartInfo.EnvironmentVariables[key] = envVars[key];
+                }
 
-                Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
-                try
-                {
-                    LinuxFiles.FixSymlinks(envVars["OPENSHIFT_HOMEDIR"]);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("There was an error while trying to fix symlinks for gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
-                }
+                shellStartInfo.FileName = bashBin;
+                shellStartInfo.Arguments = string.Format(@"--norc --login --noprofile {0}", arguments);
+                shellStartInfo.UseShellExecute = false;
+                Logger.Debug("Started trapped bash for gear {0}", gearUuid);
+                Process shell = Process.Start(shellStartInfo);
+                shell.WaitForExit();
+                exitCode = shell.ExitCode;
             }
             else
             {
-                Logger.Warning("Not fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
+                var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(gearUuid.PadLeft(32, '0')));
+                Logger.Debug("Starting trapped bash for gear {0}", gearUuid);
+                var process = prison.Execute(bashBin, string.Format("--norc --login --noprofile {0}", arguments), false, envVars);
+                process.WaitForExit();
+                exitCode = process.ExitCode;
+
+                string userHomeDir = envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]) ? envVars["OPENSHIFT_HOMEDIR"] : string.Empty;
+
+                if (!string.IsNullOrEmpty(userHomeDir))
+                {
+                    LinuxFiles.TakeOwnershipOfGearHome(userHomeDir, prison.User.Username);
+
+                    Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
+                    try
+                    {
+                        LinuxFiles.FixSymlinks(userHomeDir);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("There was an error while trying to fix symlinks for gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
+                    }
+                }
+                else
+                {
+                    Logger.Warning("Not taking ownership or fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
+                }
             }
 
-            return process.ExitCode;
+            return exitCode;
         }
     }
 }

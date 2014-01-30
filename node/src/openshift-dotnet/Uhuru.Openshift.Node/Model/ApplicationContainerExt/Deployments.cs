@@ -183,6 +183,11 @@ namespace Uhuru.Openshift.Runtime
         public void SyncFiles(string from, string to)
         {
             // TODO use rsync
+            if (Directory.Exists(to))
+            {
+                DirectoryUtil.EmptyDirectory(to);
+            }
+
             DirectoryUtil.DirectoryCopy(from, to, true);
         }
 

@@ -723,14 +723,21 @@ namespace Uhuru.Openshift.Runtime
                 string privateIp = "0.0.0.0";
                 container.AddEnvVar(endpoint.PrivateIpName, privateIp);
 
-                string port = endpoint.PrivatePort == "0" ? Network.GrabEphemeralPort().ToString() : endpoint.PrivatePort;
+                string port = container.ReadEnvVar("PRISON_PORT");
+
+                if (string.IsNullOrWhiteSpace(port))
+                {
+                    Logger.Error("No prison port available for gear {0}", this.container.Uuid);
+                    throw new Exception(string.Format("No prison port available for gear {0}", this.container.Uuid));
+                }
+
                 container.AddEnvVar(endpoint.PrivatePortName, port);
 
-                if (!string.IsNullOrWhiteSpace(endpoint.WebsocketPortName) && !string.IsNullOrWhiteSpace(endpoint.WebsocketPort))
-                {
-                    string websocketPort = endpoint.WebsocketPort == "0" ? Network.GrabEphemeralPort().ToString() : endpoint.WebsocketPort;
-                    container.AddEnvVar(endpoint.WebsocketPortName, websocketPort);
-                }
+                //if (!string.IsNullOrWhiteSpace(endpoint.WebsocketPortName) && !string.IsNullOrWhiteSpace(endpoint.WebsocketPort))
+                //{
+                //    string websocketPort = endpoint.WebsocketPort == "0" ? Network.GrabEphemeralPort().ToString() : endpoint.WebsocketPort;
+                //    container.AddEnvVar(endpoint.WebsocketPortName, websocketPort);
+                //}
             }
         }
     }

@@ -901,10 +901,33 @@ namespace Uhuru.Openshift.Runtime
             File.WriteAllText(fileName, value);
             SetRoPermissions(fileName);
         }
-        
+
         public void AddEnvVar(string key, string value)
         {
             AddEnvVar(key, value, false);
+        }
+
+        public string ReadEnvVar(string key)
+        {
+            return ReadEnvVar(key, false);
+        }
+
+        public string ReadEnvVar(string key, bool prefixCloudName)
+        {
+            string envDir = Path.Combine(this.ContainerDir, ".env");
+            if (prefixCloudName)
+            {
+                key = string.Format("OPENSHIFT_{0}", key);
+            }
+            string fileName = Path.Combine(envDir, key);
+            if (File.Exists(fileName))
+            {
+                return File.ReadAllText(fileName);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public string ForceStop(Dictionary<string, object> options = null)
