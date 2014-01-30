@@ -334,7 +334,7 @@ namespace Uhuru.Openshift.Runtime
             ProcessCartridges(cartridgeDirectory, delegate(string cartridgeDir)
             {
                 string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
-                string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -command {1}", control, action);
+                string cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} -command {2}", ProcessExtensions.Get64BitPowershell(), control, action);
 
                 ProcessResult processResult = container.RunProcessInContainerContext(container.ContainerDir, cmd);
 
@@ -498,7 +498,7 @@ namespace Uhuru.Openshift.Runtime
             }
 
             // TODO: vladi: implement hourglass
-            string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} --version {1}", action, softwareVersion);
+            string cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} --version {2}", ProcessExtensions.Get64BitPowershell(), action, softwareVersion);
             string output = this.container.RunProcessInContainerContext(cartridgeHome, cmd, 0).StdOut;
 
             // TODO: vladi: add logging
@@ -513,7 +513,7 @@ namespace Uhuru.Openshift.Runtime
             string actionHook = Path.Combine(env["OPENSHIFT_REPO_DIR"], ".openshift", "action_hooks", action + ".ps1");
             if (File.Exists(actionHook))
             {
-                string cmd = string.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0}", actionHook);
+                string cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1}", ProcessExtensions.Get64BitPowershell(), actionHook);
 
                 ProcessResult processResult = container.RunProcessInContainerContext(container.ContainerDir, cmd);
 

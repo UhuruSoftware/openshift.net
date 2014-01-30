@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model.ApplicationContainerExt;
+using Uhuru.Openshift.Utilities;
 
 
 namespace Uhuru.Openshift.Runtime
@@ -143,7 +144,8 @@ namespace Uhuru.Openshift.Runtime
             ProcessStartInfo pi = new ProcessStartInfo();
             pi.UseShellExecute = false;
             pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
+            pi.RedirectStandardOutput = true;
+            pi.FileName = ProcessExtensions.Get64BitPowershell();
 
             pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser administrator -key ""{1}""", addKeyScript, key, NodeConfig.Values["SSHD_BASE_DIR"]);
             Process p = Process.Start(pi);

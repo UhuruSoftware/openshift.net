@@ -209,7 +209,8 @@ namespace Uhuru.Openshift.Runtime
             ProcessStartInfo pi = new ProcessStartInfo();
             pi.UseShellExecute = false;
             pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
+            pi.RedirectStandardOutput = true;
+            pi.FileName = ProcessExtensions.Get64BitPowershell();
 
             pi.Arguments = string.Format(
 @"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser administrator -userHomeDir {3} -userShell {4}",
@@ -239,7 +240,8 @@ namespace Uhuru.Openshift.Runtime
             ProcessStartInfo pi = new ProcessStartInfo();            
             pi.UseShellExecute = false;
             pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true; pi.FileName = "powershell.exe";
+            pi.RedirectStandardOutput = true;
+            pi.FileName = ProcessExtensions.Get64BitPowershell();
             
             pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser {3} -key ""{1}""", 
                 addKeyScript, 

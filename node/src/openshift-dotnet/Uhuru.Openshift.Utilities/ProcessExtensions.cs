@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -12,6 +13,13 @@ namespace Uhuru.Openshift.Utilities
         public static void KillProcessAndChildren(this Process process)
         {
             KillProcessAndChildren(process.Id);
+        }
+
+        public static string Get64BitPowershell()
+        {
+            string path = "c:\\windows\\sysnative\\windowspowershell\\v1.0\\powershell.exe";
+            
+            return File.Exists(path) ? path : "powershell.exe";
         }
 
         public static void KillProcessAndChildren(int pid)

@@ -81,6 +81,9 @@ namespace Uhuru.OpenShift.TrapUser
 
             SetupGearEnv(envVars);
 
+            envVars["TEMP"] = Path.Combine(envVars["OPENSHIFT_HOMEDIR"], ".tmp");
+            envVars["TMP"] = envVars["TEMP"];
+
             string arguments = string.Empty;
             if (args.StartsWith("\""))
             {

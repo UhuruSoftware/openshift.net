@@ -36,6 +36,7 @@ namespace Uhuru.Openshift.Runtime
             prisonRules.CellType |= Prison.RuleType.WindowStation;
             prisonRules.CellType |= Prison.RuleType.Httpsys;
             prisonRules.CellType |= Prison.RuleType.IISGroup;
+            prisonRules.CellType |= Prison.RuleType.MsSqlInstance;
 
 
             prisonRules.PrisonHomePath = container.ContainerDir;
@@ -49,7 +50,7 @@ namespace Uhuru.Openshift.Runtime
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
             string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\configure-sshd.ps1"));
 
-            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput("powershell.exe", string.Format(
+            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(ProcessExtensions.Get64BitPowershell(), string.Format(
 @"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}",
                 configureScript,
                 container.Uuid,
