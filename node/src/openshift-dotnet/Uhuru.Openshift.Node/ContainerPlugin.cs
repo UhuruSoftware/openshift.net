@@ -32,9 +32,10 @@ namespace Uhuru.Openshift.Runtime
 
             Uhuru.Prison.PrisonRules prisonRules = new Uhuru.Prison.PrisonRules();
 
-            prisonRules.CellType = Uhuru.Prison.RuleType.None;
-            prisonRules.CellType = Uhuru.Prison.RuleType.WindowStation;
-            prisonRules.CellType = Prison.RuleType.Httpsys;
+            prisonRules.CellType = Prison.RuleType.None;
+            prisonRules.CellType |= Prison.RuleType.WindowStation;
+            prisonRules.CellType |= Prison.RuleType.Httpsys;
+            prisonRules.CellType |= Prison.RuleType.IISGroup;
 
 
             prisonRules.PrisonHomePath = container.ContainerDir;
