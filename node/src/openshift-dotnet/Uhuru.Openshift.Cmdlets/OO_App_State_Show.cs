@@ -30,17 +30,22 @@ namespace Uhuru.Openshift.Cmdlets
         
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
+            ReturnStatus status = new ReturnStatus();
+            
             try
             {
-                string output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value().ToLower());
-                this.WriteObject(output);
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                    WithContainerName, WithNamespace, null, null, null);
+                status.Output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value().ToLower());
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-app-state-show command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

@@ -11,7 +11,8 @@ else
 {
     $argsString = [string]::Join(" ", $args)
     $output = Invoke-Expression "OO-Accept-Node $argsString"
-    write-host $output
+	write-Output $output.Output
+	exit $output.ExitCode
 }
 
 exit 0

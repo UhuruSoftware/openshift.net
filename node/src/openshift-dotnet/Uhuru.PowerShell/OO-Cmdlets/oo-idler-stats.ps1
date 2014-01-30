@@ -10,6 +10,7 @@ if ($helpCommands -contains $args[0])
 else
 {
     $output = OO-Idler-Stats
-    write-host $output
+    write-Output $output.Output
+	exit $output.ExitCode
 }
 exit 0

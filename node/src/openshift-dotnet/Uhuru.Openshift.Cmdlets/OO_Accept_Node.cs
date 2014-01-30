@@ -20,13 +20,15 @@ namespace Uhuru.Openshift.Cmdlets
         public SwitchParameter RunUpgradeChecks;
 
         protected override void ProcessRecord()
-        {            
+        {
+            ReturnStatus status = new ReturnStatus();
+            StringBuilder output = new StringBuilder();
             try
             {
-                WriteVerbose(string.Format("INFO: loading node configuration file {0}", NodeConfig.NodeConfigFile));
+                output.AppendLine(string.Format("INFO: loading node configuration file {0}", NodeConfig.NodeConfigFile));
                 string gearBaseDir = NodeConfig.Values["GEAR_BASE_DIR"];
 
-                WriteVerbose(string.Format("INFO: checking node public hostname resolution"));
+                output.AppendLine(string.Format("INFO: checking node public hostname resolution"));
 
                 try
                 {
@@ -34,22 +36,28 @@ namespace Uhuru.Openshift.Cmdlets
 
                     if (resolvesOk)
                     {
-                        WriteVerbose(string.Format("INFO: {0} resolves to {1}", NodeConfig.Values["PUBLIC_HOSTNAME"], NodeConfig.Values["PUBLIC_IP"]));
+                        output.AppendLine(string.Format("INFO: {0} resolves to {1}", NodeConfig.Values["PUBLIC_HOSTNAME"], NodeConfig.Values["PUBLIC_IP"]));
+                        status.ExitCode = 0;
                     }
                     else
                     {
-                        WriteVerbose(string.Format("ERROR: {0} does not resolve to {1}", NodeConfig.Values["PUBLIC_HOSTNAME"], NodeConfig.Values["PUBLIC_IP"]));
+                        output.AppendLine(string.Format("ERROR: {0} does not resolve to {1}", NodeConfig.Values["PUBLIC_HOSTNAME"], NodeConfig.Values["PUBLIC_IP"]));
+                        status.ExitCode = 1;
                     }
                 }
                 catch (SocketException)
                 {
-                    WriteVerbose(string.Format("ERROR: DNS cannot resolve {0}", NodeConfig.Values["PUBLIC_HOSTNAME"]));
+                    output.AppendLine(string.Format("ERROR: DNS cannot resolve {0}", NodeConfig.Values["PUBLIC_HOSTNAME"]));
+                    status.ExitCode = 1;
                 }
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-accept-node command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.ExitCode = 1;
+                status.Output = ex.ToString();
             }
+            this.WriteObject(status);
         }
     }
 }

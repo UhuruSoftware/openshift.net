@@ -23,8 +23,19 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            string output = Node.GetCartridgeList(WithDescriptors, Porcelain, false);
-            this.WriteObject(output);
+            ReturnStatus status = new ReturnStatus();
+            try
+            {
+                status.Output = Node.GetCartridgeList(WithDescriptors, Porcelain, false);                
+                status.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error running oo-cartridge-list command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
+            }
+            this.WriteObject(status);
         }
     }
 }

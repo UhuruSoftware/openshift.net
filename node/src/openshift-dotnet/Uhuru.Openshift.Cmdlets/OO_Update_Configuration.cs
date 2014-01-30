@@ -42,12 +42,25 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
-            container.SetAutoDeploy(AutoDeploy);
-            container.SetDeploymentBranch(DeploymentBranch);
-            container.SetKeepDeployments(KeepDeployments);
-            container.SetDeploymentType(DeploymentType);
+            ReturnStatus status = new ReturnStatus();
+            try
+            {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                    WithContainerName, WithNamespace, null, null, null);
+                container.SetAutoDeploy(AutoDeploy);
+                container.SetDeploymentBranch(DeploymentBranch);
+                container.SetKeepDeployments(KeepDeployments);
+                container.SetDeploymentType(DeploymentType);
+                status.ExitCode = 0;
+                status.Output = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error running oo-update-configuration command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
+            }
+            this.WriteObject(status);
         }
     }
 }

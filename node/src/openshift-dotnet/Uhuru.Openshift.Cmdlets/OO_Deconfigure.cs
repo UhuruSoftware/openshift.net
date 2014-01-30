@@ -45,16 +45,22 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
+
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                 WithNamespace, null, null, null);
             try
             {
-                this.WriteObject(container.Deconfigure(CartName));
+                status.Output = container.Deconfigure(CartName);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-deconfigure command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

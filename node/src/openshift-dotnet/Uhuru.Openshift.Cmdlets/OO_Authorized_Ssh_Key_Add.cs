@@ -38,10 +38,22 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithSshKeyComment;
 
         protected override void ProcessRecord()
-        {        
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                WithNamespace, null, null, null);
-            this.WriteObject(container.AddSshKey(WithSshKey, WithSshKeyType, WithSshKeyComment));
+        {
+            ReturnStatus status = new ReturnStatus();
+            try
+            {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+                    WithNamespace, null, null, null);
+                status.Output = container.AddSshKey(WithSshKey, WithSshKeyType, WithSshKeyComment);
+                status.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error running oo-authorized-ssh-key-add command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
+            }
+            this.WriteObject(status);
         }
     }
 }

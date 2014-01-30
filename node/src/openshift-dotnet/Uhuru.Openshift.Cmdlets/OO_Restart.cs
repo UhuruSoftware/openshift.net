@@ -49,6 +49,7 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                 WithContainerName, WithNamespace, null, null, null);
             RubyHash options = new RubyHash();
@@ -56,12 +57,16 @@ namespace Uhuru.Openshift.Cmdlets
             options["parallelConcurrencyRatio"] = ParallelConcurrencyRatio;
             try
             {
-                this.WriteObject(container.Restart(CartName, options));
+                status.Output = container.Restart(CartName, options);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-restart command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

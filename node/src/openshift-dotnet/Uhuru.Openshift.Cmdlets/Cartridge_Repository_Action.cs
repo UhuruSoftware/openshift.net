@@ -57,7 +57,7 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("Error running cartridge-repository-actions command: {0} - {1}", ex.Message, ex.StackTrace);
                 returnStatus.Output = ex.ToString();
                 returnStatus.ExitCode = 2;
             }

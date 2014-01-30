@@ -42,16 +42,21 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                 WithContainerName, WithNamespace, null, null, null);
             try
             {
-                this.WriteObject(container.Start(CartName));
+                status.Output = container.Start(CartName);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-start command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

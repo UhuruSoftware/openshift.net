@@ -54,17 +54,23 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
+
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                 WithNamespace, null, null, null);
 
             try
             {
-                this.WriteObject(container.ConnectorExecute(CartName, HookName, PublishingCartName, ConnectionType, InputArgs));
+                status.Output = container.ConnectorExecute(CartName, HookName, PublishingCartName, ConnectionType, InputArgs);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-connector-execute command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

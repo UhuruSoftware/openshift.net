@@ -59,6 +59,7 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
+                Logger.Error("Error running oo-env-var-add command: {0} - {1}", ex.Message, ex.StackTrace);
                 status.Output = ex.ToString();
                 status.ExitCode = -1;
             }

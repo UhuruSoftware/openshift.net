@@ -10,7 +10,8 @@ if ($helpCommands -contains $args[0])
 else
 {
     $output = & OO-Admin-Ctl-Gears $args
-    write-host $output
+    write-Output $output.Output
+	exit $output.ExitCode
 }
 
 exit 0

@@ -17,6 +17,7 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
             try
             {
                 string gearDir = NodeConfig.Values["GEAR_BASE_DIR"];
@@ -24,17 +25,21 @@ namespace Uhuru.Openshift.Cmdlets
 
                 if (gearCount == 0)
                 {
-                    WriteObject("OK: No apps found. Nothing to monitor.");
+                    status.Output = "OK: No apps found. Nothing to monitor.";
                 }
                 else
                 {
-                    WriteObject(String.Format("{0} running, 0 idled", gearCount));
+                    status.Output = String.Format("{0} running, 0 idled", gearCount);
                 }
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-idler-start command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

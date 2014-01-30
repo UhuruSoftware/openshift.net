@@ -48,10 +48,22 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-               WithContainerName, WithNamespace, null, null, null);
+            ReturnStatus status = new ReturnStatus();
+            try
+            {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                   WithContainerName, WithNamespace, null, null, null);
 
-            this.WriteObject(container.AddBrokerAuth(WithIv, WithToken));
+                status.Output = container.AddBrokerAuth(WithIv, WithToken);
+                status.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error running oo-broker-auth-key-add command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
+            }
+            this.WriteObject(status);
         }
 
     }

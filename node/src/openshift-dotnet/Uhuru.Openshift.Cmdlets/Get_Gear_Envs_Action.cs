@@ -30,7 +30,7 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("Error running get-gear-envs-actions command: {0} - {1}", ex.Message, ex.StackTrace);
                 returnStatus.ExitCode = 1;
             }
             

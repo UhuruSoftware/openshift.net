@@ -58,10 +58,11 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("Error running oo-unsubscribe command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            WriteObject(status);
+            this.WriteObject(status);
 
         }
 

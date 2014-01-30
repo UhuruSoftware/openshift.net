@@ -7,6 +7,5 @@ $porcelain = $json.'--porcelain' -as [bool]
 $descriptors = $json.'--with-descriptors' -as [bool]
 
 $output = OO-Cartridge-List -Porcelain $porcelain -WithDescriptors $descriptors -CartName $json.'--cart-name'
-write-host $output
-
-exit 0
+write-Output $output.Output
+exit $output.ExitCode

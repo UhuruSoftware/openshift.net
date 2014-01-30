@@ -42,6 +42,8 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
+
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                WithContainerName, WithNamespace, null, null, null);
 
@@ -68,12 +70,16 @@ namespace Uhuru.Openshift.Cmdlets
                     gears = this.WithGears.Split(';').ToList();
                 }
           
-                WriteObject(container.AddUserVar(variables, gears));
+                status.Output = container.AddUserVar(variables, gears);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-user-var-add command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
 
     }

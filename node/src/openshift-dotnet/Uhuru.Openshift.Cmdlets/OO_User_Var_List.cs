@@ -37,6 +37,8 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
+
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
                 WithContainerName, WithNamespace, null, null, null);
             try
@@ -50,13 +52,16 @@ namespace Uhuru.Openshift.Cmdlets
 
                 Dictionary<string, string> variables = container.UserVarList(keys);
                 
-                this.WriteObject(string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, JsonConvert.SerializeObject(variables)));
-
+                status.Output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, JsonConvert.SerializeObject(variables));
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-user-var-list command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }

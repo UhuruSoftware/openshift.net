@@ -41,6 +41,8 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
+
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
              WithContainerName, WithNamespace, null, null, null);
             try
@@ -57,14 +59,16 @@ namespace Uhuru.Openshift.Cmdlets
                     }
                 }
 
-                container.UserVarRemove(keys,gears);                
-
+                status.Output = container.UserVarRemove(keys,gears);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Logger.Error("Error running oo-user-var-remove command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
-            
+            this.WriteObject(status);
         }
     }
 }

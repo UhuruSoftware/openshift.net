@@ -39,8 +39,7 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
-                //TODO logging
-                Logger.Error(ex.ToString());
+                Logger.Error("Error running has-app-cartridge-action command: {0} - {1}", ex.Message, ex.StackTrace);
                 returnStatus.Output = "false";
                 returnStatus.ExitCode = 1;
             }

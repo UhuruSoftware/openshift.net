@@ -36,12 +36,25 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            string token = null;
-            if (!string.IsNullOrEmpty(WithSecretToken))
-                token = WithSecretToken;
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
-            this.WriteObject(container.Create(token));
+            ReturnStatus status = new ReturnStatus();
+
+            try
+            {
+                string token = null;
+                if (!string.IsNullOrEmpty(WithSecretToken))
+                    token = WithSecretToken;
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                    WithContainerName, WithNamespace, null, null, null);
+                status.Output = container.Create(token);
+                status.ExitCode = 0;
+            }
+            catch(Exception ex)
+            {
+                Logger.Error("Error running oo-app-create command: {0} - {1}", ex.Message, ex.StackTrace);
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
+            }
+            this.WriteObject(status);
         }
     }
 }

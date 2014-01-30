@@ -53,6 +53,7 @@ namespace Uhuru.Openshift.Cmdlets
             }
             catch (Exception ex)
             {
+                Logger.Error("Error running oo-force-stop command: {0} - {1}", ex.Message, ex.StackTrace);
                 status.ExitCode = 1;
                 status.Output = ex.Message;
             }

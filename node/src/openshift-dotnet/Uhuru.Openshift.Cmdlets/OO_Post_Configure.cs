@@ -46,18 +46,21 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            ReturnStatus status = new ReturnStatus();
             try
             {
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                    WithNamespace, null, null, new Hourglass(235));
-
-                this.WriteObject(container.PostConfigure(CartName, TemplateGitUrl));
+                status.Output = container.PostConfigure(CartName, TemplateGitUrl);
+                status.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Logger.Error("Error running oo-post-configure command: {0} - {1}", ex.Message, ex.StackTrace);
-                this.WriteObject(ex.ToString());
+                status.Output = ex.ToString();
+                status.ExitCode = 1;
             }
+            this.WriteObject(status);
         }
     }
 }
