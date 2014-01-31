@@ -70,12 +70,35 @@ namespace Uhuru.Openshift.Runtime
 
             LinuxFiles.TakeOwnershipOfGearHome(this.container.ContainerDir, prison.User.Username);
         }
+        public string RemoveSshdUser()
+        {
+            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
+            string script = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\remove-sshd-user.ps1"));
+
+            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(ProcessExtensions.Get64BitPowershell(), string.Format(
+@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}",
+                script,
+                this.container.Uuid,
+                NodeConfig.Values["SSHD_BASE_DIR"],
+                this.container.ContainerDir,
+                NodeConfig.Values["GEAR_SHELL"],
+                Environment.UserName));
+
+            if (result.ExitCode != 0)
+            {
+                throw new Exception(string.Format("Error deleting sshd user for gear {0} - rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
+            }
+
+            return result.StdOut;
+        }
 
         public string Destroy()
         {
-            string output = this.container.KillProcs();
+            StringBuilder output = new StringBuilder();
+            output.AppendLine(this.container.KillProcs());
+            output.AppendLine(RemoveSshdUser());
             Directory.Delete(this.container.ContainerDir, true);
-            return output;
+            return output.ToString();
         }
 
         public string Stop(dynamic options = null)

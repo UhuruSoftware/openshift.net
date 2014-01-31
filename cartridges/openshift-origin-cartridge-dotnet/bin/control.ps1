@@ -36,7 +36,7 @@ function stop-cartridge
     {
         Write-Host "Stopping"
         $jobid = [int](Get-Content $IISHWC_PID_FILE)
-        Start-Process -Wait -PassThru -NoNewWindow "taskkill" "/F /T /PID ${jobid}"
+        taskkill /F /T /PID $jobid
         Remove-Item $IISHWC_PID_FILE -Force
     }
     else
