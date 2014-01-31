@@ -422,7 +422,7 @@ namespace Uhuru.Openshift.Runtime
             string targetGearUuid = targetGear is string ? (string)targetGear : ((GearRegistry.Entry)targetGear).Uuid;
 
             // TODO: vladi: check if this condition also needs boolean verification on the value in the hash
-            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            if (options["init"] == null && options["rotate"] != null && options["rotate"] && options["hot_deploy"] != null && options["hot_deploy"])
             {
                 result["messages"].Add("Rotating out gear in proxies");
 
@@ -435,7 +435,7 @@ namespace Uhuru.Openshift.Runtime
 
                 result["rotate_out_results"] = rotateOutResults;
 
-                if (rotateOutResults["errors"] != RESULT_SUCCESS)
+                if (rotateOutResults["status"] != RESULT_SUCCESS)
                 {
                     result["errors"].Add("Rotating out gear in proxies failed.");
                     return result;
@@ -458,7 +458,7 @@ namespace Uhuru.Openshift.Runtime
                 return result;
             }
 
-            if (options["init"] == null && options["rotate"] != false && options["hot_deploy"] != true)
+            if (options["init"] == null && options["rotate"] != null && options["rotate"] && options["hot_deploy"] != null && options["hot_deploy"])
             {
                 result["messages"].Add("Rotating in gear in proxies");
 
@@ -738,9 +738,50 @@ namespace Uhuru.Openshift.Runtime
             return result;
         }
 
-        public string RestartGear(object targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
+        public RubyHash RestartGear(object targetGear, Dictionary<string, string> localGearEnv, string cartName, dynamic options)
         {
-            return this.Cartridge.StartCartridge("restart", cartName, options);
+            string targetGearUuid = targetGear is string ? (string)targetGear : ((GearRegistry.Entry)targetGear).Uuid;
+            RubyHash result = new RubyHash()
+            {
+                { "status", RESULT_SUCCESS },
+                { "messages", new List<string>() },
+                { "errors", new List<string>() },
+                { "target_gear_uuid", targetGearUuid }
+            };
+
+            try
+            {
+                if (targetGearUuid == this.Uuid)
+                {
+                    result["messages"].Add(this.Cartridge.StartCartridge("restart", cartName, options));
+                }
+                else
+                {
+
+                    string ooSSH = @"/cygpath/c/openshift/oo-bin/oo-ssh";
+                    string bashBinary = Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], "bin\bash.exe");
+
+                    if (targetGear is string)
+                    {
+                        targetGear = new GearRegistry.Entry(options);
+                    }
+                    string sshCommand = string.Format("{0} {1} gear restart --cart {2} --as-json",
+                        ooSSH, ((GearRegistry.Entry)targetGear).ToSshUrl(), cartName);
+                    string bashArgs = string.Format("--norc --login -c '{0}'", sshCommand);
+                    string command = string.Format("{0} {1}", bashBinary, bashArgs);
+
+                    RunProcessInContainerContext(this.ContainerDir, command);
+
+                }
+            }
+            catch(Exception ex)
+            {
+                result["errors"].Add(ex.ToString());
+                result["status"] = RESULT_FAILURE;
+                Logger.Error(ex.ToString());
+            }
+
+            return result;
         }
 
         public string Reload(string cartName)
