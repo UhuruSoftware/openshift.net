@@ -213,13 +213,13 @@ namespace Uhuru.Openshift.Runtime
             pi.FileName = ProcessExtensions.Get64BitPowershell();
 
             pi.Arguments = string.Format(
-@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser administrator -userHomeDir {3} -userShell {4}",
+@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}",
                 script,
-                this.ApplicationUuid,
+                this.Uuid,
                 NodeConfig.Values["SSHD_BASE_DIR"],
                 this.ContainerDir,
-                NodeConfig.Values["GEAR_SHELL"]);
-
+                NodeConfig.Values["GEAR_SHELL"],
+                Environment.UserName);           
             Process p = Process.Start(pi);
             p.WaitForExit(60000);
             output += p.StandardError.ReadToEnd();
