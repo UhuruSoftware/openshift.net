@@ -318,6 +318,12 @@ if ($skipServicesSetup -eq $false)
     Write-Host 'Starting services ...'
     net start openshift.mcollectived
     net start openshift.sshd
+
+    Write-Host 'Restarting sshd ...'
+    Start-Sleep -s 5
+    net stop openshift.sshd
+    Start-Sleep -s 5
+    net start openshift.sshd
 }
 
 Write-Host "Done." -ForegroundColor Green

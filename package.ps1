@@ -68,7 +68,8 @@ function DoAction-Bootstrap()
     [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file,$destfolder)
     
     Write-Host 'Starting installation ...'
-    powershell.exe -ExecutionPolicy Bypass -nologo -File .\output\powershell\tools\openshift.net\install.ps1
+    cd .\output\powershell\tools\openshift.net\
+    get-help -full .\install.ps1
 }
 
 if ($action -eq 'package')
