@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -61,13 +62,21 @@ namespace Uhuru.Openshift.Utilities
             }
         }
 
-        [DllImport("kernel32.dll")]
-        public static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags);
+        [DllImport("kernel32.dll", SetLastError=true)]
+        private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags);
 
         public enum SymbolicLink
         {
             File = 0,
             Directory = 1
+        }
+
+        public static void CreateSymLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags)
+        {
+            if (!DirectoryUtil.CreateSymbolicLink(lpSymlinkFileName, lpTargetFileName, dwFlags))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
         }
     }
 }

@@ -117,35 +117,43 @@ namespace Uhuru.OpenShift.TrapUser
             }
             else
             {
+                string userHomeDir = envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]) ? envVars["OPENSHIFT_HOMEDIR"] : string.Empty;
+
                 var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(gearUuid.PadLeft(32, '0')));
+
+                FixHomeDir(userHomeDir, prison.User.Username, gearUuid);
+
                 Logger.Debug("Starting trapped bash for gear {0}", gearUuid);
                 var process = prison.Execute(bashBin, string.Format("--norc --login --noprofile {0}", arguments), false, envVars);
                 process.WaitForExit();
                 exitCode = process.ExitCode;
 
-                string userHomeDir = envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]) ? envVars["OPENSHIFT_HOMEDIR"] : string.Empty;
-
-                if (!string.IsNullOrEmpty(userHomeDir))
-                {
-                    LinuxFiles.TakeOwnershipOfGearHome(userHomeDir, prison.User.Username);
-
-                    Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
-                    try
-                    {
-                        LinuxFiles.FixSymlinks(userHomeDir);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("There was an error while trying to fix symlinks for gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
-                    }
-                }
-                else
-                {
-                    Logger.Warning("Not taking ownership or fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
-                }
+                FixHomeDir(userHomeDir, prison.User.Username, gearUuid);
             }
 
             return exitCode;
+        }
+
+        private static void FixHomeDir(string userHomeDir, string username, string gearUuid)
+        {
+            if (!string.IsNullOrEmpty(userHomeDir))
+            {
+                LinuxFiles.TakeOwnershipOfGearHome(userHomeDir, username);
+
+                Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
+                try
+                {
+                    LinuxFiles.FixSymlinks(userHomeDir);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("There was an error while trying to fix symlinks for gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
+                }
+            }
+            else
+            {
+                Logger.Warning("Not taking ownership or fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
+            }
         }
     }
 }

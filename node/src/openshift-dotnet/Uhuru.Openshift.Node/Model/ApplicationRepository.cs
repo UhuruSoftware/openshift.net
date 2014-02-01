@@ -162,6 +162,7 @@ set GIT_DIR=./{2}.git
                 BuildBare(template);
             }
             Configure();
+
             return template;
         }
 
@@ -244,19 +245,12 @@ set GIT_DIR=./{2}.git
 
         private void RunCmd(string cmd, string dir)
         {            
-            string tempfile = Path.GetTempFileName();
-            string batfile = tempfile + ".bat";
-            File.WriteAllText(batfile, cmd);
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.WorkingDirectory = dir;
-            pi.UseShellExecute = true;
-            pi.CreateNoWindow = true;
-            pi.WindowStyle = ProcessWindowStyle.Hidden;
-            pi.FileName = "cmd.exe";
-            pi.Arguments = "/c " + batfile;
-            Process p = Process.Start(pi);
-            p.WaitForExit(30000);            
-            File.Delete(tempfile);
+            string batfile = Path.Combine(this.Container.ContainerDir, string.Format("{0}cmd.bat", Guid.NewGuid().ToString("N")));
+
+            File.WriteAllText(batfile, string.Format("cd /D {0}\r\n{1}", dir, cmd));
+
+            this.Container.RunProcessInContainerContext(dir, string.Format("cmd.exe /c {0}", batfile));
+
             File.Delete(batfile);
         }
     }

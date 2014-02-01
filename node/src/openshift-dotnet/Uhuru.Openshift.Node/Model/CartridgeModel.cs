@@ -360,7 +360,58 @@ namespace Uhuru.Openshift.Runtime
             {
                 repo.Archive(Path.Combine(this.container.ContainerDir, "app-root", "runtime", "repo"), "master");
             }
+
+            var prison = Prison.Prison.LoadPrisonNoAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+
+            // TODO (vladi): make sure there isn't a more elegant way to deal with SQL Server Instances
+            if (cartName == "mssql")
+            {
+                CreateSQLServerInstanceDatabases(cartName, prison);
+            }
+
+            Logger.Debug("Setting permisions to home dir gear {0}, prison user {1}", this.container.Uuid, prison.User.Username);
+            LinuxFiles.TakeOwnershipOfGearHome(this.container.ContainerDir, prison.User.Username);
+
+            string gitDir = Path.Combine(this.container.ContainerDir, "git", "template", ".git");
+            Logger.Debug("Setting permisions to git dir {0}, prison user {1}", gitDir, prison.User.Username);
+            if (Directory.Exists(gitDir))
+            {
+                LinuxFiles.TakeOwnership(gitDir, prison.User.Username);
+            }
+
+            Logger.Debug("Setting permisions to git dir {0}, prison user {1}", repo.RepositoryPath, prison.User.Username);
+            LinuxFiles.TakeOwnership(repo.RepositoryPath, prison.User.Username);
+
             return string.Empty;
+        }
+
+        public void CreateSQLServerInstanceDatabases(string cartName, Prison.Prison prison)
+        {
+            // TODO: vladi: GLOBAL LOCK
+            Logger.Debug("Setting up SQL Server system databases for gear {0}, cart {1}", this.container.Uuid, cartName);
+            
+            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
+            string dbBuilderExe = Path.Combine(binLocation, "MsSQLSysGenerator.exe");
+
+            string sqlServerPassword = NodeConfig.Values["SQL_SERVER_SA_PASSWORD"];
+
+            string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "mssql");
+            string newSAPassword = string.Format("Pr!5{0}", Prison.Utilities.Credentials.GenerateCredential(10));
+
+            string arguments = string.Format("pass={0} dir={1} newPass={2}", sqlServerPassword, destination, newSAPassword);
+
+            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
+
+            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
+
+            Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
+
+            if (result.ExitCode != 0)
+            {
+                throw new Exception(string.Format("Could not create system databases for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
+            }
+
+            // TODO: vladi: GLOBAL LOCK
         }
 
         public string PostConfigure(string cartridgeName)

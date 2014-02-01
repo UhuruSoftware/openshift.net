@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -106,9 +107,9 @@ namespace Uhuru.Openshift.Runtime
         }
 
         string file;
-        Dictionary<string, object> metadata;
+        RubyHash metadata;
 
-        Dictionary<string, object> defaults = new Dictionary<string, object>()
+        RubyHash defaults = new RubyHash
         {
             {"git_ref", "master"},
             {"git_sha", null},
@@ -142,7 +143,7 @@ namespace Uhuru.Openshift.Runtime
 
         public void Load()
         {
-            this.metadata = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(file));
+            this.metadata = JsonConvert.DeserializeObject<RubyHash>(File.ReadAllText(file));
         }
 
         public void Save()

@@ -330,30 +330,32 @@ namespace Uhuru.Openshift.Runtime
             dynamic localGearEnv = Environ.ForGear(this.ContainerDir);
             Manifest proxyCart = this.Cartridge.WebProxy();
             List<object> gears = new List<object>();
-            if (options.ContainsKey("all") && proxyCart != null)
-            {
-                if ((bool)options["all"])
-                {
-                    gears = this.GearRegist.Entries["web"].Keys.ToList<object>();
-                }
-                else if (options.ContainsKey("gears"))
-                {
-                    List<string> g = (List<string>)options["gears"];
-                    gears = this.GearRegist.Entries["web"].Keys.Where(e => g.Contains(e)).ToList<object>();
-                }
-                else
-                {
-                    try
-                    {
-                        gears.Add(this.GearRegist.Entries["web"][this.Uuid]);
-                    }
-                    catch
-                    {
-                        gears.Add(this.Uuid);
-                    }
-                }
-            }
-            else
+
+            // TODO: vladi: verify if this is needed for scalable apps
+            //if (options.ContainsKey("all") && proxyCart != null)
+            //{
+            //    if ((bool)options["all"])
+            //    {
+            //        gears = this.GearRegist.Entries["web"].Keys.ToList<object>();
+            //    }
+            //    else if (options.ContainsKey("gears"))
+            //    {
+            //        List<string> g = (List<string>)options["gears"];
+            //        gears = this.GearRegist.Entries["web"].Keys.Where(e => g.Contains(e)).ToList<object>();
+            //    }
+            //    else
+            //    {
+            //        try
+            //        {
+            //            gears.Add(this.GearRegist.Entries["web"][this.Uuid]);
+            //        }
+            //        catch
+            //        {
+            //            gears.Add(this.Uuid);
+            //        }
+            //    }
+            //}
+            //else
             {
                 gears.Add(this.Uuid);
             }

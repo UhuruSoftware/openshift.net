@@ -38,6 +38,8 @@ namespace Uhuru.Openshift.Common.Utils
 
         public static int GetUniquePredictablePort(string portCounterFile)
         {
+            // TODO: vladi: GLOBAL LOCK
+
             if (string.IsNullOrWhiteSpace(portCounterFile))
             {
                 throw new ArgumentNullException("portCounterFile");
@@ -73,6 +75,8 @@ namespace Uhuru.Openshift.Common.Utils
             File.WriteAllText(portCounterFile, counter.ToString());
 
             return port;
+
+            // TODO: vladi: GLOBAL LOCK
         }
     }
 }

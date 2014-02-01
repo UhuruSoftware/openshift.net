@@ -23,3 +23,9 @@ PLATFORM_LOG_FILE="${platformLogFile}"
 PLATFORM_LOG_LEVEL=${platformLogLevel}
 
 CONTAINERIZATION_PLUGIN=${containerizationPlugin}
+
+# Settings added for the Windows Node
+BIN_DIR="${binDir}"
+SQL_SERVER_SA_PASSWORD="${sqlServerSAPassword}"
+MCOLLECTIVE_LOCATION="${mcollectiveLocation}"
+RUBY_LOCATION="${rubyLocation}"

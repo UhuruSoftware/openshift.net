@@ -63,7 +63,7 @@ namespace Uhuru.Openshift.Runtime.Utils
                 {
                     Logger.Debug("Fixing symlink {0} -> {1}", symlink, target);
                     File.Delete(symlink);
-                    DirectoryUtil.CreateSymbolicLink(symlink, target, DirectoryUtil.SymbolicLink.Directory);
+                    DirectoryUtil.CreateSymLink(symlink, target, DirectoryUtil.SymbolicLink.Directory);
                 }
             }
         }

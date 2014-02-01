@@ -29,25 +29,40 @@ Installation:
 1. Windows Version
 
 	The supported Windows versions are Windows Server 2012 and Windows Server 2012 R2
+- Group policy settings add Local Users to allow creating symlinks
+
+mmc -> add snap in -> group policies -> 
 
 - IIS
 
 	Required features:
 
 - SQL Server 2008
-- mDNS
+
+Needs to be installed with a default instance, with mixed authentication, and please note the password you set for the 'sa' account.
+
+- mDNS (no solution, use hosts file for now)
+
+
 - Build Tools
-- Firewall settings? (don't think these are needed anymore)
+
 
 ## Configuring domains ##
 
 ## Using the Windows Install script ##
 
+
+	E:\Code\openshift.net>build.bat & powershell -File E:\code\openshift.net\output\powershell\Tools\openshift.net\install.p
+	s1 -publicHostname w-vladi2.openshift.local -brokerHost broker-a211bd.openshift.local -sqlServerSAPassword password1234!
+	 -cloudDomain openshift.local -publicIP 10.2.0.104 -externalEthDevice "Ethernet 2" -internalEthDevice "Ethernet 2" -skip
+	Ruby -skipMCollective -skipCygwin -skipChecks -skipGlobalEnv -skipServicesSetup -skipBinDirCleanup
+
+
 ## Creating your first Windows application ##
 
 All OpenShift applications that contain a Windows cartridge must be configured as scalable.
 When you use `rhc` to create a Windows application, make sure to specify the `-s` flag:
-
+ rhc create-app laser dotnet --from-code git://github.com/florindragos/dotnet-sample.git
 	rhc create-app myapp dotnet -s
 
 ## FAQ ##

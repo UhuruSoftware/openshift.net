@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Prison", "windows-pri
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prison", "Prison", "{D4626A91-35DA-4DE3-89DB-DE6D838E89D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.MsSQLSysGenerator", "Uhuru.OpenShift.MsSQLSysGenerator\Uhuru.Openshift.MsSQLSysGenerator.csproj", "{300C20C7-D0ED-4DB5-A40B-16D2E232ADD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -66,6 +68,9 @@ Global
 		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|x64.Build.0 = Debug|x64
 		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|x64.ActiveCfg = Release|x64
 		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|x64.Build.0 = Release|x64
+		{300C20C7-D0ED-4DB5-A40B-16D2E232ADD5}.Debug|x64.ActiveCfg = Debug|x64
+		{300C20C7-D0ED-4DB5-A40B-16D2E232ADD5}.Debug|x64.Build.0 = Debug|x64
+		{300C20C7-D0ED-4DB5-A40B-16D2E232ADD5}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

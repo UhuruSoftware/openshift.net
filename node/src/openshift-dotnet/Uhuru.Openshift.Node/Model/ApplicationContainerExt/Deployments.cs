@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -108,7 +109,7 @@ namespace Uhuru.Openshift.Runtime
 
             string target = Path.Combine(this.ContainerDir, "app-deployments", deploymentDateTime);
             string link = Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId);
-            DirectoryUtil.CreateSymbolicLink(link, target, DirectoryUtil.SymbolicLink.Directory);
+            DirectoryUtil.CreateSymLink(link, target, DirectoryUtil.SymbolicLink.Directory);
         }
 
         public void UnlinkDeploymentId(string deploymentId)
@@ -155,7 +156,7 @@ namespace Uhuru.Openshift.Runtime
                 Directory.Delete(dir, true);
             }
             
-            DirectoryUtil.CreateSymbolicLink(dir, deploymentDateTime, DirectoryUtil.SymbolicLink.Directory);
+            DirectoryUtil.CreateSymLink(dir, deploymentDateTime, DirectoryUtil.SymbolicLink.Directory);
         }
 
         public void SyncDeploymentRepoDirToRuntime(string deploymentDateTime)
@@ -183,6 +184,16 @@ namespace Uhuru.Openshift.Runtime
         public void SyncFiles(string from, string to)
         {
             // TODO use rsync
+            if (!Directory.Exists(from))
+            {
+                return;
+            }
+
+            if (!Directory.Exists(to))
+            {
+                Directory.CreateDirectory(to);
+            }
+
             if (Directory.Exists(to))
             {
                 DirectoryUtil.EmptyDirectory(to);

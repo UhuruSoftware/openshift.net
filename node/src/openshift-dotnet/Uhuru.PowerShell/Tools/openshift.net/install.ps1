@@ -17,6 +17,9 @@
 .PARAMETER cloudDomain
     The domain of the cloud (e.g. mycloud.com).
     
+.PARAMETER sqlServerSAPassword
+    The password for the sa account for the installed instance of SQL Server.
+
 .PARAMETER externalEthDevice
     Public ethernet device.
     
@@ -53,12 +56,6 @@
 .PARAMETER rubyInstallLocation
     Ruby installation location. This is where ruby will be installed on the local machine.
     
-.PARAMETER rubyDevKitDownloadLocation
-    Devkit download location. The installer will download this self extracting archive and set it up.
-    
-.PARAMETER rubyDevKitInstallLocation
-    Ruby devkit installation location. The ruby devkit will be unpacked at this location.
-
 .PARAMETER mcollectiveActivemqServer
     ActiveMQ Host. This is where the ActiveMQ messaging service is installed. It is usually setup in the same place as your broker.
     
@@ -129,6 +126,7 @@ param (
     [string] $publicHostname = $( Read-Host "Public hostname of the machine" ),
     [string] $brokerHost = $( Read-Host "Hostname of the broker" ),
     [string] $cloudDomain = $( Read-Host "Cloud domain" ),
+    [string] $sqlServerSAPassword = $( Read-Host "SQL Server sa password" ),
     [string] $externalEthDevice = 'Ethernet',
     [string] $internalEthDevice = 'Ethernet',
     [string] $publicIp = @((get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq (get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -eq $externalEthDevice }).DeviceID }).IPAddress | where { $_ -notmatch ':' })[0],
@@ -143,8 +141,6 @@ param (
     # parameters used for ruby installation
     [string] $rubyDownloadLocation ='http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.9.3-p448.exe?direct',
     [string] $rubyInstallLocation = 'c:\openshift\ruby\',
-    [string] $rubyDevKitDownloadLocation = 'https://github.com/downloads/oneclick/rubyinstaller/DevKit-tdm-32-4.5.2-20111229-1559-sfx.exe',
-    [string] $rubyDevKitInstallLocation = 'c:\openshift\ruby\devkit\',
     # parameters used for mcollective setup
     [string] $mcollectiveActivemqServer = $brokerHost,
     [int] $mcollectiveActivemqPort = 61613,
@@ -198,8 +194,6 @@ Write-Verbose "Target log level used is '$platformLogLevel'"
 Write-Verbose "Container used is '$containerizationPlugin'"
 Write-Verbose "Ruby download location used is '$rubyDownloadLocation'"
 Write-Verbose "Target ruby installation directory used is '$rubyInstallLocation'"
-Write-Verbose "Ruby devkit download location used is '$rubyDevKitDownloadLocation'"
-Write-Verbose "Target ruby devkit installation directory used is '$rubyDevKitInstallLocation'"
 Write-Verbose "ActiveMQ server used is '$mcollectiveActivemqServer'"
 Write-Verbose "ActiveMQ port used is '$mcollectiveActivemqPort'"
 Write-Verbose "ActiveMQ user used is '$mcollectiveActivemqUser'"
@@ -245,6 +239,10 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     platformLogFile = $platformLogFile
     platformLogLevel = $platformLogLevel
     containerizationPlugin = $containerizationPlugin
+    binDir = $binLocation
+    sqlServerSAPassword = $sqlServerSAPassword
+    mcollectiveLocation = $mcollectivePath
+    rubyLocation = $rubyInstallLocation
 }
 
 # copy binaries
@@ -263,12 +261,6 @@ if ($skipRuby -eq $false)
 {
     Setup-Ruby $rubyDownloadLocation $rubyInstallLocation
 }
-# Setup-RubyDevkit $rubyDevKitDownloadLocation $rubyDevKitInstallLocation
-
-# setup agent - run bundler
-#Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'gem install bundler' $rubyInstallLocation
-#Run-RubyCommand $rubyInstallLocation $rubyDevKitInstallLocation 'bundle install' (Join-Path $binLocation 'mcollective\openshift')
-
 
 Write-Host 'Setting up SSHD ...'
 if ($skipCygwin -eq $false)

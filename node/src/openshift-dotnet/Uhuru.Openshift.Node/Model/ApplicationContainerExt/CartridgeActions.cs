@@ -169,7 +169,7 @@ namespace Uhuru.Openshift.Runtime
                 DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDatetime);
                 if (deploymentMetadata.Activations.Count == 0)
                 {
-                    Prepare(new Dictionary<string, object>() { { "deployment_datetime", deploymentDatetime } });
+                    Prepare(new RubyHash() { { "deployment_datetime", deploymentDatetime } });
                     deploymentMetadata.Load();
                     ApplicationRepository applicationRepository = new ApplicationRepository(this);
                     string gitRef = "master";
@@ -197,6 +197,8 @@ namespace Uhuru.Openshift.Runtime
 
         public void PostReceive(RubyHash options)
         {
+            Logger.Debug("Running post receive for gear {0}", this.Uuid);
+
             Dictionary<string, string> gearEnv = Environ.ForGear(this.ContainerDir);
             
             string repoDir = Path.Combine(this.ContainerDir, "app-root", "runtime", "repo");
@@ -206,13 +208,23 @@ namespace Uhuru.Openshift.Runtime
             ApplicationRepository applicationRepository = new ApplicationRepository(this);
             applicationRepository.Archive(repoDir, options["ref"]);
 
+            options["deployment_datetime"] = this.LatestDeploymentDateTime();
+
+
+            Logger.Debug("Running post receive - prepare for gear {0}", this.Uuid);
             Prepare(options);
+
+            Logger.Debug("Running post receive - distribute for gear {0}", this.Uuid);
             Distribute(options);
+
+            Logger.Debug("Running post receive - activate for gear {0}", this.Uuid);
             Activate(options);
         }
 
         public string Activate(RubyHash options = null)
         {
+            Logger.Debug("Activating gear {0}", this.Uuid);
+
             if(options == null)
             {
                 options = new RubyHash();
@@ -481,11 +493,11 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        public string Prepare(Dictionary<string, object> options = null)
+        public string Prepare(RubyHash options = null)
         {
             if (options == null)
             {
-                options = new Dictionary<string, object>();
+                options = new RubyHash();
             }
             StringBuilder output = new StringBuilder();
             output.AppendLine("Preparing build for deployment");
@@ -518,6 +530,7 @@ namespace Uhuru.Openshift.Runtime
             }
             catch (Exception e)
             {
+                Logger.Error("Error preparing deployment. Options: {0} - {1} - {2}", JsonConvert.SerializeObject(options), e.Message, e.StackTrace);
                 output.AppendLine("Error preparing deployment " + deploymentId);
                 UnlinkDeploymentId(deploymentId);
             }
