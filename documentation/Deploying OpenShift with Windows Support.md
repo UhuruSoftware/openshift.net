@@ -62,6 +62,21 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - Please note the password you set for the `sa` account - you will need to configure the OpenShift node with it
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 
+
+### Screenshots ###
+
+The screenshots below detail how your Windows installation should look like after all the prerequisites are installed.
+
+- **Roles**
+ 
+<img src='required_roles.png'/>
+
+
+- **Features**
+
+<img src='required_features.png'/>
+
+
 ## Setting up hosts ##
 
 Before proceeding with the Windows installation, you have to setup the hosts files on both Windows and Linux (the OpenShift VM uses multicast DNS and Windows does not have a proper solution for this).

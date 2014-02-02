@@ -6,7 +6,7 @@ function Cleanup-Directory($directory)
         takeown /f $directory /r
         $userDomain = [Environment]::UserDomainName
         $userName = [Environment]::UserName
-        Start-Process -Wait -NoNewWindow -PassThru 'icacls' """${directory}"" /grant ${userDomain}\${userName}:F /t"
+        Start-Process -Wait -NoNewWindow -PassThru 'icacls' """${directory}"" /grant ""${userDomain}\${userName}"":F /t"
         Remove-Item -Path $directory -Force -Recurse
     }
 }

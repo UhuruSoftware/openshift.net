@@ -11,19 +11,25 @@
 .NOTES
     Author: Vlad Iovanov
     Date:   January 27, 2014
-
-.EXAMPLE
-.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com
-Install the node by passing the minimum information required. 
-.EXAMPLE
-.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -publicIP 10.2.0.104
-Install the node by also passing the public IP address of the machine.
 #>
 param (
     [Parameter(Mandatory=$true)]
     [ValidateSet('package','bootstrap')]
     [string] $action
 )
+
+# am I running in 32 bit shell?
+if ($pshome -like "*syswow64*") {
+    write-warning "Restarting script under 64 bit powershell"
+ 
+    # relaunch this script under 64 bit shell
+    # if you want powershell 2.0, add -version 2 *before* -file parameter
+    & (join-path ($pshome -replace "syswow64", "sysnative") powershell.exe) -file `
+        (join-path $psscriptroot $myinvocation.mycommand) @args
+ 
+    # exit 32 bit script
+    exit
+}
 
 function DoAction-Package()
 {
@@ -62,13 +68,15 @@ function DoAction-Bootstrap()
 
     [Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" ) | out-null
     $src_file = ".\output.zip"
-    $destfolder = ".\output"
+    $destfolder = "c:\openshift\installer"
+    
+    New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
     Write-Host 'Unpacking files ...'
     [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file,$destfolder)
     
     Write-Host 'Starting installation ...'
-    cd .\output\powershell\tools\openshift.net\
+    cd 'c:\openshift\installer\powershell\tools\openshift.net\'
     get-help -full .\install.ps1
 }
 
