@@ -21,8 +21,10 @@ param (
 if (($pshome -like "*syswow64*") -and ((Get-WmiObject Win32_OperatingSystem).OSArchitecture -like "64*")) {
     write-warning "Restarting script under 64 bit powershell"
  
+    $powershellLocation = join-path ($pshome -replace "syswow64", "sysnative") "powershell.exe"
+    
     # relaunch this script under 64 bit shell
-    & (join-path ($pshome -replace "syswow64", "sysnative")\powershell.exe) -file  $SCRIPT:MyInvocation.MyCommand.Path @args
+    & $powershellLocation -file $SCRIPT:MyInvocation.MyCommand.Path -action $action
  
     # This will exit the original powershell process. This will only be done in case of an x86 process on a x64 OS.
     exit
@@ -72,7 +74,6 @@ function DoAction-Bootstrap()
     Write-Host 'Unpacking files ...'
     [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file,$destfolder)
     
-    Write-Host 'Starting installation ...'
     cd 'c:\openshift\installer\powershell\tools\openshift.net\'
     get-help -full .\install.ps1
 }
