@@ -46,14 +46,6 @@ if ((Test-Path (Join-Path $mcollectivePath 'bin\mcollectived')) -ne $true)
     exit 1
 }
 
-$mcollectiveService = Get-Service mcollectived -ErrorAction SilentlyContinue
-
-if ($mcollectiveService -eq $null)
-{
-    Write-Host "The mcollective binaries are present, but the mcollectived Windows Service is not setup. Make sure the installation was successful." -ForegroundColor red
-    exit 1
-}
-
 $agentDDLFile = Join-Path $binDir "mcollective\openshift.ddl"
 $agentCodeFile = Join-Path $binDir "mcollective\openshift.rb"
 
