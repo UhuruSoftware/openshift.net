@@ -69,6 +69,8 @@ function DoAction-Bootstrap()
     $src_file = ".\output.zip"
     $destfolder = "c:\openshift\installer"
     
+    Remove-Item -Force -Recurse -Path $destfolder -ErrorAction SilentlyContinue
+
     New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
     Write-Host 'Unpacking files ...'
