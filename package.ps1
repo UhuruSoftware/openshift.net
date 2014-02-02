@@ -69,12 +69,16 @@ function DoAction-Bootstrap()
     $src_file = ".\output.zip"
     $destfolder = "c:\openshift\installer"
     
-    Remove-Item -Force -Recurse -Path $destfolder -ErrorAction SilentlyContinue
+    Write-Host "Cleaning up directory $destfolder"
+    Remove-Item -Force -Recurse -Path $destfolder
+
+    Write-Host "Setting up directory $destfolder"
+    New-Item -path $destfolder -type directory -Force -ErrorAction SilentlyContinue
 
     New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
     Write-Host 'Unpacking files ...'
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file,$destfolder)
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file, $destfolder)
     
     cd 'c:\openshift\installer\powershell\tools\openshift.net\'
     get-help -full .\install.ps1
