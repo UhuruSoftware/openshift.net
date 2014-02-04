@@ -238,26 +238,11 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
         {
             Output.WriteInfo("Backing up system");
 
-            //Output.WriteInfo("Stopping default instance");
-            //ServiceController sc = new ServiceController(mssqlDefaultInstanceName);
-            //if (sc.Status != ServiceControllerStatus.Stopped)
-            //{
-            //    sc.Stop();
-            //}
-            //while ((new ServiceController(mssqlDefaultInstanceName)).Status != ServiceControllerStatus.Stopped)
-            //{
-            //    Output.WriteInfo("Waiting For SQL Server To stop.");
-            //    Thread.Sleep(2000);
-            //}
-            //Output.WriteSuccess("Done");
-
-            //Output.WriteInfo("Backing up registry");
             if (!Directory.Exists(backupDirectory))
             {
                 Directory.CreateDirectory(backupDirectory);
             }
          
-            //RegUtil.ExportSqlKey(Path.Combine(backupDirectory, "existing.reg"), mssqlRegPath);
             CopyDefaultInstance();
 
             Output.WriteSuccess("Backup Done!");

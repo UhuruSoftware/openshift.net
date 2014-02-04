@@ -27,7 +27,7 @@ function Write-Template {
     
     $fullScript = [ScriptBlock]::Create("
 `$content = [IO.File]::ReadAllText( `$inFile )
-Invoke-Expression `"@```"``r``n`$content``r``n```"@`" | Out-File $outFile -Encoding ascii
+Invoke-Expression -ErrorAction SilentlyContinue `"@```"``r``n`$content``r``n```"@`" | Out-File $outFile -Encoding ascii
 ")
 
     & $fullScript

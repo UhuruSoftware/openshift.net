@@ -297,6 +297,8 @@ NOTES
 
 From a client machine, use rhc to connect to your OpenShift cloud.
 
+Before creating your app, add the app's hostname to your local hosts file, pointing to the Linux machine, so the git client and your browser know how to resolve that hostname.
+
 All OpenShift applications that contain a Windows cartridge must be configured as scalable.
 When you use `rhc` to create a Windows application, make sure to specify the `-s` flag.
 
