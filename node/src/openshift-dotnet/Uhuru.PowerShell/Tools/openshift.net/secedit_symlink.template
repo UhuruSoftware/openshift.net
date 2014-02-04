@@ -1,0 +1,11 @@
+[Unicode]
+Unicode=yes
+[Privilege Rights]
+SeCreateSymbolicLinkPrivilege = ${seCreateSymbolicLinkPrivilege}
+SeTcbPrivilege = ${seTcbPrivilege}
+SeCreateTokenPrivilege = ${seCreateTokenPrivilege}
+SeServiceLogonRight = ${seServiceLogonRight}
+SeAssignPrimaryTokenPrivilege = ${seAssignPrimaryTokenPrivilege}
+[Version]
+signature="`$CHICAGO`$"
+Revision=1
