@@ -40,7 +40,8 @@ Write-Template (Join-Path $currentDir "sqlserver.reg.template") $registryFile @{
     BaseDir = $currentDir.Replace("\", "\\")
     tcpPort = $port
 }
-& regedit.exe /s $registryFile
+
+& reg import $registryFile /reg:64
 
 # Start the new instance
 $process = (start-process (Join-Path $instanceDir "mssql\binn\sqlservr.exe") "-c -s ${instanceName}" -Passthru -NoNewWindow)

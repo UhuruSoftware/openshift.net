@@ -41,13 +41,7 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 	- NET-WCF-TCP-PortSharing45
 
 
-- Change policy settings to allow users to create symlinks
-	- Start the Microsoft Management Console (`mmc.exe`)
-	- Go to `File -> Add/Remove Snap-In`
-	- Add the `Group Policy Object Editor` for the local computer
-	- Go to `Local Computer Policy -> Computer Configuration -> Windows Settings -> Security Settings -> Local policies -> User Rights Assignment`
-	- Find the `Create symbolic links` policy, double click it
-	- Add the group `Local account` to the list
+- Install the Visual C++ Redistributable Packages for Visual Studio 2013. You can find it [here](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Make sure to download the 'vcredist_x64.exe' version.
 
 
 - Install Internet Information Services

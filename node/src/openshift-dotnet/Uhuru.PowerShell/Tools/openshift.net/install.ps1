@@ -101,6 +101,7 @@
 
 .PARAMETER skipServicesSetup
     This is a switch parameter that allows the user to skip setting up Windows Services for MCollective and SSHD.
+    Skipping this step also skips creating the openshift_service user account and setting its privileges.
     This is useful in development environments, when it's not necessary to restart services (e.g. the developer only wants to update the .NET binaries)
 
 .PARAMETER skipBinDirCleanup
@@ -123,8 +124,8 @@ param (
     # parameters used for setting up the OpenShift Windows Node binaries
     [string] $binLocation = 'c:\openshift\bin\',
     # parameters used for setting ip node configuration file
-    [string] $publicHostname = $( Read-Host "Public hostname of the machine" ),
-    [string] $brokerHost = $( Read-Host "Hostname of the broker" ),
+    [string] $publicHostname = $( Read-Host "Public hostname (FQDN) of the machine" ),
+    [string] $brokerHost = $( Read-Host "Hostname of the broker (FQDN)" ),
     [string] $cloudDomain = $( Read-Host "Cloud domain" ),
     [string] $sqlServerSAPassword = $( Read-Host "SQL Server sa password" ),
     [string] $externalEthDevice = 'Ethernet',
@@ -173,6 +174,9 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 Write-Host 'Installation logs will be written in the c:\openshift\setup_logs'
 New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
+# TODO: vladi: Using a hardcoded mcollective path - this is no longer necessary, we can setup mcollective using a dynamic path
+$mcollectivePath = 'c:\openshift\mcollective\'
+
 
 # TODO: stop existing services?
 
@@ -209,9 +213,11 @@ if ([string]::IsNullOrWhitespace($cloudDomain)) { Write-Error "Cloud domain cann
 
 if ($skipChecks -eq $false)
 {
+    Check-OpenShiftServices
     Write-Host 'Verifying prerequisites ...'
     Check-Elevation
     Check-WindowsVersion
+    Check-VCRedistributable
     $windowsFeatures = @('NET-Framework-Features', 'NET-Framework-Core', 'NET-Framework-45-Features', 'NET-Framework-45-Core', 'NET-Framework-45-ASPNET', 'NET-WCF-Services45', 'NET-WCF-TCP-PortSharing45') 
     $windowsFeatures | ForEach-Object { Check-WindowsFeature $_ }
     $iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
@@ -244,6 +250,13 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     mcollectiveLocation = $mcollectivePath
     rubyLocation = $rubyInstallLocation
 }
+
+if ($skipServicesSetup -eq $false)
+{
+    $openshiftServiceUserPassword = Create-OpenshiftUser
+    Setup-Privileges
+}
+
 
 # copy binaries
 Write-Host 'Copying binaries ...'
@@ -301,29 +314,26 @@ if ($skipServicesSetup -eq $false)
 {
     Remove-Service 'openshift.mcollectived' $sshdCygwinDir
     Remove-Service 'openshift.sshd' $sshdCygwinDir
-
-    $mcollectivePath = 'c:\openshift\mcollective\'
+    
 
     $mcollectiveLib = (Join-Path $mcollectivePath 'lib').Replace("\", "/")
     $mcollectiveBin = (Join-Path $mcollectivePath 'bin\mcollectived')
     $mcollectiveConfig = (Join-Path $mcollectivePath 'etc\server.cfg')
 
-    Create-Service 'openshift.mcollectived' (Join-Path $rubyInstallLocation 'bin\ruby.exe') "-I'${mcollectiveLib};' -- '${mcollectiveBin}' --config '${mcollectiveConfig}'" "OpenShift Windows Node MCollective Service" $sshdCygwinDir
+    Create-Service $openshiftServiceUserPassword 'openshift.mcollectived' (Join-Path $rubyInstallLocation 'bin\ruby.exe') "-I'${mcollectiveLib};' -- '${mcollectiveBin}' --config '${mcollectiveConfig}'" "OpenShift Windows Node MCollective Service" $sshdCygwinDir
 
     $runSSHDScript = (Join-Path $binLocation 'powershell\tools\sshd\run-sshd.ps1')
     $cygwinInstallationPath = (Join-Path $sshdCygwinDir 'installation')
 
-    Create-Service 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
+    Create-Service $openshiftServiceUserPassword 'openshift.sshd' (Get-Command powershell).Path "-File '${runSSHDScript}' -targetDirectory '${cygwinInstallationPath}'" "OpenShift Windows Node SSHD Service" $sshdCygwinDir "/var/run/sshd.pid"
 
     Write-Host 'Starting services ...'
     net start openshift.mcollectived
     net start openshift.sshd
-
-    Write-Host 'Restarting sshd ...'
-    Start-Sleep -s 5
-    net stop openshift.sshd
-    Start-Sleep -s 5
-    net start openshift.sshd
 }
+
+Write-Warning "Please make sure that the Linux host '${brokerHost}' can properly resolve '${publicHostname}'."
+Write-Warning "Please make sure that all hosts, Windows and Linux have their clocks synchronized."
+
 
 Write-Host "Done." -ForegroundColor Green

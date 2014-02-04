@@ -70,6 +70,11 @@ namespace Uhuru.Openshift.Runtime.Utils
 
         public static void TakeOwnership(string directory, string windowsUser)
         {
+            if (!Directory.Exists(directory))
+            {
+                return;
+            }
+
             DirectoryInfo dirInfo = new DirectoryInfo(directory);
             DirectorySecurity dirSecurity = dirInfo.GetAccessControl();
 

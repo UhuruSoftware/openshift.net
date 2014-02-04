@@ -402,14 +402,14 @@ namespace Uhuru.Openshift.Runtime
 
             ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
 
-            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
-
-            Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
-
             if (result.ExitCode != 0)
             {
                 throw new Exception(string.Format("Could not create system databases for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
-            }
+            } 
+            
+            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
+
+            Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
 
             // TODO: vladi: GLOBAL LOCK
         }

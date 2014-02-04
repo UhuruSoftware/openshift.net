@@ -59,22 +59,43 @@ function Check-WindowsFeature($featureName)
     }
 }
 
+function Check-OpenShiftServices()
+{
+    Write-Verbose "Checking if local OpenShift services are stopped ..."
+
+    $sshdService = (get-service 'openshift.sshd' -ErrorAction SilentlyContinue)
+
+    if (($sshdService -ne $null) -and ($sshdService.Status -ne "Stopped"))
+    {
+        Write-Error "The openshift.sshd service is running. Please stop it and then run the install script again."
+        exit 1
+    }
+
+    $mcollectivedService = (get-service 'openshift.mcollectived' -ErrorAction SilentlyContinue)
+
+    if (($mcollectivedService -ne $null) -and ($mcollectivedService.Status -ne "Stopped"))
+    {
+        Write-Error "The openshift.mcollectived service is running. Please stop it and then run the install script again."
+        exit 1
+    }
+}
+
 function Check-SQLServer2008()
 {
     Write-Verbose "Checking if MS SQL Server 2008 is installed ..."
 
-    $mssqlRegistry = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup')
+    $mssqlRegistry = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup' -ErrorAction SilentlyContinue)
 
     if (($mssqlRegistry -eq $null) -or ((Test-Path $mssqlRegistry.SQLPath) -eq $false))
     {
         Write-Error "Prerequisite SQL Server 2008 is not installed. Please install this and then run this script again."
-        # exit 1
+        exit 1
     }
 
     if ((get-service MSSQLSERVER).Status -ne "Stopped")
     {
         Write-Error "The SQL Server 2008 service 'MSSQLSERVER' is running. Please stop and disable the service and then run this script again."
-        # exit 1
+        exit 1
     }
 
     $sqlServerStartMode = Get-WMIObject win32_service -filter "name='mssqlserver'" -computer "." | select -expand startMode
@@ -82,8 +103,22 @@ function Check-SQLServer2008()
     if ($sqlServerStartMode -ne "Disabled")
     {
         Write-Error "The SQL Server 2008 service 'MSSQLSERVER' is not disabled. Please disable the service and then run this script again."
-        #exit 1
+        exit 1
     }
 
     Write-Host "[OK] Prerequisite SQL Server 2008 is installed."
+}
+
+
+function Check-VCRedistributable()
+{
+    $vcRegistry = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\DevDiv\VC\Servicing\12.0\RuntimeMinimum' -ErrorAction SilentlyContinue)
+
+    if (($vcRegistry -eq $null) -or ($vcRegistry.Install -ne 1))
+    {
+        Write-Error "Prerequisite Visual C++ Redistributable for Visual Studio 2013  is not installed. Please install this and then run this script again."
+        exit 1
+    }
+
+    Write-Host "[OK] Prerequisite Visual C++ Redistributable for Visual Studio 2013 is installed."
 }

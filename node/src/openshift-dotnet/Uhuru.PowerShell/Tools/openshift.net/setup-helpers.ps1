@@ -151,3 +151,63 @@ function Setup-RubyDevkit($rubyDevKitDownloadLocation, $rubyDevKitInstallLocatio
         Write-Host "[OK] Ruby devkit installed successfully."
     }
 }
+
+function Get-UpdatedPrivilegeRule($iniDictionary, $privilege, $itemToAdd)
+{
+    $privilegeRightsKey = 'Privilege Rights'
+
+    if ($iniDictionary.ContainsKey($privilegeRightsKey) -eq $false)
+    {
+        Write-Error "Could not find key '${privilegeRightsKey}' in the secedit output."
+        exit 1
+    }
+
+    $existingValues = @()
+
+    if ($iniDictionary[$privilegeRightsKey].ContainsKey($privilege) -eq $true)
+    {
+        $existingValues = $iniDictionary[$privilegeRightsKey][$privilege].Split(',')
+    }
+
+    return [string]::Join(',', $existingValues + $itemToAdd)
+}
+
+function Setup-Privileges()
+{
+    $serviceAccount = 'openshift_service'
+    $outFile = 'c:\openshift\secedit_symlink_out.inf'
+    $inFile = 'c:\openshift\secedit_symlink.inf'
+
+    $sceditProcess = Start-Process -Wait -PassThru -NoNewWindow 'secedit.exe' "/export /cfg ${outFile}"
+
+    $sceditContent = Get-IniContent $outFile
+
+
+    Write-Host 'Setting up symlink privileges ...'
+    $objUser = New-Object System.Security.Principal.NTAccount('Local account')
+    $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
+    $userSID = $strSID.Value
+
+    Write-Template (Join-Path $currentDir "secedit_symlink.template") $inFile @{
+        seCreateSymbolicLinkPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateSymbolicLinkPrivilege' "*${userSID}"
+        seTcbPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeTcbPrivilege' $serviceAccount
+        seCreateTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateTokenPrivilege' $serviceAccount
+        seServiceLogonRight = Get-UpdatedPrivilegeRule $sceditContent 'SeServiceLogonRight' $serviceAccount
+        seAssignPrimaryTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeAssignPrimaryTokenPrivilege' $serviceAccount
+    }
+
+    $sceditProcess = Start-Process -Wait -PassThru -NoNewWindow 'secedit.exe' "/configure /db secedit.sdb /cfg  ${inFile}"
+
+    if ($sceditProcess.ExitCode -ne 0)
+    {
+        Write-Error "Error setting up symlink privileges. Please check install logs."
+        exit 1
+    }
+    else
+    {
+        Write-Host "[OK] Symlink privileges were setup successfully."
+    }
+
+    Remove-Item -Force -Path $inFile
+    Remove-Item -Force -Path $outFile
+}

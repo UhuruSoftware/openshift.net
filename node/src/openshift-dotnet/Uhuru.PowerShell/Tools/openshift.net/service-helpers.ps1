@@ -1,7 +1,58 @@
 
-function Create-Service($name, $exe, $exeArgs, $description, $cygwinPath, $pidFile = $null)
+function Create-OpenshiftUser()
+{
+    $username = 'openshift_service'
+
+    Write-Host "Checking if the '${username}' user exists ..."
+    [ADSI]$localServer="WinNT://${env:COMPUTERNAME}"
+    
+    if ([ADSI]::Exists("WinNT://${env:COMPUTERNAME}/${username}"))
+    {
+        try
+        {
+            Write-Host "Deleting the '${username}' user ..."
+            $localServer.Delete("user", $username)
+        }
+        catch
+        {
+            Write-Error "Could not remove the '${username}' user."
+            exit 1
+        }
+    }
+    try
+    {
+        Write-Host "Creating local '${username}' user ..."
+
+        Write-Host "Generating password for '${username}' user ..."
+        $password = "P1_" + (Get-RandomPassword)
+
+        $objOu = [ADSI]"WinNT://${env:COMPUTERNAME}"
+        $objUser = $objOu.Create('user', $username)
+        $objUser.setpassword($password)
+        $objUser.SetInfo()
+        $objUser.description = "Openshift Windows Node User Account"
+        $objUser.SetInfo()
+
+        Write-Host "Done creating '${username}' user. Adding it to the administrators group ..."
+
+        $group = [ADSI]("WinNT://${env:COMPUTERNAME}/administrators,group")
+        $group.add("WinNT://${env:COMPUTERNAME}/${username},user")
+
+        return $password
+    }
+    catch [Exception]
+    {
+        $exceptionMessage = $_.Exception.Message
+        Write-Error "Could not create the '${username}' user - ${exceptionMessage}"
+        exit 1
+    }
+}
+
+function Create-Service($serviceAccountPassword, $name, $exe, $exeArgs, $description, $cygwinPath, $pidFile = $null)
 {
     Write-Verbose "Looking up binaries in '${cygwinPath}' ..."
+
+    $serviceUsername = 'openshift_service'
 
     $cygrunsrv = (Join-Path $cygwinPath 'installation\bin\cygrunsrv.exe')
     $cygpath = (Join-Path $cygwinPath 'installation\bin\cygpath.exe')
@@ -19,7 +70,7 @@ function Create-Service($name, $exe, $exeArgs, $description, $cygwinPath, $pidFi
     }
 
     $cygExe = & $cygpath $exe
-    $cygrunsrvArgs = "-I ""${name}"" -p ""${cygExe}"" -a ""${exeArgs}"" -f ""${description}"""
+    $cygrunsrvArgs = "-I ""${name}"" -p ""${cygExe}"" -a ""${exeArgs}"" -f ""${description}"" -u ""${serviceUsername}"" -w ${serviceAccountPassword}"
 
     if ($pidFile -ne $null)
     {

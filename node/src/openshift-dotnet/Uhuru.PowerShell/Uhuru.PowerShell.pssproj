@@ -120,6 +120,7 @@
     <Content Include="Tools\mcollective\openshift.rb.template" />
     <Content Include="Tools\mcollective\server.cfg.template" />
     <Content Include="Tools\mcollective\update-facts.ps1" />
+    <Content Include="Tools\openshift.net\secedit_symlink.template" />
     <Content Include="Tools\openshift.net\oo-ssh.template" />
     <Content Include="Tools\openshift.net\service-helpers.ps1" />
     <Content Include="Tools\openshift.net\openshift-node-service.ps1" />

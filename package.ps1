@@ -70,7 +70,17 @@ function DoAction-Bootstrap()
     $destfolder = "c:\openshift\installer"
     
     Write-Host "Cleaning up directory $destfolder"
-    Remove-Item -Force -Recurse -Path $destfolder
+    Remove-Item -Force -Recurse -Path $destfolder -ErrorVariable errors -ErrorAction SilentlyContinue
+
+    if ($errs.Count -eq 0)
+    {
+        Write-Host "Successfuly cleaned the installation directory ${destfolder}"
+    }
+    else
+    {
+        Write-Error "There was an error cleaning up the installation directory '${destfolder}'.`r`nPlease make sure the folder and any of its child items are not in use, then run the installer again."
+        exit 1;
+    }
 
     Write-Host "Setting up directory $destfolder"
     New-Item -path $destfolder -type directory -Force -ErrorAction SilentlyContinue
@@ -78,10 +88,19 @@ function DoAction-Bootstrap()
     New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
     Write-Host 'Unpacking files ...'
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file, $destfolder)
+    try
+    {
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($src_file, $destfolder)
+    }
+    catch
+    {
+        Write-Error "There was an error writing to the installation directory '${destfolder}'.`r`nPlease make sure the folder and any of its child items are not in use, then run the installer again."
+        exit 1;
+    }
     
     cd 'c:\openshift\installer\powershell\tools\openshift.net\'
-    get-help -full .\install.ps1
+
+    powershell Get-Help -Full .\install.ps1
 }
 
 if ($action -eq 'package')

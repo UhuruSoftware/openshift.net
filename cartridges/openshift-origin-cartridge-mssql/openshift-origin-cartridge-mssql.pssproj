@@ -55,10 +55,6 @@
     <Folder Include="hooks" />
     <Folder Include="metadata" />
     <Folder Include="run" />
-    <Folder Include="usr" />
-    <Folder Include="usr\template\" />
-    <Folder Include="usr\template\.openshift" />
-    <Folder Include="usr\template\.openshift\action_hooks\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="bin\control.ps1" />
@@ -76,35 +72,28 @@
     <Compile Include="metadata\manifest.yml" />
     <Compile Include="metadata\README.md" />
     <Compile Include="run\.gitkeep" />
-    <Compile Include="usr\template\.openshift\action_hooks\README.md" />
   </ItemGroup>
-
   <Target Name="Build">
-
     <!-- Copying everything (except the 'obj' dir that gets created by Visual Studio), then removing items that are not needed. 
     This approach will keep empty directories that are required in the cartridge.
     Using exclude patterns will remove empty directories.-->
     <Message Text="Copying cartridge files to output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-
     <CreateItem Include=".\**" Exclude=".\obj\**">
       <Output TaskParameter="Include" ItemName="AllFiles" />
     </CreateItem>
-
     <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(CartridgeDestinationDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
-
   <Target Name="AfterBuild" AfterTargets="Build">
     <Message Text="Removing unneeded files from output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-
     <CreateItem Include="$(CartridgeDestinationDir)\**\README.md;$(CartridgeDestinationDir)\*pssproj*;$(CartridgeDestinationDir)\**\.gitkeep">
-      <Output TaskParameter="Include" ItemName="UnneededFiles"/>
+      <Output TaskParameter="Include" ItemName="UnneededFiles" />
     </CreateItem>
-
-    <Delete Files="@(UnneededFiles)"></Delete>
+    <Delete Files="@(UnneededFiles)">
+    </Delete>
   </Target>
-
   <Target Name="Clean">
     <Message Text="Deleting the cartridge's output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-    <RemoveDir Directories="$(CartridgeDestinationDir)"></RemoveDir>
-  </Target>  
+    <RemoveDir Directories="$(CartridgeDestinationDir)">
+    </RemoveDir>
+  </Target>
 </Project>

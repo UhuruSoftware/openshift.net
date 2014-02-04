@@ -12,7 +12,7 @@ LogLevel INFO
 # Authentication:
 PubkeyAuthentication yes
 AuthorizedKeysFile .ssh/authorized_keys
-PasswordAuthentication no
+PasswordAuthentication yes
 UsePrivilegeSeparation no
 PidFile /var/run/sshd.pid
 Subsystem	sftp	/usr/sbin/sftp-server
