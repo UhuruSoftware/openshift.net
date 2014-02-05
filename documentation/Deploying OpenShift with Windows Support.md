@@ -12,7 +12,7 @@ Next to this we're going to setup a Windows VM that will connect to the Linux Op
 
 ## Setting up things on Linux ##
 
-You can download the Linux OpenShift VM from [here](https://mirror.openshift.com/pub/origin-server/release/3/images/). Make sure to download the `openshift-origin.zip` file. For this deployment manual, we support the version from **December 19th 2013**. 
+You can download the Linux OpenShift VM from [here](https://mirror.openshift.com/pub/origin-server/release/3/images/). Make sure to download the `openshift-origin-r3.el6.zip` file. For this deployment manual, we support the version from **January 15th 2014**. 
 
 After starting the VM, go to the root console and install the changes required for windows support.
 
@@ -26,6 +26,8 @@ To install and update the local machine, run the following commands:
 	service mcollective restart
 	service openshift-broker restart
 	(cd /var/www/openshift/broker/; bundle exec rake tmp:clear)
+
+In order to set up a multi node (Linux) deployment, please consult [this](https://www.openshift.com/blogs/installing-enterprise-paas-part-1) document.
 
 ## Windows Prerequisites ##
 
@@ -75,6 +77,7 @@ The screenshots below detail how your Windows installation should look like afte
 
 Before proceeding with the Windows installation, you have to setup the hosts files on both Windows and Linux (the OpenShift VM uses multicast DNS and Windows does not have a proper solution for this).
 
+
 - on Linux, edit `/etc/hosts`, add an entry like 
 
 	e.g.: `10.2.0.104 winnode.openshift.local`
@@ -83,6 +86,10 @@ Before proceeding with the Windows installation, you have to setup the hosts fil
 - on Windows, edit `c:\windows\system32\drivers\etc\hosts`, and add an entry for the broker:
 
 	e.g.: `10.2.0.21 broker-a211bd.openshift.local`
+
+By default, the OpenShift broker comes preconfigured with a DNS server. In order to use it you must configure the Windows machines, to query the broker for DNS lookups. The same applies for the Linux nodes (edit `/etc/resolv.conf`). Please keep in mind that if you have several machines (either Linux or Windows) which must be able to access hosted apps, you must also configure them to query the DNS server on the broker. If you have an AD server in your infrastructure, the DNS server on the broker can be configured to forward the zone to the AD server.
+
+You can read more about configuring the DNS server, [here]9https://www.openshift.com/blogs/installing-enterprise-paas-part-1)
 
 ## Installing the OpenShift Windows Node ##
 
