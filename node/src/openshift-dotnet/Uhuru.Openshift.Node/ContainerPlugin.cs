@@ -97,6 +97,12 @@ namespace Uhuru.Openshift.Runtime
             StringBuilder output = new StringBuilder();
             output.AppendLine(this.container.KillProcs());
             output.AppendLine(RemoveSshdUser());
+
+            var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            Logger.Debug("Destroying prison for gear {0}", this.container.Uuid);
+
+            prison.Destroy();
+
             Directory.Delete(this.container.ContainerDir, true);
             return output.ToString();
         }
