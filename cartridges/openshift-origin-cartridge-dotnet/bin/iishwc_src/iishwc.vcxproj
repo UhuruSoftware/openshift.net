@@ -75,6 +75,7 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>iishwcx64</TargetName>
     <OutDir>$(ProjectDir)\bin\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,6 +86,7 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>iishwcx64</TargetName>
     <OutDir>$(ProjectDir)\bin\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

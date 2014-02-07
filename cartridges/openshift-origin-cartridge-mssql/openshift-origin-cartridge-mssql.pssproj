@@ -60,7 +60,6 @@
     <Compile Include="bin\control.ps1" />
     <Compile Include="bin\README.md" />
     <Compile Include="bin\setup.ps1" />
-    <Compile Include="bin\sqlserver.reg" />
     <Compile Include="bin\sqlserver.reg.template" />
     <Compile Include="bin\start.bat" />
     <Compile Include="bin\start.ps1" />

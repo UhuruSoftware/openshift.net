@@ -1,6 +1,3 @@
-#$env:OPENSHIFT_MSSQL_DB_PORT = 1433
-#$env:OPENSHIFT_APP_NAME = "testapp"
-
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
 $port = $env:OPENSHIFT_MSSQL_DB_PORT
 $instanceName = "Instance${port}"

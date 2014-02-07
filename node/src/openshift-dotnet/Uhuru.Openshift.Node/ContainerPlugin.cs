@@ -33,11 +33,14 @@ namespace Uhuru.Openshift.Runtime
             Uhuru.Prison.PrisonRules prisonRules = new Uhuru.Prison.PrisonRules();
 
             prisonRules.CellType = Prison.RuleType.None;
+            prisonRules.CellType |= Prison.RuleType.Memory;
+            prisonRules.CellType |= Prison.RuleType.CPU;
             prisonRules.CellType |= Prison.RuleType.WindowStation;
             prisonRules.CellType |= Prison.RuleType.Httpsys;
             prisonRules.CellType |= Prison.RuleType.IISGroup;
             prisonRules.CellType |= Prison.RuleType.MsSqlInstance;
 
+            prisonRules.CPUPercentageLimit = 2;
 
             prisonRules.PrisonHomePath = container.ContainerDir;
             prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");

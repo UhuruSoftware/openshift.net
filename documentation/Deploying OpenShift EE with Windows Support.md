@@ -7,16 +7,19 @@ Next to this we're going to setup a Windows VM that will connect to the Linux Op
 
 ## Cloud Topology ##
 
-<img src="cloud_topology.png" width="60%"/>
+<img src="cloud_topology.png"/>
 
 
 ## Setting up things on Linux ##
 
-You can download the Linux OpenShift VM from [here](https://mirror.openshift.com/pub/origin-server/release/3/images/). Make sure to download the `openshift-origin.zip` file. For this deployment manual, we support the version from **December 19th 2013**. 
+Have to be root all the time.
+
+Start with an OpenShift deployment based on the instructions available [here](https://install.openshift.com/).
+Make sure to follow the instructions for the 'Enterprise' edition.
+
+You can download the Linux OpenShift VM from [here](https://mirror.openshift.com/pub/origin-server/release/3/images/). Make sure to download the `openshift-origin-r3.el6.zip` file. For this deployment manual, we support the version from **January 15th 2014**. 
 
 After starting the VM, go to the root console and install the changes required for windows support.
-
-**Please make sure that you run all the commands specified in this document as `root`.**
 
 The RPM can be found [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required to download the packages.
 
@@ -29,9 +32,9 @@ To install and update the local machine, run the following commands:
 	service openshift-broker restart
 	(cd /var/www/openshift/broker/; bundle exec rake tmp:clear)
 
-## Windows Prerequisites ##
+In order to set up a multi node (Linux) deployment, please consult [this](https://www.openshift.com/blogs/installing-enterprise-paas-part-1) document.
 
-**Please make sure that you execute all the instructions in this document as the `administrator` user .**
+## Windows Prerequisites ##
 
 The supported Windows versions are Windows Server 2012 and Windows Server 2012 R2.
 
@@ -61,37 +64,26 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 
 
-###Screenshots###
+### Screenshots ###
 
-The screenshots below detail the installation steps for the Windows Roles and Features that have to be installed.
-This walk-through assumes you are managing the server locally, not remotely. 
+The screenshots below detail how your Windows installation should look like after all the prerequisites are installed.
 
-**Step 1 - Open Server Manager and start the "Add roles and features" wizard**
+TODO: Real ScreenShots
 
-<img src="add_roles_and_features_step_1.png" width="60%"/>
+- **Roles**
+ 
+<img src='required_roles.png'/>
 
-**Step 2 - Go to Server Selection** 
 
-<img src="add_roles_and_features_step_2.png" width="60%"/>
+- **Features**
 
-**Step 3 - In the server selection page, select the local server, then hit "Next"**
-
-<img src="add_roles_and_features_step_3.png" width="60%"/>
-
-**<p style="page-break-before: always">Step 4 - Make sure you select all the required roles and their features, as detailed in the documentation and screenshot, then click "Next"</p>**
-
-<img src="add_roles_and_features_step_4.png" width="70%"/>
-
-**<p style="page-break-before: always">Step 5 - On the features page, make sure you select everything as detailed in the documentation and screenshot</p>** 
-
-<img src="add_roles_and_features_step_5.png" width="70%"/>
-
-**Step 6** - On the confirmation page, click "Install" and wait for the installation process to complete
+<img src='required_features.png'/>
 
 
 ## Setting up hosts ##
 
 Before proceeding with the Windows installation, you have to setup the hosts files on both Windows and Linux (the OpenShift VM uses multicast DNS and Windows does not have a proper solution for this).
+
 
 - on Linux, edit `/etc/hosts`, add an entry like 
 
@@ -102,7 +94,13 @@ Before proceeding with the Windows installation, you have to setup the hosts fil
 
 	e.g.: `10.2.0.21 broker-a211bd.openshift.local`
 
+By default, the OpenShift broker comes preconfigured with a DNS server. In order to use it you must configure the Windows machines, to query the broker for DNS lookups. The same applies for the Linux nodes (edit `/etc/resolv.conf`). Please keep in mind that if you have several machines (either Linux or Windows) which must be able to access hosted apps, you must also configure them to query the DNS server on the broker. If you have an AD server in your infrastructure, the DNS server on the broker can be configured to forward the zone to the AD server.
+
+You can read more about configuring the DNS server, [here](https://www.openshift.com/blogs/installing-enterprise-paas-part-1)
+
 ## Installing the OpenShift Windows Node ##
+
+Run everything as 'administrator'.
 
 Download the windows installer from [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required.
 
@@ -110,16 +108,20 @@ Download the windows installer from [here](http://winjenkins.hosts.uhuruos.com/)
 - It will unpack the build in a temporary folder and drop you in PowerShell
 - From there you can run the installation script
 - You can simply run ./install.ps1 and the script will ask you for needed information
-- If you need special settings, please read the manual included below and run the script with the appropriate settings
-
-### Restarting services on the broker ###
-
-After finishing the installation on Windows, clear the cache on the Linux machine using the following command:
-
-	oo-admin-broker-cache --console 
-
+- If you need special settings, please read the manual below and run the script with the appropriate settings 
 
 ### Install Script Manual ###
+
+**SYNTAX**
+
+    E:\Code\openshift.net\output\powershell\Tools\openshift.net\install.ps1 [[-binLocation] <String>] [[-publicHostname] <String>] [[-brokerHost] <String>]
+    [[-cloudDomain] <String>] [[-sqlServerSAPassword] <String>] [[-externalEthDevice] <String>] [[-internalEthDevice] <String>] [[-publicIp] <String>]
+    [[-gearBaseDir] <String>] [[-gearShell] <String>] [[-gearGecos] <String>] [[-cartridgeBasePath] <String>] [[-platformLogFile] <String>]
+    [[-platformLogLevel] <String>] [[-containerizationPlugin] <String>] [[-rubyDownloadLocation] <String>] [[-rubyInstallLocation] <String>]
+    [[-mcollectiveActivemqServer] <String>] [[-mcollectiveActivemqPort] <Int32>] [[-mcollectiveActivemqUser] <String>] [[-mcollectiveActivemqPassword]
+    <String>] [[-sshdCygwinDir] <String>] [[-sshdListenAddress] <String>] [[-sshdPort] <Int32>] [-skipRuby] [-skipCygwin] [-skipMCollective] [-skipChecks]
+    [-skipGlobalEnv] [-skipServicesSetup] [-skipBinDirCleanup] [<CommonParameters>]
+
 
 **DESCRIPTION**
 
@@ -210,8 +212,7 @@ After finishing the installation on Windows, clear the cache on the Linux machin
         Default value                c:\openshift\ruby\
 
     -mcollectiveActivemqServer <String>
-        ActiveMQ Host. This is where the ActiveMQ messaging service is installed. 
-		It is usually setup in the same place as your broker.
+        ActiveMQ Host. This is where the ActiveMQ messaging service is installed. It is usually setup in the same place as your broker.
         Required?                    no
         Default value                Broker Host
 
@@ -247,14 +248,12 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
     -skipRuby [<SwitchParameter>]
         This is a switch parameter that allows the user to skip downloading and installing Ruby.
-        This is useful for testing, when the caller is sure Ruby is already installed in the
-		directory specified by the -rubyInstallLocation parameter.
+        This is useful for testing, when the caller is sure Ruby is already installed in the directory specified by the -rubyInstallLocation parameter.
         Required?                    no
 
     -skipCygwin [<SwitchParameter>]
         This is a switch parameter that allows the user to skip downloading and installing Cygwin.
-        This is useful for testing, when the caller is sure Cygwin is present in the 
-		directory specified by the -sshdCygwinDir parameter.
+        This is useful for testing, when the caller is sure Cygwin is present in the directory specified by the -sshdCygwinDir parameter.
         Note that sshd will NOT be re-configured if you skip this step.
         Required?                    no
 
@@ -276,33 +275,41 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
     -skipServicesSetup [<SwitchParameter>]
         This is a switch parameter that allows the user to skip setting up Windows Services for MCollective and SSHD.
-        This is useful in development environments, when it's not necessary to restart services:
-			e.g. the developer only wants to update the .NET binaries
+        This is useful in development environments, when it's not necessary to restart services (e.g. the developer only wants to update the .NET binaries)
         Required?                    no
 
     -skipBinDirCleanup [<SwitchParameter>]
         This is a switch parameter that allows the user to skip cleaning up the binary directory.
-        This is useful in development environments, when persistence of logs and configurations is required.
+        This is useful in development environments, when presistence of logs and configurations is required.
         Required?                    no
 
     -verbose
 		This switch enables verbose output
 
 
-**EXAMPLES**
+NOTES
 
-- Install the node by passing the minimum information required.
+    -------------------------- EXAMPLE 1 --------------------------
 
-`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
-
-
-- Install the node by also passing the public IP address of the machine.
-
-`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104`
+    C:\PS>.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com
 
 
-    
+    Install the node by passing the minimum information required.
 
+
+
+
+
+    -------------------------- EXAMPLE 2 --------------------------
+
+    C:\PS>.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -publicIP 10.2.0.104
+
+
+    Install the node by also passing the public IP address of the machine.
+
+### Restarting services on the broker ###
+
+On the Linux machine clear the cache: `oo-admin-broker-cache --console` 
 
 
 ## Creating your first Windows application ##
@@ -324,4 +331,4 @@ Add a MS SQL Server cartridge
 
 A Windows application deployed on OpenShift has the following topology:
 
-<img src="application_topology.png" width="60%"/>
+<img src="application_topology.png"/>
