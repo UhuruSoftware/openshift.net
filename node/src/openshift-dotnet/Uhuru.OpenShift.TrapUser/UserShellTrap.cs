@@ -38,16 +38,14 @@ namespace Uhuru.OpenShift.TrapUser
             }
         }
 
-        private static void SetupGearEnv(Dictionary<string, string>  targetList)
+        private static void SetupGearEnv(Dictionary<string, string> targetList, string homeDir)
         {
             if (targetList == null)
             {
                 throw new ArgumentNullException("targetList");
             }
-  
-            string globalEnv = Path.Combine(NodeConfig.ConfigDir, "env");
 
-            string homeDir = Environment.GetEnvironmentVariable("HOME");
+            string globalEnv = Path.Combine(NodeConfig.ConfigDir, "env");
 
             UserShellTrap.LoadEnv(globalEnv, targetList);
 
@@ -72,15 +70,11 @@ namespace Uhuru.OpenShift.TrapUser
 
             Dictionary<string, string> envVars = new Dictionary<string, string>();
 
-            foreach (string key in Environment.GetEnvironmentVariables().Keys)
-            {
-                envVars[key] = Environment.GetEnvironmentVariable(key);
-            }
+            string homeDir = Environment.GetEnvironmentVariable("HOME");
+
+            SetupGearEnv(envVars, homeDir);
 
             envVars["CYGWIN"] = "nodosfilewarning winsymlinks:native";
-
-            SetupGearEnv(envVars);
-
             envVars["TEMP"] = Path.Combine(envVars["OPENSHIFT_HOMEDIR"], ".tmp");
             envVars["TMP"] = envVars["TEMP"];
 
@@ -102,6 +96,8 @@ namespace Uhuru.OpenShift.TrapUser
             if (Environment.UserName.StartsWith(Prison.PrisonUser.GlobalPrefix))
             {
                 ProcessStartInfo shellStartInfo = new ProcessStartInfo();
+
+                // System.Diagnostics.Process will merge the specified envs with the current existing ones
                 foreach (string key in envVars.Keys)
                 {
                     shellStartInfo.EnvironmentVariables[key] = envVars[key];
