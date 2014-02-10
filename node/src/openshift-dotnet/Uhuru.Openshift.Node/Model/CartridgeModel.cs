@@ -791,5 +791,22 @@ namespace Uhuru.Openshift.Runtime
                 //}
             }
         }
+
+        internal void CreateDependencyDirectories(Manifest cartridge)
+        {
+            // TODO
+            // need managed_files.yml from here on
+            return;
+
+            foreach (string dependenciesDirName in new string[] { "build-dependencies", "dependencies" })
+            {
+                List<string> dirs = null;
+                if(dependenciesDirName == "build-dependencies")
+                {
+                    dirs = this.container.BuildDependencyDirs(cartridge);
+                }
+
+            }
+        }
     }
 }

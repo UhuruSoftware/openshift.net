@@ -112,6 +112,38 @@ namespace Uhuru.Openshift.Runtime
             DirectoryUtil.CreateSymLink(link, target, DirectoryUtil.SymbolicLink.Directory);
         }
 
+        public void CleanRuntimeDirs(RubyHash options)
+        {
+            List<string> dirs = new List<string>();
+            foreach(string dir in new string[] { "dependencies", "build_dependencies", "repo" })
+            {
+                if(options[dir] == true)
+                {
+                    dirs.Add(dir);
+                }
+            }
+
+            if(dirs.Count == 0)
+            {
+                return;
+            }
+
+            foreach(string dir in dirs)
+            {
+                string directory = Path.Combine(this.ContainerDir, "app-root", "runtime", dir.Replace('_', '-'));
+                DirectoryUtil.EmptyDirectory(directory);
+            }
+        }
+
+        public int DeploymentsToKeep(Dictionary<string, string> env)
+        {
+            if(env.ContainsKey("OPENSHIFT_KEEP_DEPLOYMENTS"))
+            {
+                return int.Parse(env["OPENSHIFT_KEEP_DEPLOYMENTS"]);
+            }
+            return 1;
+        }
+
         public void UnlinkDeploymentId(string deploymentId)
         {
             Directory.Delete(Path.Combine(this.ContainerDir, "app-deployments", "by-id", deploymentId), true);

@@ -127,4 +127,5 @@ switch ($command)
     "post-snapshot" { post-snapshot-cartridge }
     "pre-restore" { pre-restore-cartridge }
     "post-restore" { post-restore-cartridge }
+	"build" { . $env:OPENSHIFT_DOTNET_DIR\bin\build.ps1 }
   }

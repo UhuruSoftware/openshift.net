@@ -1045,5 +1045,10 @@ namespace Uhuru.Openshift.Runtime
                 return null;
             }
         }
+
+        internal List<string> BuildDependencyDirs(Manifest cartridge)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

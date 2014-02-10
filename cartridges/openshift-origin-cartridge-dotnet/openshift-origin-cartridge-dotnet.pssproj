@@ -40,6 +40,7 @@
     <Folder Include="usr\template\.openshift\action_hooks\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="bin\build.ps1" />
     <Compile Include="bin\control.ps1" />
     <Compile Include="bin\iishwc\applicationHostTemplate.config" />
     <Compile Include="bin\iishwc\detectVersion.ps1" />
@@ -64,47 +65,37 @@
     <Compile Include="usr\template\Web.config" />
     <Compile Include="usr\template\.openshift\action_hooks\README.md" />
   </ItemGroup>
-
   <!-- Before 'packaging' the .NET cartridge we have to build iishwc.exe (we build it here because we need both x64 and x86) -->
   <Target Name="BeforeBuild" BeforeTargets="Build">
-    <MSBuild Properties="Platform=x64;PlatFormTarget=x64" Projects=".\bin\iishwc_src\iishwc.vcxproj"></MSBuild>
-    <MSBuild Properties="Platform=x86;PlatFormTarget=x86" Projects=".\bin\iishwc_src\iishwc.vcxproj"></MSBuild>
+    <MSBuild Properties="Platform=x64;PlatFormTarget=x64" Projects=".\bin\iishwc_src\iishwc.vcxproj">
+    </MSBuild>
+    <MSBuild Properties="Platform=x86;PlatFormTarget=x86" Projects=".\bin\iishwc_src\iishwc.vcxproj">
+    </MSBuild>
   </Target>
-  
   <Target Name="Build">
-
     <!-- Copying everything (except the 'obj' dir and the iishwc_src dir), then removing items that are not needed. 
     This approach will keep empty directories that are required in the cartridge.
     Using exclude patterns will remove empty directories.-->
     <Message Text="Copying cartridge files to output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-
     <CreateItem Include=".\**" Exclude=".\obj\**;.\bin\iishwc_src\**">
       <Output TaskParameter="Include" ItemName="AllFiles" />
     </CreateItem>
-
     <Copy SourceFiles="@(AllFiles)" DestinationFiles="@(AllFiles->'$(CartridgeDestinationDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
-
   <Target Name="AfterBuild" AfterTargets="Build">
     <Message Text="Removing unneeded files from output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-
-    <CreateItem Include="$(CartridgeDestinationDir)\**\*.ilk;
-                $(CartridgeDestinationDir)\**\*.pdb;
-                $(CartridgeDestinationDir)\**\README.md;
-                $(CartridgeDestinationDir)\*pssproj*;
-                $(CartridgeDestinationDir)\**\.gitkeep">
-      <Output TaskParameter="Include" ItemName="UnneededFiles"/>
+    <CreateItem Include="$(CartridgeDestinationDir)\**\*.ilk;&#xD;&#xA;                $(CartridgeDestinationDir)\**\*.pdb;&#xD;&#xA;                $(CartridgeDestinationDir)\**\README.md;&#xD;&#xA;                $(CartridgeDestinationDir)\*pssproj*;&#xD;&#xA;                $(CartridgeDestinationDir)\**\.gitkeep">
+      <Output TaskParameter="Include" ItemName="UnneededFiles" />
     </CreateItem>
-
-    <Delete Files="@(UnneededFiles)"></Delete>
-    
+    <Delete Files="@(UnneededFiles)">
+    </Delete>
     <!-- After all the scripts are where they should be, we can copy the IISHWC binaries -->
     <Copy SourceFiles=".\bin\iishwc_src\bin\iishwcx64.exe" DestinationFiles="$(CartridgeDestinationDir)\bin\iishwc\iishwcx64.exe" />
     <Copy SourceFiles=".\bin\iishwc_src\bin\iishwcx86.exe" DestinationFiles="$(CartridgeDestinationDir)\bin\iishwc\iishwcx86.exe" />
   </Target>
-
   <Target Name="Clean">
     <Message Text="Deleting the cartridge's output directory '$(CartridgeDestinationDir)' ..." Importance="high" />
-    <RemoveDir Directories="$(CartridgeDestinationDir)"></RemoveDir>
+    <RemoveDir Directories="$(CartridgeDestinationDir)">
+    </RemoveDir>
   </Target>
 </Project>

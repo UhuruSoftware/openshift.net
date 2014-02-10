@@ -152,11 +152,11 @@ namespace Uhuru.Openshift.Runtime
 
             if (performInitialBuild)
             {
+                Logger.Info("Performing initial build");
                 try
                 {
-                    Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
-                    RunProcessInContainerContext(this.ContainerDir, "gear -Prereceive -Init");
-                    RunProcessInContainerContext(this.ContainerDir, "gear -Postreceive -Init");
+                    RunProcessInContainerContext(this.ContainerDir, "gear prereceive --init");
+                    RunProcessInContainerContext(this.ContainerDir, "gear postreceive --init");                   
                 }
                 catch (Exception ex)
                 {
@@ -210,6 +210,7 @@ namespace Uhuru.Openshift.Runtime
 
             options["deployment_datetime"] = this.LatestDeploymentDateTime();
 
+            Build(options);
 
             Logger.Debug("Running post receive - prepare for gear {0}", this.Uuid);
             Prepare(options);
@@ -219,6 +220,58 @@ namespace Uhuru.Openshift.Runtime
 
             Logger.Debug("Running post receive - activate for gear {0}", this.Uuid);
             Activate(options);
+        }
+
+        private string Build(RubyHash options)
+        {
+            this.State.Value(Runtime.State.BUILDING);
+            string deploymentDateTime = options["deployment_datetime"] != null ? options["deployment_datetime"] : LatestDeploymentDateTime();
+            DeploymentMetadata deploymentMetadata = DeploymentMetadataFor(deploymentDateTime);
+
+            if (!options.ContainsKey("deployment_datetime"))
+            {
+                // this will execute if coming from a CI builder, since it doesn't
+                // specify :deployment_datetime in the options hash
+                throw new NotImplementedException();
+            }
+
+            StringBuilder buffer = new StringBuilder();
+
+            if(deploymentMetadata.ForceCleanBuild)
+            {
+                buffer.AppendLine("Force clean build enabled - cleaning dependencies");
+
+                CleanRuntimeDirs(new RubyHash() { { "dependencies", true }, { "build_dependencies", true } });
+
+                this.Cartridge.EachCartridge(delegate(Manifest cartridge) {
+                    this.Cartridge.CreateDependencyDirectories(cartridge);
+                });
+            }
+
+            buffer.AppendLine(string.Format("Building git ref {0}, commit {1}", deploymentMetadata.GitRef, deploymentMetadata.GitSha));
+
+            Dictionary<string, string> env = Environ.ForGear(this.ContainerDir);
+            int deploymentsToKeep = DeploymentsToKeep(env);
+
+            try
+            {
+                Manifest primaryCartridge = this.Cartridge.GetPrimaryCartridge();
+                buffer.AppendLine(this.Cartridge.DoControl("update-configuration", primaryCartridge, new RubyHash() { { "pre_action_hooks_enabled", false }, { "post_action_hooks_enabled", false } }));
+                buffer.AppendLine(this.Cartridge.DoControl("pre-build", primaryCartridge, new RubyHash() { { "pre_action_hooks_enabled", false }, { "post_action_hooks_enabled", false } }));
+                buffer.AppendLine(this.Cartridge.DoControl("build", primaryCartridge, new RubyHash() { { "pre_action_hooks_enabled", false }, { "post_action_hooks_enabled", false } }));
+            }
+            catch(Exception ex)
+            {
+                buffer.AppendLine("Encountered a failure during build: " + ex.ToString());
+                if(deploymentsToKeep > 1)
+                {
+                    buffer.AppendLine("Restarting application");
+                    buffer.AppendLine(StartGear(new RubyHash() { { "user_initiated", true }, { "hot_deploy", deploymentMetadata.HotDeploy } }));
+                }
+                throw ex;
+            }
+
+            return buffer.ToString();
         }
 
         public string Activate(RubyHash options = null)
