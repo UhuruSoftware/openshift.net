@@ -11,7 +11,15 @@ else
 {
     $argsString = [string]::Join(" ", $args)
     $output = Invoke-Expression "OO-Accept-Node $argsString"
-    write-Output $output.Output
+	if($output.ExitCode -eq 0)
+	{
+		write-Output "PASS"
+	}
+	else
+	{
+		$ReportErrorShowSource = $false
+		[Console]::Error.WriteLine($output.ExitCode.ToString() + " ERRORS")
+	}
     exit $output.ExitCode
 }
 
