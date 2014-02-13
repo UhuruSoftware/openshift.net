@@ -34,16 +34,22 @@ namespace Uhuru.Openshift.Runtime
         public string ApplicationName { get; set; }
         public string Namespace { get; set; }
         public string BaseDir { get; set; }
-
+        
         public int uid = 0;
         public int gid = 0;
         public string gecos = string.Empty;
         
-
         public object QuotaBlocks { get; set; }
         public object QuotaFiles { get; set; }
 
-        
+        public bool StopLock
+        {
+            get
+            {
+                return this.Cartridge.StopLockExists;
+            }
+        }
+
         public string ContainerDir 
         { 
             get 
@@ -117,7 +123,7 @@ namespace Uhuru.Openshift.Runtime
                 gecos = "OO application container";
             }
             EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
-            etcUser.Gecons = gecos;
+            etcUser.Gecos = gecos;
             
             return etcUser;
 
@@ -144,7 +150,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 this.uid = userId.Uid;
                 this.gid = userId.Gid;
-                this.gecos = userId.Gecons;
+                this.gecos = userId.Gecos;
             }
         }
 
@@ -239,7 +245,7 @@ namespace Uhuru.Openshift.Runtime
 
 
 
-        private string StartGear(dynamic options)
+        public string StartGear(dynamic options)
         {
             return this.Cartridge.StartGear(options);
         }
@@ -1012,7 +1018,7 @@ namespace Uhuru.Openshift.Runtime
 
         private string StoppedStatusAttr()
         {
-            if (Runtime.State.STARTED.EqualsString(this.State.Value()) || this.Cartridge.StopLockExists)
+            if (Runtime.State.STOPPED.EqualsString(this.State.Value()) || this.Cartridge.StopLockExists)
             {
                 return "ATTR: status=ALREADY_STOPPED" + Environment.NewLine;
             }
@@ -1049,6 +1055,49 @@ namespace Uhuru.Openshift.Runtime
         internal List<string> BuildDependencyDirs(Manifest cartridge)
         {
             throw new NotImplementedException();
+        }
+
+
+        public static IEnumerable<ApplicationContainer> All(Hourglass hourglass = null, bool loadenv = true)
+        {
+            EtcUser[] users = new Etc(NodeConfig.Values).GetAllUsers();
+
+            foreach (EtcUser user in users)
+            {
+                if (user.Gecos.StartsWith("openshift_service"))
+                {
+                    RubyHash env = new RubyHash();
+                    string gearNamespace = null;
+
+                    if (loadenv)
+                    {
+                        env = new RubyHash(Environ.Load(new string[] { Path.Combine(user.Dir, ".env") }));
+                    }
+
+                    if (env.ContainsKey("OPENSHIFT_GEAR_DNS"))
+                    {
+                        gearNamespace = env["OPENSHIFT_GEAR_DNS"];
+                    }
+
+                    ApplicationContainer app = null;
+                    
+                    try
+                    {
+                        app = new ApplicationContainer(env["OPENSHIFT_APP_UUID"],
+                            user.Name, user, env["OPENSHIFT_APP_NAME"], env["OPENSHIFT_GEAR_NAME"], gearNamespace, null, null, hourglass);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Failed to instantiate ApplicationContainer for uid {0}/uuid {1}: {2}",
+                            user.Uid, env["OPENSHIFT_APP_UUID"], ex.Message);
+                        Logger.Error("Stacktrace: {0}", ex.StackTrace);
+
+                        continue;
+                    }
+
+                    yield return app;
+                }
+            }
         }
     }
 }

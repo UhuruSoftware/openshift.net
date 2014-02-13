@@ -9,9 +9,10 @@ if ($helpCommands -contains $args[0])
 }
 else
 {
-    $output = & OO-Admin-Ctl-Gears $args
+    $argsString = [string]::Join(" ", $args)
+    $output = Invoke-Expression "OO-Admin-Ctl-Gears $argsString"
     write-Output $output.Output
-	exit $output.ExitCode
+    exit $output.ExitCode
 }
 
 exit 0

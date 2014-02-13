@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\DistrictConfig.cs" />
     <Compile Include="Config\NodeConfig.cs" />
     <Compile Include="ContainerPlugin.cs" />
     <Compile Include="Exceptions\UserCreationException.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Utils\Environ.cs" />
     <Compile Include="Utils\Etc.cs" />
     <Compile Include="Utils\EtcUser.cs" />
+    <Compile Include="Utils\Facter.cs" />
     <Compile Include="Utils\Hourglass.cs" />
     <Compile Include="Utils\LinuxFiles.cs" />
     <Compile Include="Utils\Logger.cs" />

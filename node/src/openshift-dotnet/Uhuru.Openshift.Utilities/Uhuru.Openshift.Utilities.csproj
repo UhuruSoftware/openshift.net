@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryUtil.cs" />
+    <Compile Include="Facter.cs" />
     <Compile Include="FileUtil.cs" />
     <Compile Include="ProcessExtensions.cs" />
     <Compile Include="ProcessResult.cs" />

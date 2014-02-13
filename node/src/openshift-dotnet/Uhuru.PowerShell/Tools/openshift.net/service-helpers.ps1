@@ -1,5 +1,5 @@
 
-function Create-OpenshiftUser()
+function Create-OpenshiftUser([REF]$password)
 {
     $username = 'openshift_service'
 
@@ -24,11 +24,12 @@ function Create-OpenshiftUser()
         Write-Host "Creating local '${username}' user ..."
 
         Write-Host "Generating password for '${username}' user ..."
-        $password = "P1_" + (Get-RandomPassword)
+        $passwordRandomness = Get-RandomPassword
+        $password.Value = "P1_${passwordRandomness}"
 
         $objOu = [ADSI]"WinNT://${env:COMPUTERNAME}"
         $objUser = $objOu.Create('user', $username)
-        $objUser.setpassword($password)
+        $objUser.setpassword($password.Value)
         $objUser.SetInfo()
         $objUser.description = "Openshift Windows Node User Account"
         $objUser.SetInfo()
@@ -37,8 +38,6 @@ function Create-OpenshiftUser()
 
         $group = [ADSI]("WinNT://${env:COMPUTERNAME}/administrators,group")
         $group.add("WinNT://${env:COMPUTERNAME}/${username},user")
-
-        return $password
     }
     catch [Exception]
     {
@@ -70,7 +69,7 @@ function Create-Service($serviceAccountPassword, $name, $exe, $exeArgs, $descrip
     }
 
     $cygExe = & $cygpath $exe
-    $cygrunsrvArgs = "-I ""${name}"" -p ""${cygExe}"" -a ""${exeArgs}"" -f ""${description}"" -u ""${serviceUsername}"" -w ${serviceAccountPassword}"
+    $cygrunsrvArgs = "-I ""${name}"" -p ""${cygExe}"" -a ""${exeArgs}"" -f ""${description}"" -u ""${serviceUsername}"" -w ${serviceAccountPassword} -y LanmanServer"
 
     if ($pidFile -ne $null)
     {
@@ -95,7 +94,7 @@ function Create-Service($serviceAccountPassword, $name, $exe, $exeArgs, $descrip
 
 function Remove-Service($name, $cygwinPath)
 {
-     Write-Verbose "Looking up binaries in '${cygwinPath}' ..."
+    Write-Verbose "Looking up binaries in '${cygwinPath}' ..."
 
     $cygrunsrv = (Join-Path $cygwinPath 'installation\bin\cygrunsrv.exe')
 
@@ -108,4 +107,52 @@ function Remove-Service($name, $cygwinPath)
     $cygrunsrvArgs = "-R ""${name}"""
 
     $cygrunsrvProcess = Start-Process -Wait -PassThru -NoNewWindow $cygrunsrv $cygrunsrvArgs
+}
+
+function Setup-FacterScheduledTask($serviceAccountPassword, $binDir)
+{
+    $taskName = 'openshift.facts'
+    $serviceUsername = 'openshift_service'
+
+    $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+
+    if ($existingTask -ne $null)
+    {
+        Write-Host "Removing scheduled task '${taskName}' ..."
+
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    }
+
+    $interval = New-TimeSpan -Minutes 1
+    $duration = [timespan]::MaxValue
+    $triggerTime = [DateTime]::Now.AddMinutes(1)
+
+    $recurringTime = New-ScheduledTaskTrigger -Once -At $triggerTime -RepetitionInterval $interval -RepetitionDuration $duration
+    $powershellExe = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $factScript = (Join-Path $binDir "powershell\tools\mcollective\update-facts.ps1")
+    $action = New-ScheduledTaskAction -Execute $powershellExe -Argument "-ExecutionPolicy Bypass -File ""${factScript}"""
+    
+    Register-ScheduledTask -TaskName $taskName -Trigger $recurringTime -User "${env:env:COMPUTERNAME}\${serviceUsername}" –Action $action -Password $serviceAccountPassword.ToString()
+}
+
+function Setup-StartupScheduledTask($serviceAccountPassword, $binDir)
+{
+    $taskName = 'openshift.startup'
+    $serviceUsername = 'openshift_service'
+
+    $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+
+    if ($existingTask -ne $null)
+    {
+        Write-Host "Removing scheduled task '${taskName}' ..."
+
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    }
+
+    $recurringTime = New-ScheduledTaskTrigger -AtStartup
+    $powershellExe = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $factScript = (Join-Path $binDir "powershell\OO-Cmdlets\oo-admin-ctl-gears.ps1")
+    $action = New-ScheduledTaskAction -Execute $powershellExe -Argument "-ExecutionPolicy Bypass -File ""${factScript}"" startall"
+    
+    Register-ScheduledTask -TaskName $taskName -Trigger $recurringTime -User "${env:env:COMPUTERNAME}\${serviceUsername}" –Action $action -Password $serviceAccountPassword.ToString()
 }

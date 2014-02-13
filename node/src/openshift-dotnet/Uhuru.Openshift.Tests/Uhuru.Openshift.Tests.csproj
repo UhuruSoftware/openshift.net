@@ -72,6 +72,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Integration\FacterTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="Unit\CartridgeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

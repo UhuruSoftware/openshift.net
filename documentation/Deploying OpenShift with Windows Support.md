@@ -47,6 +47,11 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 
 - Install the Visual C++ Redistributable Packages for Visual Studio 2013. You can find it [here](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Make sure to download the 'vcredist_x64.exe' version.
 
+- Install build tools for all versions of Visual Studio. Please note that some of these are self extracting packages - you need to manually run an installer after they finish extracting. Make sure to keep the filenames of the installers intact (use separate folders when downloading the packages); the installers are sensitive to their filenames being changed. You can find them at the following locations:
+    - [Microsoft Visual Studio 2013 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=40764)
+    - [Microsoft Visual Studio 2012 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=30670)
+    - [Microsoft Visual Studio 2010 Shell (Isolated) - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=1366)
+    - [Microsoft Visual Studio Shell 2008 - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=7036) 
 
 - Install Internet Information Services
 	- Add the Web Server role to Windows, with the following features enabled:

@@ -40,7 +40,7 @@ namespace Uhuru.Openshift.Tests.Unit
         {
             Config config = new Config(TestHelper.GetNodeConfigPath());
 
-            string value = config.Get("not existant", "Value");
+            string value = config.Get("not existent", "Value");
 
             Assert.AreEqual("Value", value);
         }

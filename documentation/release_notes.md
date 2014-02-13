@@ -2,6 +2,24 @@
 
 ### Additions ###
 
+- administrator user has access to oo-* commands
+
+### Changes ###
+
+- prison features activated: cpu, memory, 
+- prison restriction values come from node profile file
+- node profile comes from file
+- district info comes from dir
+
+### Known Issues###
+
+- Upgrade will not work from previous version
+- Gears will not be gracefully stopped on system shutdown
+
+## Windows Extensions for OpenShift 0.1 Release Notes ##
+
+### Additions ###
+
 - support for Windows Nodes in an OpenShift deployment
 - fully automated installation package for the Windows Node
 - the 'DotNet 4.5' web cartridge that provides support .NET web applications

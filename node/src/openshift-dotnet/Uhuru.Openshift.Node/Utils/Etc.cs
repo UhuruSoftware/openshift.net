@@ -16,9 +16,36 @@ namespace Uhuru.Openshift.Runtime.Utils
         {
             passwdPath = Path.Combine(config.Get("SSHD_BASE_DIR"), "etc", "passwd");
             this.config = config;
-            
         }
 
+        public EtcUser[] GetAllUsers()
+        {
+            List<EtcUser> result = new List<EtcUser>();
+
+            string[] passwdFile = File.ReadAllLines(passwdPath);
+
+            foreach (string line in passwdFile)
+            {
+                string[] passwdProperties = line.Split(':');
+                if (passwdProperties.Length > 1)
+                {
+                    EtcUser etcUser = new EtcUser()
+                    {
+                        Name = passwdProperties[0],
+                        Passwd = passwdProperties[1],
+                        Uid = int.Parse(passwdProperties[2]),
+                        Gid = int.Parse(passwdProperties[3]),
+                        Gecos = passwdProperties[4],
+                        Dir = passwdProperties[5],
+                        Shell = passwdProperties[6],
+                    };
+
+                    result.Add(etcUser);
+                }
+            }
+
+            return result.ToArray();
+        }
 
         /// <summary>
         /// Gets the user information with the specified login name.
@@ -33,6 +60,9 @@ namespace Uhuru.Openshift.Runtime.Utils
             int uid = 0;
             int gid = 0;
             string passwd = string.Empty;
+            string gecos = string.Empty;
+            string dir = string.Empty;
+            string shell = string.Empty;
 
             foreach (string line in passwdFile)
             {
@@ -44,6 +74,9 @@ namespace Uhuru.Openshift.Runtime.Utils
                         uid = int.Parse(passwdProperties[2]);
                         gid = int.Parse(passwdProperties[3]);
                         passwd = passwdProperties[1];
+                        gecos = passwdProperties[4];
+                        dir = passwdProperties[5];
+                        shell = passwdProperties[6];
                     }
                 }
             }
@@ -57,9 +90,9 @@ namespace Uhuru.Openshift.Runtime.Utils
             etcUser.Uid = uid;
             etcUser.Gid = gid;
             etcUser.Passwd = passwd;
-            etcUser.Gecons = config.Get("GEAR_GECOS");
-            etcUser.Dir = Path.Combine(config.Get("GEAR_BASE_DIR"), name);
-            etcUser.Shell = config.Get("GEAR_SHELL");
+            etcUser.Gecos = gecos;
+            etcUser.Dir = dir;
+            etcUser.Shell = shell;
 
             return etcUser;
         }

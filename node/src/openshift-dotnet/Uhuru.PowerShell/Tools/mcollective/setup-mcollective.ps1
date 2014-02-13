@@ -101,7 +101,7 @@ Copy-Item -Force -Recurse -Path (Join-Path $mcollectiveUnpackDir '\*') $installL
 Remove-Item -Force -Recurse -Path $mcollectiveUnpackDir
 
 Write-Host "Setting up mcollective gem dependencies ..."
-$gemInstallProcess = Start-Process -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp"
+$gemInstallProcess = Start-Process -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp windows-pr win32-security facter"
 
 if ($gemInstallProcess.ExitCode -ne 0)
 {

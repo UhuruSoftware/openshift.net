@@ -17,3 +17,4 @@ obj/
 TestResults/
 /output/
 uhuru-openshift-winnode.exe
+/output.zip

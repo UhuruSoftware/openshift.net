@@ -116,9 +116,38 @@ function Check-VCRedistributable()
 
     if (($vcRegistry -eq $null) -or ($vcRegistry.Install -ne 1))
     {
-        Write-Error "Prerequisite Visual C++ Redistributable for Visual Studio 2013  is not installed. Please install this and then run this script again."
+        Write-Error "Prerequisite Visual C++ Redistributable for Visual Studio 2013 is not installed. Please install this and then run this script again."
         exit 1
     }
 
     Write-Host "[OK] Prerequisite Visual C++ Redistributable for Visual Studio 2013 is installed."
+}
+
+function Check-Product($productName, $products)
+{
+    $product = $products | Where {$_.Name -eq $productName }
+    if ($product -eq $null)
+    {
+        Write-Error "Prerequisite ${productName} is not installed. Please install this and then run this script again."
+        exit 1
+    }
+
+    Write-Host "[OK] Prerequisite ${productName} is installed."
+}
+
+function Check-Builders()
+{
+    $products = Get-WmiObject Win32_Product
+
+    #http://www.microsoft.com/en-us/download/details.aspx?id=40764
+    Check-Product 'Microsoft Visual Studio 2013 Shell (Isolated)' $products
+
+    #http://www.microsoft.com/en-us/download/details.aspx?id=30670
+    Check-Product 'Microsoft Visual Studio 2012 Shell (Isolated)' $products
+
+    #http://www.microsoft.com/en-us/download/details.aspx?id=1366
+    Check-Product 'Microsoft Visual Studio 2010 Shell (Isolated) - ENU' $products
+
+    #http://www.microsoft.com/en-us/download/details.aspx?id=7036
+    Check-Product 'Visual Studio 2008 Shell Isolated Mode Redistributable Package' $products
 }

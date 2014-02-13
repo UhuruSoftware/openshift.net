@@ -4,7 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
+using Uhuru.Openshift.Utilities;
 
 namespace Uhuru.Openshift.Runtime
 {
@@ -23,48 +27,134 @@ namespace Uhuru.Openshift.Runtime
 
         }
 
-        public string Start()
+        public int Start()
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+            {
+                gear.StartGear(new RubyHash());
+            });
         }
 
-        public string Stop(bool force = false)
+        public int Stop(bool force = false)
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+            {
+                RubyHash options = new RubyHash()
+                {
+                    { "user_initiated", "false" },
+                };
+
+                if (force)
+                {
+                    options["force"] = true;
+                    options["term_delay"] = 10;
+                }
+
+                gear.StopGear(options);
+            });
         }
 
-        public string Restart()
+        public int Restart()
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+            {
+                gear.StopGear(new RubyHash());
+                gear.StartGear(new RubyHash());
+            });                  
         }
 
-        public string Status()
+        public int Status()
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+            {
+                Console.WriteLine("Checking application {0} ({1}) status:", gear.ContainerName, gear.Uuid);
+                Console.WriteLine("-----------------------------------------------");
+                if (gear.StopLock)
+                {
+                    Console.WriteLine("Gear {0} is locked.", gear.Uuid);
+                    Console.WriteLine("");
+                }
+
+                try
+                {
+                    gear.Cartridge.EachCartridge(cart =>
+                    {
+                        Console.WriteLine("Cartridge: {0}...", cart.Name);
+                        string output = gear.GetStatus(cart.Name);
+                        output = Regex.Replace(output, @"^ATTR:.*$", string.Empty, RegexOptions.Multiline);
+                        output = Regex.Replace(output, @"^CLIENT_RESULT:\s+", string.Empty, RegexOptions.Multiline);
+                        output = output.Trim();
+                        Console.WriteLine(output);
+                        Console.WriteLine("");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Gear {0} Exception: {1}", gear.ContainerName, ex.Message);
+                    Console.WriteLine("Gear {0} StackTrace: {1}", gear.ContainerName, ex.Message);
+                }
+
+                Console.WriteLine("");
+            }, false);
         }
 
-        public string Idle()
+        public int Idle()
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+            {
+                // TODO: vladi: implement idle gear
+                // gear.IdleGear
+            }, false);
         }
 
-        public string Unidle()
+        public int Unidle()
         {
-            throw new NotImplementedException();
+            return PRunner(gear =>
+                {
+                    // TODO: vladi: implement unidle gear
+                    // gear.UnidleGear
+                }, false);
         }
 
-        public void PRunner(bool skipStopped = true)
+        public int PRunner(Action<ApplicationContainer> action, bool skipStopped = true)
         {
-            throw new NotImplementedException();
+            int retCode = 0;
+            List<Task> tasks = new List<Task>();
+
+            foreach (ApplicationContainer gear in Gears(skipStopped))
+            {
+                tasks.Add(Task.Factory.StartNew(() => 
+                    {
+                        if (action != null)
+                        {
+                            try
+                            {
+                                action.Invoke(gear);
+                            }
+                            catch (Exception ex)
+                            {
+                                retCode = 1;
+                                Logger.Error("Error running parallel gear action ({0}): {1} - {2}", 
+                                    gear.Uuid, ex.Message, ex.StackTrace);
+                            }
+                        }
+                    }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            return retCode;
         }
 
-        public void GearUuids(bool skipStopped = true)
+        public IEnumerable<string> GearUuids(bool skipStopped = true)
         {
-            throw new NotImplementedException();
+            foreach (ApplicationContainer gear in Gears(skipStopped))
+            {
+                yield return gear.Uuid;
+            }
         }
 
-        public delegate void GearCallback(ApplicationContainer gear);
-        public List<ApplicationContainer> Gears(GearCallback action, bool skipStopped = true)
+        public IEnumerable<ApplicationContainer> Gears(bool skipStopped = true)
         {
             
             List<ApplicationContainer> gearSet = new List<ApplicationContainer>();
@@ -74,22 +164,37 @@ namespace Uhuru.Openshift.Runtime
                 {
                     ApplicationContainer gear = ApplicationContainer.GetFromUuid(uuid);
                     // TODO check gear stoplock
+                    if (skipStopped && gear.StopLock)
+                    {
+                        throw new InvalidOperationException(string.Format("Gear is locked: {0}"));
+                    }
+
                     gearSet.Add(gear);
                 }
             }
             else
             {
-                // TODO
-                // gearSet = ApplicationContainer.All
+                gearSet = ApplicationContainer.All(null, false).ToList();
             }
 
             foreach(ApplicationContainer gear in gearSet)
             {
-                // TODO check stop lock again
-                action(gear);
-            }
+                try
+                {
+                    // TODO check stop lock again
+                    if (skipStopped && gear.StopLock)
+                    {
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Gear evaluation failed for: {0}", gear.Uuid);
+                    Logger.Error("Exception: {0} - {1}", ex.Message, ex.StackTrace);
+                }
 
-            return gearSet;
+                yield return gear;
+            }
         }
     }
 }
@@ -100,10 +205,10 @@ namespace Uhuru.Openshift.Cmdlets
     public class OO_Admin_Ctl_Gears : System.Management.Automation.Cmdlet
     {
         [Parameter(Position = 1, Mandatory = true)]
-        [ValidateSet("startall", "stopall", "forcestopall", "status", "restartall", "waited-startall", "condrestartall", "startgear")]
+        [ValidateSet("startall", "stopall", "forcestopall", "restartall", "condrestartall", "waited-startall", "status", "startgear", "stopgear", "forcestopgear", "restartgear", "statusgear", "idlegear", "unidlegear", "list", "listidle")]
         public string Operation;
 
-        [Parameter(Position=2)]
+        [Parameter(Position = 2)]
         public string[] UUID;
 
         // TODO need lockFile ?
@@ -111,10 +216,10 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
-            string exitval = string.Empty;
+            int exitval = 0;
             try
             {
-                switch(Operation)
+                switch (Operation)
                 {
                     case "startall":
                         {
@@ -159,7 +264,7 @@ namespace Uhuru.Openshift.Cmdlets
                         }
                     case "startgear":
                         {
-                            if(UUID == null || UUID.Length == 0)
+                            if (UUID == null || UUID.Length == 0)
                             {
                                 throw new Exception("Requires a gear uuid");
                             }
@@ -222,14 +327,21 @@ namespace Uhuru.Openshift.Cmdlets
                         }
                     case "list":
                         {
-
-                            throw new NotImplementedException();
+                            foreach (string uuid in new AdminGearsControl().GearUuids(false))
+                            {
+                                Console.WriteLine(uuid);
+                            }
                         }
+                        break;
                     case "listidle":
                         {
-                            throw new NotImplementedException();
+                            foreach (string uuid in new AdminGearsControl().GearUuids(false))
+                            {
+                                // TODO: vladi: determine if apps are idle   
+                            }
                         }
-                    default :
+                        break;
+                    default:
                         {
                             WriteObject("Usage: {startall|stopall|forcestopall|status|restartall|waited-startall|condrestartall|startgear [uuid]|stopgear [uuid]|forcestopgear [uuid]|restartgear [uuid]|idlegear [gear]|unidlegear [gear]|list|listidle}");
                             break;

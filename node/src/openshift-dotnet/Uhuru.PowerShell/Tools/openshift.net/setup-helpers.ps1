@@ -48,7 +48,7 @@ function Setup-SSHD($cygwinDir, $listenAddress, $port)
     }
 }
 
-function Setup-OOAliases($binLocation)
+function Setup-OOAliases($binLocation, $cygwinDir)
 {
     $ooBinDir = "c:\openshift\oo-bin"
     Cleanup-Directory $ooBinDir
@@ -70,6 +70,12 @@ function Setup-OOAliases($binLocation)
     $ooSSHScriptPath = (Join-Path $ooBinDir "oo-ssh")
     Write-Template (Join-Path $currentDir "oo-ssh.template") $ooSSHScriptPath @{}
     & $chmod +x $ooSSHScriptPath
+
+    Write-Host "Setting up bash profile for admin user ..."
+    $ooBinDirCyg = & $cygpath $ooBinDir
+
+    $bashProfileFile = (Join-Path $cygwinDir 'admin_home\.bash_profile')
+    [System.IO.File]::WriteAllText($bashProfileFile, "export PATH=`$PATH:${ooBinDirCyg}")
 }
 
 function Setup-GlobalEnv($binLocation)
@@ -190,10 +196,10 @@ function Setup-Privileges()
 
     Write-Template (Join-Path $currentDir "secedit_symlink.template") $inFile @{
         seCreateSymbolicLinkPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateSymbolicLinkPrivilege' "*${userSID}"
-        seTcbPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeTcbPrivilege' $serviceAccount
-        seCreateTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateTokenPrivilege' $serviceAccount
-        seServiceLogonRight = Get-UpdatedPrivilegeRule $sceditContent 'SeServiceLogonRight' $serviceAccount
-        seAssignPrimaryTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeAssignPrimaryTokenPrivilege' $serviceAccount
+        seTcbPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeTcbPrivilege' "${serviceAccount},administrator"
+        seCreateTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateTokenPrivilege' "${serviceAccount},administrator"
+        seServiceLogonRight = Get-UpdatedPrivilegeRule $sceditContent 'SeServiceLogonRight' "${serviceAccount},administrator"
+        seAssignPrimaryTokenPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeAssignPrimaryTokenPrivilege' "${serviceAccount},administrator"
     }
 
     $sceditProcess = Start-Process -Wait -PassThru -NoNewWindow 'secedit.exe' "/configure /db secedit.sdb /cfg  ${inFile}"

@@ -41,7 +41,15 @@ namespace Uhuru.Openshift.Runtime
             // prisonRules.CellType |= Prison.RuleType.Filesystem;
             prisonRules.CellType |= Prison.RuleType.MsSqlInstance;
 
-            prisonRules.CPUPercentageLimit = 20;
+            prisonRules.CPUPercentageLimit = Convert.ToInt64(Node.ResourceLimits["cpu_quota"]);
+            prisonRules.ActiveProcessesLimit = Convert.ToInt32(Node.ResourceLimits["max_processes"]);
+
+            // TODO: vladi: make sure these limits are ok being the same
+            prisonRules.NetworkOutboundRateLimitBitsPerSecond = Convert.ToInt64(Node.ResourceLimits["max_upload_bandwidth"]);
+            prisonRules.AppPortOutboundRateLimitBitsPerSecond = Convert.ToInt64(Node.ResourceLimits["max_upload_bandwidth"]);
+            
+            prisonRules.TotalPrivateMemoryLimitBytes = Convert.ToInt64(Node.ResourceLimits["max_memory"]) * 1024 * 1024;
+            prisonRules.DiskQuotaBytes = Convert.ToInt64(Node.ResourceLimits["quota_blocks"]) * 1024;
 
             prisonRules.PrisonHomePath = container.ContainerDir;
             prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");

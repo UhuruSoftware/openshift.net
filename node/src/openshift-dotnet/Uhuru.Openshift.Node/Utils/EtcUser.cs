@@ -11,7 +11,7 @@ namespace Uhuru.Openshift.Runtime.Utils
         public int Uid { get; set; }
         public int Gid { get; set; }
         public string Passwd { get; set; }
-        public string Gecons { get; set; }
+        public string Gecos { get; set; }
         public string Dir { get; set; }
         public string Shell { get; set; }
 

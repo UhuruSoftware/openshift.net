@@ -224,6 +224,7 @@ if ($skipChecks -eq $false)
     $iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
     $iisFeatures | ForEach-Object { Check-WindowsFeature $_ }
     Check-SQLServer2008
+    Check-Builders
 }
 
 # TODO: stop all services, gears, etc., or tell the user to do it
@@ -252,9 +253,15 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     rubyLocation = $rubyInstallLocation
 }
 
+Write-Host 'Generating resource_limits.conf file ...'
+Write-Template (Join-Path $currentDir "resource_limits.conf.template") "c:\openshift\resource_limits.conf" @{
+}
+
+
 if ($skipServicesSetup -eq $false)
 {
-    $openshiftServiceUserPassword = Create-OpenshiftUser
+    $openshiftServiceUserPassword = [string]::Empty
+    Create-OpenshiftUser ([REF]$openshiftServiceUserPassword)
     Setup-Privileges
 }
 
@@ -305,7 +312,7 @@ Copy-Item -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -Pa
 if ($skipGlobalEnv -eq $false)
 {
     # setup oo-bin alias paths
-    Setup-OOAliases $binLocation
+    Setup-OOAliases $binLocation $sshdCygwinDir
 
     # setup env vars in c:\openshift\env
     Setup-GlobalEnv $binLocation
@@ -313,6 +320,12 @@ if ($skipGlobalEnv -eq $false)
 
 if ($skipServicesSetup -eq $false)
 {
+    Write-Host 'Setting up facts updater scheduled task ...'
+    Setup-FacterScheduledTask $openshiftServiceUserPassword $binLocation
+
+    Write-Host 'Setting up startup script to start gears ...'
+    Setup-StartupScheduledTask $openshiftServiceUserPassword $binLocation
+
     Remove-Service 'openshift.mcollectived' $sshdCygwinDir
     Remove-Service 'openshift.sshd' $sshdCygwinDir
     

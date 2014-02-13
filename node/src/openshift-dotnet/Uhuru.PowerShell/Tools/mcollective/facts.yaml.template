@@ -34,12 +34,10 @@
   git_repos: 0
   capacity: "0.0"
   active_capacity: "0.0"
-  cart_list: "v2|python-2.7|perl-5.16|abstract|postgresql-9.2|python-3.3|phpmyadmin-3.5|ruby-1.9|mongodb-2.2|10gen-mms-agent-0.1|abstract-httpd|haproxy-1.4|nodejs-0.6|jenkins-client-1.4|php-5.4|diy-0.1|jenkins-1.4|mysql-5.1|cron-1.4"
-  embed_cart_list: "postgresql-9.2|phpmyadmin-3.5|mongodb-2.2|10gen-mms-agent-0.1|haproxy-1.4|jenkins-client-1.4|mysql-5.1|cron-1.4"
-  operatingsystemrelease: "18"
-  osfamily: RedHat
-  path: "/sbin:/bin:/usr/sbin:/usr/bin"
-  physicalprocessorcount: 1
+  operatingsystemrelease: "$osVersion"
+  osfamily: Windows
+  path: "$pathEnv"
+  physicalprocessorcount: $physicalProcessorCount
   processor0: "Intel(R) Core(TM) i5-2500K CPU @ 3.30GHz"
   processorcount: "1"
   ps: "ps -ef"
