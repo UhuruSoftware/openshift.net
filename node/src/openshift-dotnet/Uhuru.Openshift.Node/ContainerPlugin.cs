@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,6 +44,7 @@ namespace Uhuru.Openshift.Runtime
 
             prisonRules.CPUPercentageLimit = Convert.ToInt64(Node.ResourceLimits["cpu_quota"]);
             prisonRules.ActiveProcessesLimit = Convert.ToInt32(Node.ResourceLimits["max_processes"]);
+            prisonRules.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             // TODO: vladi: make sure these limits are ok being the same
             prisonRules.NetworkOutboundRateLimitBitsPerSecond = Convert.ToInt64(Node.ResourceLimits["max_upload_bandwidth"]);
