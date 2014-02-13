@@ -38,6 +38,10 @@ module MCollective
 
       def get_facts_action
         @logger.debug "get_facts_action"
+        reply[:output] = {}
+        request[:facts].each do |fact|
+          reply[:output][fact.to_sym] = MCollective::Util.get_fact(fact)
+        end
       end
 
       # Handles all incoming messages. Validates the input, executes the action, and constructs

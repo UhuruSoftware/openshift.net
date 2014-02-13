@@ -20,7 +20,7 @@ namespace Uhuru.Openshift.Runtime.Config
         {
             get
             {
-                return Path.Combine(DistrictConfig.ConfigDir, "settings", "district.info");
+                return Path.Combine(DistrictConfig.ConfigDir, ".settings", "district.info");
             }
         }
 

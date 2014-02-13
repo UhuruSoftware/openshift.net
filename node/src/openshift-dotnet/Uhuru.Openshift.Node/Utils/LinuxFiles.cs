@@ -31,9 +31,16 @@ namespace Uhuru.Openshift.Runtime.Utils
             }
         }
 
-        private static string Cygpath(string directory)
+        public static string Cygpath(string directory, bool toWindows = false)
         {
-            return ProcessExtensions.RunCommandAndGetOutput(CygpathBinary, directory).StdOut.Trim();
+            if (toWindows)
+            {
+                return ProcessExtensions.RunCommandAndGetOutput(CygpathBinary, string.Format("-w {0}", directory)).StdOut.Trim();
+            }
+            else
+            {
+                return ProcessExtensions.RunCommandAndGetOutput(CygpathBinary, directory).StdOut.Trim();
+            }
         }
 
         public static void FixSymlinks(string directory)

@@ -66,7 +66,7 @@ namespace Uhuru.Openshift.Cmdlets
                 CheckUsers();
                 CheckAppDirs();
                 //CheckSystemHttpdConfigs();
-                CheckCartridgeRepository();
+                //CheckCartridgeRepository();
             }
 
             this.WriteObject(status);
@@ -135,6 +135,7 @@ namespace Uhuru.Openshift.Cmdlets
                             break;
                         }
                     }
+
                     if(matchedCt == null)
                     {
                         DoFail("no manifest in the cart repo matches " + manifestPath);
@@ -198,7 +199,7 @@ namespace Uhuru.Openshift.Cmdlets
             VerboseMessage(string.Format("checking {0} user accounts", users.Length));
             foreach(EtcUser user in users)
             {
-                if(!Directory.Exists(user.Dir))
+                if(!Directory.Exists(LinuxFiles.Cygpath(user.Dir, true)))
                 {
                     DoFail(string.Format("user {0} does not have a home directory {1}", user.Name, user.Dir));
                 }                

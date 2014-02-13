@@ -253,6 +253,9 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     rubyLocation = $rubyInstallLocation
 }
 
+Write-Host "Creating gears dir '${gearBaseDir}' ..."
+New-Item -path $gearBaseDir -type directory -Force | out-Null
+
 Write-Host 'Generating resource_limits.conf file ...'
 Write-Template (Join-Path $currentDir "resource_limits.conf.template") "c:\openshift\resource_limits.conf" @{
 }

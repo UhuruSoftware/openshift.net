@@ -139,15 +139,15 @@ function Check-Builders()
 {
     $products = Get-WmiObject Win32_Product
 
-    #http://www.microsoft.com/en-us/download/details.aspx?id=40764
+    # http://www.microsoft.com/en-us/download/details.aspx?id=40764
     Check-Product 'Microsoft Visual Studio 2013 Shell (Isolated)' $products
 
-    #http://www.microsoft.com/en-us/download/details.aspx?id=30670
+    # http://www.microsoft.com/en-us/download/details.aspx?id=30670
     Check-Product 'Microsoft Visual Studio 2012 Shell (Isolated)' $products
 
-    #http://www.microsoft.com/en-us/download/details.aspx?id=1366
+    # http://www.microsoft.com/en-us/download/details.aspx?id=1366
     Check-Product 'Microsoft Visual Studio 2010 Shell (Isolated) - ENU' $products
 
-    #http://www.microsoft.com/en-us/download/details.aspx?id=7036
-    Check-Product 'Visual Studio 2008 Shell Isolated Mode Redistributable Package' $products
+    # http://www.microsoft.com/en-us/download/details.aspx?id=7036
+    Check-Product 'Microsoft Visual Studio Shell 2008 - ENU' $products
 }
