@@ -66,7 +66,7 @@ namespace Uhuru.Openshift.Cmdlets
                 CheckUsers();
                 CheckAppDirs();
                 //CheckSystemHttpdConfigs();
-                //CheckCartridgeRepository();
+                CheckCartridgeRepository();
             }
 
             this.WriteObject(status);
@@ -125,24 +125,27 @@ namespace Uhuru.Openshift.Cmdlets
                         srcM = (dynamic)deserializer.Deserialize(input);
                     }
 
-                    object matchedCt = null;
-                    foreach(KeyValuePair<string, object> pair in dstManifests)
+                    if (dstManifests.Count > 0)
                     {
-                        Dictionary<string, object> dstM = (Dictionary<string, object>)pair.Value;
-                        if(srcM["Name"] == dstM["Name"] && srcM["Cartridge-Version"] == dstM["Cartridge-Version"])
+                        object matchedCt = null;
+                        foreach(KeyValuePair<string, object> pair in dstManifests)
                         {
-                            matchedCt = dstCTimes[pair.Key];
-                            break;
+                            Dictionary<string, object> dstM = (Dictionary<string, object>)pair.Value;
+                            if(srcM["Name"] == dstM["Name"] && srcM["Cartridge-Version"] == dstM["Cartridge-Version"])
+                            {
+                                matchedCt = dstCTimes[pair.Key];
+                                break;
+                            }
                         }
-                    }
-
-                    if(matchedCt == null)
-                    {
-                        DoFail("no manifest in the cart repo matches " + manifestPath);
-                    }
-                    else if((DateTime)matchedCt < srcCt)
-                    {
-                        DoFail("cart repo version is older than " + manifestPath);
+                    
+                        if (matchedCt == null)
+                        {
+                            DoFail("no manifest in the cart repo matches " + manifestPath);
+                        }
+                        else if ((DateTime)matchedCt < srcCt)
+                        {
+                            DoFail("cart repo version is older than " + manifestPath);
+                        }
                     }
 
                 }
@@ -200,7 +203,7 @@ namespace Uhuru.Openshift.Cmdlets
             foreach(EtcUser user in users)
             {
                 if(!Directory.Exists(LinuxFiles.Cygpath(user.Dir, true)))
-                {
+                {                    
                     DoFail(string.Format("user {0} does not have a home directory {1}", user.Name, user.Dir));
                 }                
             }
