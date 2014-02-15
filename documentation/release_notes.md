@@ -3,10 +3,12 @@
 ### Additions ###
 
 - support for OSE deployments
+- fix for an nsupdate plugin bug in OSE
 
 ### Changes ###
 
 - installation script has an option to set the mcollective psk security plugin
+- added cartridge checks to oo-accept-node command
 
 ### Known Issues###
 
