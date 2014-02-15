@@ -22,7 +22,7 @@ $userActivemqPort = Get-NotEmpty $userActivemqPort "61613"
 $userActivemqUser = Get-NotEmpty $userActivemqUser "mcollective"
 $userActivemqPassword = Get-NotEmpty $userActivemqPassword "marionette"
 $mcollectivePath = Get-NotEmpty $mcollectivePath "c:\openshift\mcollective"
-$pskPlugin = Get-NotEmpty $mcollectivePath "unset"
+$pskPlugin = Get-NotEmpty $pskPlugin "unset"
 
 if ([string]::IsNullOrEmpty($userActivemqServer))
 {
