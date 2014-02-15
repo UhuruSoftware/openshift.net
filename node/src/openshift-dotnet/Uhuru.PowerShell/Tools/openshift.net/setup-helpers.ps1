@@ -11,7 +11,7 @@ function Cleanup-Directory($directory)
     }
 }
 
-function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir, $pskPlugin)
+function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir)
 {
     $mcollectiveSetupScript = (Join-Path $currentDir '..\mcollective\setup-mcollective.ps1')
     $mcollectiveSetupCommand = "-File ${mcollectiveSetupScript} -installLocation ${installLocation} -cygwinInstallLocation ${cygwinInstallLocation}"
@@ -19,7 +19,7 @@ function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir, $
     Run-RubyCommand $rubyDir "powershell ${mcollectiveSetupCommand}" $rubyDir
 }
 
-function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActivemqUser, $userActivemqPassword, $mcollectiveInstallDir, $binDir, $rubyDir, $mcollectivePskPlugin)
+function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActivemqUser, $userActivemqPassword, $mcollectiveInstallDir, $binDir, $rubyDir, $pskPlugin)
 {
     $mcollectiveSetupScript = (Join-Path $currentDir '..\mcollective\configure-mcollective.ps1')
 
