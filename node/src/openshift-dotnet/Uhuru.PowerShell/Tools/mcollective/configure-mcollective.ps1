@@ -4,7 +4,8 @@ param (
     $userActivemqUser = $(Read-Host "ActiveMQ Username (default is mcollective)"),
     $userActivemqPassword = $(Read-Host "ActiveMQ Password (default is marionette)"),
     $mcollectivePath = $(Read-Host "Path to mcollective installation (default is c:\openshift\mcollective\)"),
-    $binDir = $(Read-Host "Binary directory (required)")
+    $binDir = $(Read-Host "Binary directory (required)"),
+    $pskPlugin = $(Read-Host "PSK plugin (default is 'unset')")
     )
 
 If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(`
@@ -21,10 +22,11 @@ $userActivemqPort = Get-NotEmpty $userActivemqPort "61613"
 $userActivemqUser = Get-NotEmpty $userActivemqUser "mcollective"
 $userActivemqPassword = Get-NotEmpty $userActivemqPassword "marionette"
 $mcollectivePath = Get-NotEmpty $mcollectivePath "c:\openshift\mcollective"
+$pskPlugin = Get-NotEmpty $mcollectivePath "unset"
 
 if ([string]::IsNullOrEmpty($userActivemqServer))
 {
-    Write-Host "Broker host is empty - please specify a valid hotname or IP. Aborting." -ForegroundColor Red
+    Write-Host "Broker host is empty - please specify a valid hostname or IP. Aborting." -ForegroundColor Red
     exit 1
 }
 
@@ -103,6 +105,7 @@ Write-Template (Join-Path $currentDir "client.cfg.template")  (Join-Path $mcolle
     activemqPort = $userActivemqPort
     activemqUser = $userActivemqUser
     activemqPassword = $userActivemqPassword
+    pskPlugin = $pskPlugin
 }
 
 # edit server.cfg
@@ -115,6 +118,7 @@ Write-Template (Join-Path $currentDir "server.cfg.template")  (Join-Path $mcolle
     activemqPassword = $userActivemqPassword
     binDir = $binDir
     devLogFile = (Join-Path $mcollectivePath 'dev.log')
+    pskPlugin = $pskPlugin
 } 
 
 # copy custom validator to plugins\mcollective\validator

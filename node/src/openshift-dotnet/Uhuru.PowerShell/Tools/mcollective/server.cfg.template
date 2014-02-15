@@ -11,7 +11,7 @@ direct_addressing = 1
 
 # Plugins
 securityprovider = psk
-plugin.psk = unset
+plugin.psk = $pskPlugin
 
 connector = activemq
 plugin.activemq.pool.size = 1

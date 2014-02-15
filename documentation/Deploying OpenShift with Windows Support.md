@@ -1,9 +1,11 @@
 # Deploying OpenShift with Windows support #
 
-This document provides instructions on how to deploy a 2 node OpenShift environment that has Windows support. 
-We are going to use an Origin Fedora VM that comes with a full installation - a broker and a node on the same VM.
+This document provides instructions on how to deploy an OpenShift environment that has Windows support. 
+There are two options:
+- use an Origin Fedora VM that comes with a full installation - a broker and a node on the same VM (good for development environments)
+- use an OpenShift Enterprise installation 
 
-Next to this we're going to setup a Windows VM that will connect to the Linux OpenShift broker. 
+Next to either of these we're going to setup a Windows VM that will connect to the Linux OpenShift broker. 
 
 ## Cloud Topology ##
 
@@ -12,22 +14,54 @@ Next to this we're going to setup a Windows VM that will connect to the Linux Op
 
 ## Setting up things on Linux ##
 
+###Using the Fedora all-in-one VM
+
 You can download the Linux OpenShift VM from [here](https://mirror.openshift.com/pub/origin-server/release/3/images/). Make sure to download the `openshift-origin.zip` file. For this deployment manual, we support the version from **December 19th 2013**. 
 
 After starting the VM, go to the root console and install the changes required for windows support.
+
+###Using an OpenShift Enterprise Installation 
+
+- Install RHEL 6.5 on a VM.
+- Register to Red Hat Subscription Management using `subscription-manager register`.
+- Attach a proper subscription using `subscription-manager subscribe <pool id>`.
+- Make sure the following repos (and only these) are enabled in `/etc/yum.repos.d/redhat.repo`
+
+		jb-eap-6-for-rhel-6-server-rpms
+		jb-ews-2-for-rhel-6-server-rpms
+		rhel-6-server-optional-rpms
+		rhel-6-server-rpms
+		rhel-6-server-ose-2.0-infra-rpms
+		rhel-6-server-ose-2.0-node-rpms
+		rhel-6-server-ose-2.0-rhc-rpms
+		rhel-6-server-ose-2.0-jbosseap-rpms
+		rhel-server-rhscl-6-rpms
+
+- Install ruby - `yum install ruby`.
+- Go [here](https://install.openshift.com/) and follow the instructions for "OpenShift Enterprise". If you setup a multi-node deployment, make sure to install the rpm on each of them.
+- Reboot the server
+- **MAKE SURE THE TIME OF THE VM IS SYNCED**
+
+###Update OpenShift with changes required for Windows Support
 
 **Please make sure that you run all the commands specified in this document as `root`.**
 
 The RPM can be found [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required to download the packages.
 
-To install and update the local machine, run the following commands:
+If you have an OpenShift Enterprise deployment, run these commands on each of the hosts.
+
+To install and update a Linux VM, run the following commands:
 
 	wget http://<user>:<password>@winjenkins.hosts.uhuruos.com/uhuruorigin-0.<version>.rpm
-	yum remove uhuruorigin
 	yum install uhuruorigin-0.<version>.rpm
+	# if the VM has the Node role and it's the Fedora all-in-one VM
 	service mcollective restart
+	# if the VM has the Node role and it's RHEL with OpenShift Enterprise
+	service ruby193-mcollective restart 
+	# if the VM has the Broker role
 	service openshift-broker restart
-	(cd /var/www/openshift/broker/; bundle exec rake tmp:clear)
+	oo-admin-broker-cache --console
+
 
 ## Windows Prerequisites ##
 
@@ -65,6 +99,7 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - Please note the password you set for the `sa` account - you will need to configure the OpenShift node with it
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 
+- **MAKE SURE THE TIME OF THE VM IS SYNCED**
 
 ###Screenshots###
 
@@ -94,9 +129,13 @@ This walk-through assumes you are managing the server locally, not remotely.
 **Step 6** - On the confirmation page, click "Install" and wait for the installation process to complete
 
 
-## Setting up hosts ##
+## Setting up DNS ##
 
-Before proceeding with the Windows installation, you have to setup the hosts files on both Windows and Linux (the OpenShift VM uses multicast DNS and Windows does not have a proper solution for this).
+Before proceeding with the Windows installation, you have to make sure your hosts resolve ok.
+
+###Using the Fedora all-in-one VM
+
+You have to setup the hosts files on both Windows and Linux (the OpenShift VM uses multicast DNS and Windows does not have a proper solution for this).
 
 - on Linux, edit `/etc/hosts`, add an entry like 
 
@@ -107,14 +146,27 @@ Before proceeding with the Windows installation, you have to setup the hosts fil
 
 	e.g.: `10.2.0.21 broker-a211bd.openshift.local`
 
+###Using an OpenShift Enterprise Installation
+
+On the Broker VM, add an A record for the Windows Node to named by editing `/var/named/dynamic/<your cloud domain>.db`, then restart named: `service named restart`.
+
+Setup a conditional forwarder for your cloud's domain in your organization's DNS server
+
+The Windows Node will have to use your organization's DNS server.
+
+To make sure everything is in order, see if these return the proper response:
+- On Windows, `nslookup <broker_fqdn_hostname>`
+- On Linux, `nslookup <windows_node_fqdn_hostname>`
+
 ## Installing the OpenShift Windows Node ##
 
 Download the windows installer from [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required.
 
 - Run the installer
 - It will unpack the build in a temporary folder and drop you in PowerShell
-- From there you can run the installation script
-- You can simply run ./install.ps1 and the script will ask you for needed information
+- From there you can run the installation script:
+  - For a Fedora all-in-one installation you can simply run `./install.ps1` and the script will ask you for needed information
+  - For an OpenShift Enterprise installation, you have to specify an mcollective psk plugin (asimplething), so provide that as a parameter: `./install.ps1 -mcollectivePskPlugin asimplething`
 - If you need special settings, please read the manual included below and run the script with the appropriate settings
 
 ### Restarting services on the broker ###
@@ -235,6 +287,12 @@ After finishing the installation on Windows, clear the cache on the Linux machin
         Required?                    no
         Default value                marionette
 
+	-mcollectivePskPlugin <String>    
+    	Psk plugin used in MCollective. The default value is 'unset'. 
+		For an OpenShift Enterprise installation, the value should be 'asimplething'.
+        Required?                    no
+        Default value                unset
+
     -sshdCygwinDir <String>
         Location of sshd installation. This is where cygwin will be installed.
         Required?                    no
@@ -306,6 +364,14 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 `.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104`
 
 
+- Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
+
+`.\install.ps1 -mcollectivePskPlugin asimplething`
+
+
+- Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
+
+`.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
     
 
 

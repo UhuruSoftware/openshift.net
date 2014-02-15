@@ -1,3 +1,29 @@
+## Windows Extensions for OpenShift 0.3 Release Notes ##
+
+### Additions ###
+
+- support for OSE deployments
+
+### Changes ###
+
+- installation script has an option to set the mcollective psk security plugin
+
+### Known Issues###
+
+- upgrade will not work from previous version
+- gears will not be gracefully stopped on system shutdown
+- district support is not available
+- applications are not detected as idle
+- port reservation for applications is not assigned based on 'uid'
+- the oo-accept-systems script will return failures for cartridges
+- port forward to a SQL Server cartridge does not work
+- the Uhuru Prison is not fully locked (network restrictions, disk ACLs and disk quotas are not enforced)
+- jenkins builds will not work with Windows apps
+- concurrency - the Windows Nodes might be unpredictable if used by multiple users at the same time
+- non-scalable Windows applications are allowed, although they cannot be accessed via port 80
+- not all checks are enabled for oo-admin-accept-node (some don't apply to Windows)
+
+
 ## Windows Extensions for OpenShift 0.2 Release Notes ##
 
 ### Additions ###

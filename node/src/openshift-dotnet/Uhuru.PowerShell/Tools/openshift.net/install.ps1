@@ -64,9 +64,12 @@
     
 .PARAMETER mcollectiveActivemqUser
     ActiveMQ Username. The default ActiveMQ username for an OpenShift installation is 'mcollective'.
-    
+
 .PARAMETER mcollectiveActivemqPassword
     ActiveMQ Password. The default ActiveMQ password for an ActiveMQ installation is 'marionette'.
+
+.PARAMETER mcollectivePskPlugin    
+    Psk plugin used in MCollective. The default value is 'unset'. For an OpenShift Enterprise installation, the value should be 'asimplething'.
 
 .PARAMETER sshdCygwinDir
     Location of sshd installation. This is where cygwin will be installed.
@@ -113,12 +116,17 @@
     Date:   January 17, 2014
 
 .EXAMPLE
-
 .\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
 Install the node by passing the minimum information required. 
 .EXAMPLE
 .\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104
 Install the node by also passing the public IP address of the machine.
+.EXAMPLE
+.\install.ps1 -mcollectivePskPlugin asimplething
+Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
+.EXAMPLE
+.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 #>
 [CmdletBinding()]
 param (
@@ -148,6 +156,7 @@ param (
     [int] $mcollectiveActivemqPort = 61613,
     [string] $mcollectiveActivemqUser = 'mcollective',
     [string] $mcollectiveActivemqPassword = 'marionette',
+    [string] $mcollectivePskPlugin = 'unset',
     # parameters used for setting up sshd
     [string] $sshdCygwinDir = 'c:\openshift\cygwin',
     [string] $sshdListenAddress = '0.0.0.0',
@@ -300,9 +309,7 @@ if ($skipMCollective -eq $false)
 {
     Setup-MCollective 'c:\openshift\mcollective' (Join-Path $sshdCygwinDir 'installation') $rubyInstallLocation
 }
-Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $rubyInstallLocation
-#TODO: do something about facts
-
+Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $mcollectivePskPlugin
 
 # setup cartridges
 Write-Host 'Copying cartridges ...'
