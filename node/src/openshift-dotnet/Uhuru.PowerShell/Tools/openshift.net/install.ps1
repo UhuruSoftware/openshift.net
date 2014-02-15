@@ -211,6 +211,7 @@ Write-Verbose "Target ruby installation directory used is '$rubyInstallLocation'
 Write-Verbose "ActiveMQ server used is '$mcollectiveActivemqServer'"
 Write-Verbose "ActiveMQ port used is '$mcollectiveActivemqPort'"
 Write-Verbose "ActiveMQ user used is '$mcollectiveActivemqUser'"
+Write-Verbose "MCollective PSK plugin is '$mcollectivePskPlugin'"
 Write-Verbose "Target cygwin installation dir used is '$sshdCygwinDir'"
 Write-Verbose "SSHD listen address used is '$sshdListenAddress'"
 Write-Verbose "SSHD listening port used is '$sshdPort'"
@@ -309,7 +310,7 @@ if ($skipMCollective -eq $false)
 {
     Setup-MCollective 'c:\openshift\mcollective' (Join-Path $sshdCygwinDir 'installation') $rubyInstallLocation
 }
-Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $mcollectivePskPlugin
+Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $rubyInstallLocation $mcollectivePskPlugin
 
 # setup cartridges
 Write-Host 'Copying cartridges ...'
