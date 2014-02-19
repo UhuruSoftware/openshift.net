@@ -70,14 +70,11 @@ Write-Host "Warning - The DDL file will be copied, not included. If you change t
 # copy ddl file
 Copy-Item $agentDDLFile (Join-Path $mcollectivePath 'plugins\mcollective\agent\') -Force
 
-# create an agent that includes the development agent
+# copy the actual agent
+Copy-Item $agentCodeFile (Join-Path $mcollectivePath 'plugins\mcollective\agent\') -Force
 
-Write-Template (Join-Path $currentDir "openshift.rb.template") (Join-Path $mcollectivePath 'plugins\mcollective\agent\openshift.rb') @{
-    devAgentCodeFile = $agentCodeFile
-}
 
 # check if port is open on broker machine (sudo systemctl stop firewalld.service)
-
 Write-Host "Trying to connect to ${userActivemqServer}:${userActivemqPort} ..."
 
 try

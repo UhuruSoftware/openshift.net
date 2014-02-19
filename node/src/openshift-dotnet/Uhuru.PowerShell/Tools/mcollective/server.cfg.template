@@ -27,5 +27,4 @@ plugin.yaml = /openshift/mcollective/etc/facts.yaml
 
 # Windows MCollective Agent Settings
 plugin.openshift.winbin = $binDir
-plugin.openshift.agent = $(Join-Path $binDir "mcollective\openshift.rb")
 plugin.openshift.devlog = $devLogFile

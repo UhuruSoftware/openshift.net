@@ -52,15 +52,26 @@ If you have an OpenShift Enterprise deployment, run these commands on each of th
 
 To install and update a Linux VM, run the following commands:
 
-	wget http://<user>:<password>@winjenkins.hosts.uhuruos.com/uhuruorigin-0.<version>.rpm
-	yum install uhuruorigin-0.<version>.rpm
-	# if the VM has the Node role and it's the Fedora all-in-one VM
-	service mcollective restart
-	# if the VM has the Node role and it's RHEL with OpenShift Enterprise
-	service ruby193-mcollective restart 
-	# if the VM has the Broker role
-	service openshift-broker restart
-	oo-admin-broker-cache --console
+- For a Fedora all-in-one VM:
+
+		wget http://<user>:<password>@winjenkins.hosts.uhuruos.com/uhuruorigin-0.<version>.rpm
+		yum install uhuruorigin-0.<version>.rpm
+		# if the VM has the Node role
+		service mcollective restart
+		# if the VM has the Broker role
+		service openshift-broker restart
+		oo-admin-broker-cache --console
+
+
+- For an OpenShift Enterprise deployment:
+
+		wget http://<user>:<password>@winjenkins.hosts.uhuruos.com/ose/uhuruorigin-0.<version>.rpm
+		yum install uhuruorigin-0.<version>.rpm
+		# if the VM has the Node role
+		service ruby193-mcollective restart 
+		# if the VM has the Broker role
+		service openshift-broker restart
+		oo-admin-broker-cache --console
 
 
 ## Windows Prerequisites ##
@@ -81,7 +92,7 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 
 - Install the Visual C++ Redistributable Packages for Visual Studio 2013. You can find it [here](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Make sure to download the 'vcredist_x64.exe' version.
 
-- Install build tools for all versions of Visual Studio. Please note that the 2008 version of the installer first sets up the 'real' installer in `C:\VS 2008 Shell Redist\Isolated Mode`. You will have to run the `vs_shell_isolated.enu` package from there to complete the installation. Make sure to keep the filenames of the installers intact (use separate folders when downloading the packages); the installers are sensitive to their filenames being changed. You can find them at the following locations:
+- Install build tools for all versions of Visual Studio. **Please note that the 2008 version of the installer first sets up the 'real' installer in `C:\VS 2008 Shell Redist\Isolated Mode`. You will have to run the `vs_shell_isolated.enu` package from there to complete the installation**. Make sure to keep the filenames of the installers intact (use separate folders when downloading the packages); the installers are sensitive to their filenames being changed. You can find them at the following locations:
     - [Microsoft Visual Studio 2013 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=40764)
     - [Microsoft Visual Studio 2012 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=30670)
     - [Microsoft Visual Studio 2010 Shell (Isolated) - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=1366)

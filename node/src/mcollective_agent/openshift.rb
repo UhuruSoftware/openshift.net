@@ -6,8 +6,14 @@ module MCollective
   module Agent
     class Openshift < RPC::Agent
 
+      def initialize
+        super
+        @logger = ::Logger.new(config.pluginconf["openshift.devlog"], File::WRONLY | File::APPEND)
+        @logger.level = ::Logger::DEBUG
+      end
+
       def run_command(command ,args)
-        script = File.join(File.expand_path('../../powershell/oo-cmdlets', __FILE__), "#{command.to_s.gsub('_', '-')}.ps1")
+        script = File.join(config.pluginconf['openshift.winbin'], "powershell/oo-cmdlets/#{command.to_s.gsub('_', '-')}.ps1")
         ps_args = args.to_json.gsub('"', '"""')
 
         powershell = 'c:\\windows\\sysnative\\windowspowershell\\v1.0\\powershell.exe'
