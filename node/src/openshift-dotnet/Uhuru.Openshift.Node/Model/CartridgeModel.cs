@@ -62,14 +62,7 @@ namespace Uhuru.Openshift.Runtime
             }
             else
             {
-                foreach(Cartridge cart in CartridgeRepository.Instance.LatestVersions)
-                {
-                    if(cart.OriginalName == name && cart.Version == version)
-                    {
-                        cartridge = new Manifest(cart.Spec, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
-                        break;
-                    }
-                }
+                cartridge = CartridgeRepository.Instance.Select(name, version);
             }
 
             this.CreatePrivateEndpoints(cartridge);
@@ -468,9 +461,8 @@ namespace Uhuru.Openshift.Runtime
         public Manifest GetCartridgeFromDirectory(string cartDir)
         {
             string cartPath = Path.Combine(container.ContainerDir, cartDir);
-            string manifestPath = Path.Combine(cartPath, "metadata", "manifest.yml");
-            string manifest = File.ReadAllText(manifestPath);
-            Manifest cartridge = new Manifest(manifest, null, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+            string manifestPath = Path.Combine(cartPath, "metadata", "manifest.yml");            
+            Manifest cartridge = new Manifest(manifestPath, null, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
             this.cartridges[cartDir] = cartridge;
             return cartridge;
         }
@@ -711,14 +703,7 @@ namespace Uhuru.Openshift.Runtime
                 }
                 catch
                 {
-                    foreach (Cartridge cart in CartridgeRepository.Instance.LatestVersions)
-                    {
-                        if (cart.OriginalName == name && cart.Version == version)
-                        {
-                            cartridge = new Manifest(cart.Spec, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
-                            break;
-                        }
-                    }
+                    cartridge = CartridgeRepository.Instance.Select(name, version);
                 }
 
                 string ident = Manifest.BuildIdent(cartridge.CartridgeVendor, cartridge.Name, version, cartridge.CartridgeVersion);
@@ -753,8 +738,7 @@ namespace Uhuru.Openshift.Runtime
             string version = cartName.Split('-')[1];
             string cartridgePath = Path.Combine(this.container.ContainerDir, directory);
             string manifestPath = Path.Combine(cartridgePath, "metadata", "manifest.yml");
-            string manifest = File.ReadAllText(manifestPath);
-            return new Manifest(manifest, version, null, this.container.ContainerDir, true);
+            return new Manifest(manifestPath, version, null, this.container.ContainerDir, true);
         }
 
         public void CreatePrivateEndpoints(Manifest cartridge)

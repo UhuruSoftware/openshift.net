@@ -33,33 +33,40 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
+                returnStatus.ExitCode = 0;
                 switch (Action.ToLower())
                 {
                     case "install":
                         {
                             Logger.Debug("Cartridge repository action install");
-                        } break;
+                            CartridgeRepository.Instance.Install(Path);
+                            break;
+                        }
                     case "erase":
                         {
                             Logger.Debug("Cartridge repository action erase");
-                        } break;
+                            CartridgeRepository.Instance.Erase(Name, Version, CartridgeVersion);
+                            break;
+                        }
                     case "list":
                         {
                             Logger.Debug("Cartridge repository action list");
-
-                        }break;
+                            returnStatus.Output = CartridgeRepository.Instance.ToString();
+                            break;                            
+                        }
                     default:
                         {
-                            throw new NotImplementedException(string.Format("{0} is not implemented. openshift.ddl may be out of date"));
+                            returnStatus.Output = string.Format("{0} is not implemented. openshift.ddl may be out of date", Action);
+                            returnStatus.ExitCode = 2;
+                            break;
                         }
-                }
-                returnStatus.ExitCode = 0;
+                }                
             }
             catch (Exception ex)
             {
                 Logger.Error("Error running cartridge-repository-actions command: {0} - {1}", ex.Message, ex.StackTrace);
-                returnStatus.Output = ex.ToString();
-                returnStatus.ExitCode = 2;
+                returnStatus.Output = string.Format("{0} failed for {1} {2}", Action, Path, ex.Message);
+                returnStatus.ExitCode = 4;
             }
 
             WriteObject(returnStatus);

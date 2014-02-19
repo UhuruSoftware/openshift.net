@@ -82,6 +82,8 @@
     <Content Include="OO-Cmdlets\get-all-gears-endpoints-action.ps1" />
     <Content Include="OO-Cmdlets\get-gear-envs-action.ps1" />
     <Content Include="OO-Cmdlets\has-app-cartridge-action.ps1" />
+    <Content Include="OO-Cmdlets\install-cartridges.ps1" />
+    <Content Include="OO-Cmdlets\oo-admin-cartridge.ps1" />
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />

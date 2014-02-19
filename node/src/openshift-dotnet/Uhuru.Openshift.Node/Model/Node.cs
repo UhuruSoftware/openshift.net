@@ -26,7 +26,19 @@ namespace Uhuru.Openshift.Runtime
         {
             string output = string.Empty;
 
-            List<Cartridge> carts = CartridgeRepository.Instance.LatestVersions;
+            List<Cartridge> carts = new List<Cartridge>();
+
+            foreach(Manifest cartridge in CartridgeRepository.Instance.LatestVersions())
+            {
+                string manifestString = cartridge.ToManifestString();
+                using(StringReader sr = new StringReader(manifestString))
+                {
+                    var desrializer = new Deserializer();
+                    dynamic manifest = desrializer.Deserialize(sr);
+                    manifest["Version"] = cartridge.Version;
+                    carts.Add(Cartridge.FromDescriptor(manifest));
+                }                
+            }
 
             if (porcelain)
             {

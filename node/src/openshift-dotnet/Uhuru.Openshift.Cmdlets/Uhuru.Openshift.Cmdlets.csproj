@@ -82,7 +82,9 @@
     <Compile Include="Get_All_Gears_Endpoints_Action.cs" />
     <Compile Include="Get_Gear_Envs_Action.cs" />
     <Compile Include="Has_App_Cartridge_Action.cs" />
+    <Compile Include="Install_Cartridges.cs" />
     <Compile Include="OO_Activate.cs" />
+    <Compile Include="OO_Admin_Cartridge.cs" />
     <Compile Include="OO_Force_Stop.cs" />
     <Compile Include="OO_Env_Var_Add.cs" />
     <Compile Include="OO_Authorized_Ssh_Keys_Replace.cs" />

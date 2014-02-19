@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,7 @@ namespace Uhuru.Openshift.Runtime
 
         public string OriginalName { get; set; }
         public string Version { get; set; }
-        public List<object> Versions { get; set; }
+        public HashSet<string> Versions { get; set; }
         public string Architecture { get; set; }
         public string DisplayName { get; set; }
         public string License { get; set; }
@@ -38,6 +39,10 @@ namespace Uhuru.Openshift.Runtime
         public List<object> NativeRequires { get; set; }
         public List<object> Categories { get; set; }
         public string Website { get; set; }
+        public string SourceUrl { get; set; }
+        public string SourceMD5 { get; set; }
+        public string ManifestPath { get; set; }
+
         public List<object> Suggests { get; set; }
         bool isDeployable;
         public dynamic HelpTopics { get; set; }
@@ -88,55 +93,96 @@ namespace Uhuru.Openshift.Runtime
         {
             get
             {
-                if (manifest.ContainsKey("Install-Build-Required"))
+                if (ManifestSpec.ContainsKey("Install-Build-Required"))
                 {
-                    return bool.Parse(manifest["Install-Build-Required"]);
+                    return bool.Parse(ManifestSpec["Install-Build-Required"]);
                 }
                 return false;
             }
-        }        
+        }
 
-        dynamic manifest;
+        public dynamic ManifestSpec { get; set; }
         bool isWebProxy;
 
         public List<Uhuru.Openshift.Common.Models.Endpoint> Endpoints { get; set; }
 
-        public Manifest(dynamic desc, string version, string type, string repositoryBasePath, bool checkNames)
+        public Manifest(dynamic desc, string version = null, string type = "url", string repositoryBasePath = "", bool checkNames = true)
         {
-            if (desc is String)
+            if(type == "url")
             {
-                this.manifest = ManifestFromYaml(desc);
+                if (desc is String)
+                {
+                    this.ManifestSpec = ManifestFromYaml(desc);
+                }
+                else
+                {
+                    this.ManifestSpec = desc;
+                }
+                this.ManifestPath = "url";
+                
             }
             else
             {
-                this.manifest = desc;
+                string yml = File.ReadAllText(desc);
+                this.ManifestSpec = ManifestFromYaml(yml);
+                this.ManifestPath = desc;
             }
-            this.Versions = this.manifest.ContainsKey("Versions") ? this.manifest["Versions"] : new List<object>();
-            this.Versions.Add(this.manifest["Version"]);
-            this.CartridgeVersion = this.manifest["Cartridge-Version"].ToString();
+
+            this.Versions = new HashSet<string>();
+            if(this.ManifestSpec.ContainsKey("Versions"))
+            {
+                foreach(var ver in this.ManifestSpec["Versions"])
+                {
+                    Versions.Add(ver.ToString());
+                }
+            }
+
+            this.Versions.Add(this.ManifestSpec["Version"].ToString());
+            this.CartridgeVersion = this.ManifestSpec["Cartridge-Version"].ToString();
             if (!string.IsNullOrEmpty(version))
             {
                 this.Version = version;
-                this.manifest["Version"] = this.Version;
+                this.ManifestSpec["Version"] = this.Version;
             }
             else
             {
-                this.Version = manifest["Version"];
+                this.Version = ManifestSpec["Version"];
             }
 
-            this.CartridgeVendor = this.manifest["Cartridge-Vendor"];
-            this.Name = manifest["Name"];
-            this.ShortName = manifest["Cartridge-Short-Name"];
-            this.Categories = manifest["Categories"] ?? new List<object>() { };
+            this.CartridgeVendor = this.ManifestSpec["Cartridge-Vendor"];
+            this.Name = ManifestSpec["Name"];
+            this.ShortName = ManifestSpec["Cartridge-Short-Name"];
+            this.Categories = ManifestSpec["Categories"] ?? new List<object>() { };
             this.isDeployable = this.Categories.Contains("web_framework");
-            this.RepositoryPath = Path.Combine(repositoryBasePath, this.Name);
+            this.isWebProxy = this.Categories.Contains("web_proxy");
+
+            string repositoryDirectory = string.Format("{0}-{1}", CartridgeVendor.ToLower(), this.Name);
+            this.RepositoryPath = Path.Combine(repositoryBasePath, repositoryDirectory, CartridgeVersion);
+
+            if (((Dictionary<object, object>)ManifestSpec).ContainsKey("Source-Url"))
+            {
+                if (!Uri.IsWellFormedUriString(ManifestSpec["Source-Url"], UriKind.Absolute))
+                {
+                    throw new Exception("Source-Url is not valid");                    
+                }
+                SourceUrl = ManifestSpec["Source-Url"];
+                SourceMD5 = ManifestSpec["Source-Md5"];
+            }
+            else
+            {
+                if (ManifestPath == "url")
+                {
+                    throw new MissingFieldException("Source-Url is required in manifest to obtain cartridge via URL", "Source-Url");
+                }
+            }
+
 
             this.Endpoints = new List<Endpoint>();
-            if (((Dictionary<object, object>)manifest).ContainsKey("Endpoints"))
+            if (((Dictionary<object, object>)ManifestSpec).ContainsKey("Endpoints"))
             {
-                if (manifest["Endpoints"] is List<object>)
+                if (ManifestSpec["Endpoints"] is List<object>)
                 {
-                    foreach (dynamic ep in manifest["Endpoints"])
+                    foreach (dynamic ep in ManifestSpec["Endpoints"])
                     {
                         this.Endpoints.Add(Endpoint.FromDescriptor(ep, this.ShortName.ToUpper()));
                     }
@@ -172,6 +218,73 @@ namespace Uhuru.Openshift.Runtime
             return spec;
         }
 
+        public static List<string> SortVersions(IEnumerable<string> array)
+        {
+            List<string> copy = new List<string>(array);
+            copy.RemoveAll(v => v == "_");
 
+            copy.Sort(delegate(string x, string y){
+                return CompareVersions(x, y);
+            });
+
+            return copy;
+        }
+
+        public static int CompareVersions(string v1, string v2)
+        {
+            List<int> versions1 = new List<int>();
+            List<int> versions2 = new List<int>();
+
+            foreach(string v in v1.Split('.'))
+            {
+                versions1.Add(int.Parse(v));
+            }
+
+            foreach (string v in v2.Split('.'))
+            {
+                versions2.Add(int.Parse(v));
+            }
+
+            while (versions1.Count < versions2.Count) { versions1.Add(0); }
+            while (versions2.Count < versions1.Count) { versions2.Add(0); }
+
+            for (int i = 0; i < versions1.Count; i++)
+            {
+                if (versions1[i] > versions2[i])
+                    return 1;
+                else if (versions1[i] < versions2[i])
+                    return -1;
+            }
+
+            return 0;
+        }
+
+        public Manifest ProjectVersionOverrides(string version, string repositoryBasePath)
+        {
+            return new Manifest(this.ManifestPath, version, "file", repositoryBasePath);
+        }
+
+        public string ToManifestString()
+        {
+            StringBuilder sb = new StringBuilder();
+            using (StringWriter sw = new StringWriter(sb))
+            {
+                var serializer = new Serializer();
+                serializer.Serialize(sw, this.ManifestSpec);
+            }
+            return sb.ToString();
+        }
+
+        public string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<Cartridge: ");
+            foreach(System.ComponentModel.PropertyDescriptor property in TypeDescriptor.GetProperties(this))
+            {
+                sb.Append(string.Format("{0}: {1} ", property.Name, property.GetValue(this)));
+            }
+            sb.Append(" >");
+            return sb.ToString();
+        }
     }
 }

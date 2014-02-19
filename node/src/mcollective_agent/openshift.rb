@@ -6,6 +6,19 @@ module MCollective
   module Agent
     class Openshift < RPC::Agent
 
+      activate_when do
+        script = File.join(File.expand_path('../../../../../bin/powershell/oo-cmdlets', __FILE__), "install-cartridges.ps1")
+        powershell = 'c:\\windows\\sysnative\\windowspowershell\\v1.0\\powershell.exe'
+        cmd = "#{powershell} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} 2>&1"
+        output = ""
+        exitcode = 0
+        Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+          output = stdout.read
+          exitcode = wait_thr.value.exitstatus
+        end
+        return true
+      end
+
       def initialize
         super
         @logger = ::Logger.new(config.pluginconf["openshift.devlog"], File::WRONLY | File::APPEND)
