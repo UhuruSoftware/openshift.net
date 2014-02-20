@@ -16,7 +16,7 @@ namespace Uhuru.Openshift.Runtime
 {
     public class CartridgeRepository: IEnumerable
     {
-        const string CARTRIDGE_REPO_DIR = NodeConfig.Values.Get("CARTRIDGE_REPO_DIR");
+        string CARTRIDGE_REPO_DIR = NodeConfig.Values.Get("CARTRIDGE_REPO_DIR");
         
         public string path;
         static object OpenShiftCartridgeRepositorySemaphore = new object();
@@ -382,7 +382,7 @@ namespace Uhuru.Openshift.Runtime
         public static void InstantiateCartridge(Manifest cartridge, string target, bool failureRemove = true)
         {
             Directory.CreateDirectory(target);
-            bool downloadable = Uri.IsWellFormedUriString(cartridge.ManifestPath, UriKind.Absolute);
+            bool downloadable = cartridge.ManifestPath == "url";
 
             if(downloadable)
             {
