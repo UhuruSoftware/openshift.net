@@ -79,7 +79,7 @@ namespace Uhuru.Openshift.Cmdlets
             Dictionary<string, object> dstCTimes = new Dictionary<string, object>();
             Dictionary<string, object> dstManifests = new Dictionary<string, object>();
 
-            foreach(string cart in Directory.GetDirectories(NodeConfig.Values.Get("GEAR_BASE_DIR")))
+            foreach (string cart in Directory.GetDirectories(NodeConfig.Values.Get("CARTRIDGE_REPO_DIR")))
             {
                 string manifestPath = Path.Combine(cart, "metadata", "manifest.yml");
                 if (!File.Exists(manifestPath))

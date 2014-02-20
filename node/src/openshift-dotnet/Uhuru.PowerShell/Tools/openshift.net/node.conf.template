@@ -18,6 +18,7 @@ GEAR_BASE_DIR="${gearBaseDir}"                        # gear root directory
 GEAR_SHELL="${gearShell}"                        # shell to use for the gear
 GEAR_GECOS="${gearGecos}"                              # Gecos information to populate for the gear user
 CARTRIDGE_BASE_PATH="${cartridgeBasePath}"   # Locations where cartridges are installed
+CARTRIDGE_REPO_DIR="c:\openshift\.cartridge_repository
 
 PLATFORM_LOG_FILE="${platformLogFile}"
 PLATFORM_LOG_LEVEL=${platformLogLevel}

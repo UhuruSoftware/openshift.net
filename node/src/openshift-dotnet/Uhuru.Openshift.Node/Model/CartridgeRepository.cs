@@ -16,7 +16,7 @@ namespace Uhuru.Openshift.Runtime
 {
     public class CartridgeRepository: IEnumerable
     {
-        const string CARTRIDGE_REPO_DIR = @"C:\openshift\.cartridge_repository";
+        const string CARTRIDGE_REPO_DIR = NodeConfig.Values.Get("CARTRIDGE_REPO_DIR");
         
         public string path;
         static object OpenShiftCartridgeRepositorySemaphore = new object();
