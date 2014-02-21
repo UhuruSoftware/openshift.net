@@ -245,7 +245,7 @@ namespace Uhuru.Openshift.Common.Models
         {
             get
             {
-                if (this.CartridgeVendor == "redhat" || string.IsNullOrEmpty(this.CartridgeVendor))
+                if (this.CartridgeVendor == "redhat" || this.CartridgeVendor == "uhuru" || string.IsNullOrEmpty(this.CartridgeVendor))
                 {
                     return string.Format("{0}-{1}", this.OriginalName, this.Version);
                 }
