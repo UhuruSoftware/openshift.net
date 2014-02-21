@@ -54,20 +54,21 @@ namespace Uhuru.Openshift.Runtime
         {
             this.CartridgeName = cartName;            
             string name = cartName.Split('-')[0];
-            string version = cartName.Split('-')[1];
+            string softwareVersion = cartName.Split('-')[1];
             Manifest cartridge = null;
             if (!string.IsNullOrEmpty(manifest))
             {
-                cartridge = new Manifest(manifest, version, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
+                Logger.Debug("Loading from manifest... {0}", manifest);
+                cartridge = new Manifest(manifest, softwareVersion);
             }
             else
             {
-                cartridge = CartridgeRepository.Instance.Select(name, version);
+                cartridge = CartridgeRepository.Instance.Select(name, softwareVersion);
             }
 
             this.CreatePrivateEndpoints(cartridge);
 
-            CreateCartridgeDirectory(cartridge, version);
+            CreateCartridgeDirectory(cartridge, softwareVersion);
             return PopulateGearRepo(name, templateGitUrl);
         }
 
@@ -437,8 +438,17 @@ namespace Uhuru.Openshift.Runtime
         {
             if (!cartridges.ContainsKey(cartName))
             {
-                string cartDir = CartridgeDirectory(cartName);
-                this.cartridges[cartName] = GetCartridgeFromDirectory(cartDir);
+                string cartDir = string.Empty;
+                try
+                {
+                    cartDir = CartridgeDirectory(cartName);
+                    this.cartridges[cartName] = GetCartridgeFromDirectory(cartDir);
+                }
+                catch(Exception e)
+                {
+                    Logger.Error(e.ToString());
+                    throw new Exception(string.Format("Failed to get cartridge {0} from {1} in gear {2}: {3}", cartName, cartDir, this.container.Uuid, e.Message));
+                }
             }
             return cartridges[cartName];
         }
@@ -460,11 +470,32 @@ namespace Uhuru.Openshift.Runtime
 
         public Manifest GetCartridgeFromDirectory(string cartDir)
         {
-            string cartPath = Path.Combine(container.ContainerDir, cartDir);
-            string manifestPath = Path.Combine(cartPath, "metadata", "manifest.yml");            
-            Manifest cartridge = new Manifest(manifestPath, null, null, NodeConfig.Values["CARTRIDGE_BASE_PATH"], true);
-            this.cartridges[cartDir] = cartridge;
-            return cartridge;
+            if(string.IsNullOrEmpty(cartDir))
+            {
+                throw new ArgumentNullException("Directory name is required");
+            }
+
+            if (!this.cartridges.ContainsKey(cartDir))
+            {
+                string cartPath = Path.Combine(container.ContainerDir, cartDir);
+                string manifestPath = Path.Combine(cartPath, "metadata", "manifest.yml");
+                string identPath = Directory.GetFiles(Path.Combine(cartPath, "env"), "OPENSHIFT_*_IDENT").FirstOrDefault();
+
+                if(!File.Exists(manifestPath))
+                {
+                    throw new Exception(string.Format("Cartridge manifest not found: {0} missing", manifestPath));
+                }
+
+                if(identPath == null)
+                {
+                    throw new Exception(string.Format("Cartridge Ident not found in {0}", cartPath));
+                }
+
+                string version = Manifest.ParseIdent(File.ReadAllText(identPath))[2];
+                Manifest cartridge = new Manifest(manifestPath, version, "file", this.container.ContainerDir);
+                this.cartridges[cartDir] = cartridge;
+            }
+            return this.cartridges[cartDir];
         }
 
         private void CreateCartridgeDirectory(Manifest cartridge, string softwareVersion)

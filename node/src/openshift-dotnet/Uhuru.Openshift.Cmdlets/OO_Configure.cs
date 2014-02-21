@@ -43,6 +43,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string TemplateGitUrl;
 
+        [Parameter]
+        public string WithCartridgeManifest;
+
         protected override void ProcessRecord()
         {
             ReturnStatus status = new ReturnStatus();
@@ -51,7 +54,7 @@ namespace Uhuru.Openshift.Cmdlets
                 WithNamespace, null, null, null);
             try
             {
-                status.Output = container.Configure(CartName, TemplateGitUrl, null);
+                status.Output = container.Configure(CartName, TemplateGitUrl, WithCartridgeManifest);
                 status.ExitCode = 0;
             }
             catch (Exception ex)

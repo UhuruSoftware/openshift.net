@@ -110,7 +110,7 @@ namespace Uhuru.Openshift.Runtime
         {
             if(type == "url")
             {
-                if (desc is String)
+                if (desc is string)
                 {
                     this.ManifestSpec = ManifestFromYaml(desc);
                 }
@@ -166,7 +166,7 @@ namespace Uhuru.Openshift.Runtime
                     throw new Exception("Source-Url is not valid");                    
                 }
                 SourceUrl = ManifestSpec["Source-Url"];
-                SourceMD5 = ManifestSpec["Source-Md5"];
+                SourceMD5 = ManifestSpec.ContainsKey("Source-Md5") ? ManifestSpec["Source-Md5"] : null;
             }
             else
             {
