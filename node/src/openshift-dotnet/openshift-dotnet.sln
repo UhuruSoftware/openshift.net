@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{74CC72
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Prison", "windows-prison\src\Uhuru.Prison\Uhuru.Prison.csproj", "{B9C02CB5-33CE-479A-9A16-78F67A66BF80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Prison", "windows-isolation\src\Uhuru.Prison\Uhuru.Prison.csproj", "{B9C02CB5-33CE-479A-9A16-78F67A66BF80}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9B3D3029-488D-49F1-A4C1-FFF256196455} = {9B3D3029-488D-49F1-A4C1-FFF256196455}
 	EndProjectSection
@@ -34,7 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Prison", "Prison", "{D4626A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.MsSQLSysGenerator", "Uhuru.OpenShift.MsSQLSysGenerator\Uhuru.Openshift.MsSQLSysGenerator.csproj", "{300C20C7-D0ED-4DB5-A40B-16D2E232ADD5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Uhuru.Prison.Guard", "windows-prison\src\Uhuru.Prison.Guard\Uhuru.Prison.Guard.vcxproj", "{9B3D3029-488D-49F1-A4C1-FFF256196455}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Uhuru.Prison.Guard", "windows-isolation\src\Uhuru.Prison.Guard\Uhuru.Prison.Guard.vcxproj", "{9B3D3029-488D-49F1-A4C1-FFF256196455}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

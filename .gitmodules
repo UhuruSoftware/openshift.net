@@ -1,3 +1,3 @@
-[submodule "node/src/openshift-dotnet/windows-prison"]
-	path = node/src/openshift-dotnet/windows-prison
-	url = git@github.com:UhuruSoftware/windows-prison.git
+[submodule "node/src/openshift-dotnet/windows-isolation"]
+	path = node/src/openshift-dotnet/windows-isolation
+	url = git@github.com:UhuruSoftware/windows-isolation.git
