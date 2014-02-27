@@ -523,6 +523,13 @@ namespace Uhuru.Openshift.Runtime
             {
                 WriteEnvironmentVariables(Path.Combine(this.container.ContainerDir, ".env"), envs);
             }
+
+            var prison = Prison.Prison.LoadPrisonNoAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            Logger.Debug("Setting permisions to dir {0}, prison user {1}", target, prison.User.Username);
+            
+            LinuxFiles.TakeOwnership(target, prison.User.Username);
+
+            Logger.Info("Created cartridge directory {0}/{1}", container.Uuid, cartridge.Dir);
         }
 
         public static void WriteEnvironmentVariables(string path, Dictionary<string,string> envs, bool prefix)

@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Runtime.Config;
+using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Utilities;
 using YamlDotNet.RepresentationModel.Serialization;
 
@@ -382,49 +384,122 @@ namespace Uhuru.Openshift.Runtime
         public static void InstantiateCartridge(Manifest cartridge, string target, bool failureRemove = true)
         {
             Directory.CreateDirectory(target);
-            bool downloadable = cartridge.ManifestPath == "url";
-
-            if(downloadable)
+            try
             {
-                Uri uri = new Uri(cartridge.SourceUrl);
-                string temporary = Path.Combine(target, Path.GetFileName(uri.LocalPath));
+                bool downloadable = cartridge.ManifestPath == "url";
 
-                // TODO
-                throw new NotImplementedException("Downloadable cartridges not supported");
-
-                if(uri.Scheme == "git" || cartridge.SourceUrl.EndsWith(".git"))
+                if (downloadable)
                 {
+                    Uri uri = new Uri(cartridge.SourceUrl);
+                    string temporary = Path.Combine(target, Path.GetFileName(uri.LocalPath));
 
-                }
-                else if(Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"\.zip"))
-                {
-
-                }
-                else if(Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"(\.tar\.gz|\.tgz)$"))
-                {
-
-                }
-                else if(Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"\.tar$"))
-                {
-
-                }
-                else if(uri.Scheme == "file")
-                {
-
+                    if (uri.Scheme == "git" || cartridge.SourceUrl.EndsWith(".git"))
+                    {
+                        string template = @"{0} clone {1} {2}
+set GIT_DIR=./{2}.git
+{0} repack";
+                        string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + "cmd.bat");
+                        File.WriteAllText(file, string.Format(template, Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe"), cartridge.SourceUrl, cartridge.Name));
+                        ProcessExtensions.RunCommandAndGetOutput("cmd.exe", string.Format("/c {0}", file), new DirectoryInfo(target).Parent.FullName);
+                    }
+                    else if (Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"\.zip"))
+                    {
+                        try
+                        {
+                            UriCopy(new Uri(cartridge.SourceUrl), temporary, cartridge.SourceMD5);
+                            Extract("zip", temporary, target);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex.ToString());
+                            throw ex;
+                        }
+                        finally
+                        {
+                            if (File.Exists(temporary))
+                            {
+                                File.Delete(temporary);
+                            }
+                        }
+                    }
+                    else if (Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"(\.tar\.gz|\.tgz)$"))
+                    {
+                        try
+                        {
+                            UriCopy(new Uri(cartridge.SourceUrl), temporary, cartridge.SourceMD5);
+                            Extract("tgz", temporary, target);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex.ToString());
+                            throw ex;
+                        }
+                        finally
+                        {
+                            if (File.Exists(temporary))
+                            {
+                                File.Delete(temporary);
+                            }
+                        }
+                    }
+                    else if (Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"\.tar$"))
+                    {
+                        try
+                        {
+                            UriCopy(new Uri(cartridge.SourceUrl), temporary, cartridge.SourceMD5);
+                            Extract("tar", temporary, target);
+                        }
+                        catch(Exception ex)
+                        {
+                            Logger.Error(ex.ToString());
+                            throw ex;
+                        }
+                        finally
+                        {
+                            if (File.Exists(temporary))
+                            {
+                                File.Delete(temporary);
+                            }
+                        }
+                    }
+                    else if (uri.Scheme == "file")
+                    {
+                        DirectoryUtil.DirectoryCopy(uri.LocalPath, target, true);
+                    }
+                    else
+                    {
+                        throw new ArgumentException(string.Format("CLIENT_ERROR: Unsupported URL({0}) for downloading a private cartridge", cartridge.SourceUrl));
+                    }
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format("CLIENT_ERROR: Unsupported URL({0}) for downloading a private cartridge", cartridge.SourceUrl));
+                    // TODO exclude usr folder and use link
+                    DirectoryUtil.DirectoryCopy(cartridge.RepositoryPath, target, true);
+                }
+
+                ValidateCartridgeHome(cartridge, target);
+
+                if (downloadable)
+                {
+                    string manifestOnDisk = Path.Combine(target, "metadata", "manifest.yml");
+                    using (StreamWriter sw = new StreamWriter(manifestOnDisk))
+                    {
+                        Serializer ser = new Serializer(SerializationOptions.None);
+                        ser.Serialize(sw, cartridge.ManifestSpec);
+                    }
                 }
             }
-            else
-            {    
-                // TODO exclude usr folder and use link
-                DirectoryUtil.DirectoryCopy(cartridge.RepositoryPath, target, true);
-            }      
+            catch(Exception e)
+            {
+                if (failureRemove)
+                {
+                    Directory.Delete(target);
+                }
+                throw e;
+            }
         }
 
-        private static void ValidateCartridge(Manifest cartridge, string path)
+        private static void ValidateCartridgeHome(Manifest cartridge, string path)
         {
             List<string> errors = new List<string>();
             if(!Directory.Exists(Path.Combine(path, "metadata")))
@@ -443,6 +518,64 @@ namespace Uhuru.Openshift.Runtime
             {
                 throw new MalformedCartridgeException(string.Format("CLIENT_ERROR: Malformed cartridge ({0}, {1}, {2})", cartridge.Name, cartridge.Version, cartridge.CartridgeVersion), errors.ToArray());
             }
+        }
+
+        private static void UriCopy(Uri uri, string temporary, string md5 = null)
+        {
+            WebClient client = new WebClient();
+            client.DownloadFile(uri, temporary);
+            if(md5 != null)
+            {
+                // check md5
+            }
+        }
+
+        private static void Extract(string method, string source, string target)
+        {
+            string tempPath = target + ".temp";
+            Directory.CreateDirectory(tempPath);
+            Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\tar.exe");
+            Logger.Debug("Extracting {0} to {2} using {1} method", source, method, target);
+            switch (method)
+            {
+                case "zip":
+                    {                        
+                        ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\zip.exe"), string.Format("-d {0} {1}", LinuxFiles.Cygpath(tempPath), LinuxFiles.Cygpath(source)));
+                        Logger.Debug(result.StdOut + result.StdErr);
+                        break;
+                    }
+                case "tgz":
+                    {
+                        ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\tar.exe"), string.Format("-C {0} -zxpf {1}", LinuxFiles.Cygpath(tempPath), LinuxFiles.Cygpath(source)));
+                        Logger.Debug(result.StdOut + result.StdErr);
+                        break;
+                    }
+                case "tar":
+                    {
+                        ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\tar.exe"), string.Format("-C {0} -xpf {1}", LinuxFiles.Cygpath(tempPath), LinuxFiles.Cygpath(source)));
+                        Logger.Debug(result.StdOut + result.StdErr);
+                        break;
+                    }
+                default:
+                    {
+                        throw new Exception(string.Format("Packaging method {0} not yet supported.", method));
+                    }
+            }
+
+            DirectoryUtil.DirectoryCopy(tempPath, target, true);
+            Directory.Delete(tempPath, true);
+
+            string[] files = Directory.GetFileSystemEntries(target);
+            if(files.Length == 1)
+            {
+                Logger.Debug(string.Join(",", files));
+                // A directory of one file is not legal move everyone up a level (github zip's are this way)
+                string to_delete = files[0] + ".to_delete";
+                Directory.Move(files[0], to_delete);
+                DirectoryUtil.DirectoryCopy(to_delete, target, true);
+                Directory.Delete(to_delete);
+            }
+
         }
     }
 
