@@ -187,6 +187,10 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 . (Join-Path $currentDir 'ruby-helpers.ps1')
 . (Join-Path $currentDir 'service-helpers.ps1')
 
+Check-OpenShiftServices
+# Check to see if any processes are running
+Check-RunningProcesses
+
 
 Write-Host 'Installation logs will be written in c:\openshift\setup_logs'
 New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
@@ -196,7 +200,6 @@ $mcollectivePath = 'c:\openshift\mcollective\'
 
 
 # TODO: stop existing services?
-
 
 # Be verbose and print all settings
 Write-Verbose "Target binary location used is '$binLocation'"
@@ -249,7 +252,6 @@ if ([string]::IsNullOrWhitespace($cloudDomain)) { Write-Error "Cloud domain cann
 
 if ($skipChecks -eq $false)
 {
-    Check-OpenShiftServices
     Write-Host 'Verifying prerequisites ...'
     Check-Elevation
     Check-WindowsVersion

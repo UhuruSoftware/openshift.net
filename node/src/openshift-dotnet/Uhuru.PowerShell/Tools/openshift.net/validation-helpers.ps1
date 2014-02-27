@@ -1,12 +1,52 @@
 $global:cachedWindowsFeatures = $null
 
+
+function Check-RunningProcesses()
+{
+    Write-Host 'Checking to see is any OpenShift processes are running ...'
+
+    Write-Verbose 'Retrieving process list ...'
+    $processes = Get-WmiObject win32_process | Select-Object ProcessId,Name,@{n='Owner';e={$_.GetOwner().User}} | sort name
+
+    $processesRunning = $false
+
+    $processes | ForEach {
+        $user = $_.Owner
+        $processId = $_.ProcessId
+        $processName = $_.Name
+
+        if ($user -ne $null)
+        {
+            # check for processes running as a prison user
+            if ($user.StartsWith('prison_'))
+            {
+                Write-Host "Process '${processName}' with id '${processId}' is running as user '${user}'" -ForegroundColor red
+                $processesRunning = $true
+            }
+
+            # check for processes running as openshift_service
+            if ($user.StartsWith('openshift_service'))
+            {
+                Write-Host "Process '${processName}' with id '${processId}' is running as user '${user}'" -ForegroundColor red
+                $processesRunning = $true
+            }
+        }
+    }
+
+    if ($processesRunning)
+    {
+        Write-Error "There are OpenShift processes still running. Please stop them before continuing with the installation."
+        exit 1
+    }
+}
+
 function Check-Elevation()
 {
     Write-Verbose "Checking if the script is running as an administrator ..."
 
     If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
-        Write-Error "This script requires elevation. Please run as administator."
+        Write-Error "This script requires elevation. Please run as administrator."
         exit 1
     }
     else

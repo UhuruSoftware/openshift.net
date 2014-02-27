@@ -5,6 +5,7 @@
 ### Changes ###
 
 - install parameter psk is now mandatory
+- installation script checks for running OpenShift processes before continuing
 - proxy parameters available for installation scripts
 - installation script is a bit less chatty, with some of the output redirected to c:\openshift\setup_logs
 - Windows applications must now be scalable
