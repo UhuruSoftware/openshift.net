@@ -18,6 +18,8 @@ namespace Uhuru.OpenShift.TrapUser
     {
         private static void LoadEnv(string directory, Dictionary<string, string> targetList)
         {
+            Logger.Info("oo-trap-user loading env vars from directory '{0}'", directory);
+
             if (targetList == null)
             {
                 throw new ArgumentNullException("targetList");
@@ -30,16 +32,24 @@ namespace Uhuru.OpenShift.TrapUser
 
             string[] envFiles = Directory.GetFiles(directory);
 
+            StringBuilder logMessage = new StringBuilder();
+
             foreach (string envFile in envFiles)
             {
                 string varValue = File.ReadAllText(envFile);
                 string varKey = Path.GetFileName(envFile);
                 targetList[varKey] = varValue;
+
+                logMessage.AppendLine(string.Format("oo-trap-user loading env var '{0}' with value '{1}' from directory '{2}'", envFile, varValue, directory));
             }
+
+            Logger.Info(logMessage.ToString());
         }
 
         private static void SetupGearEnv(Dictionary<string, string> targetList, string homeDir)
         {
+            Logger.Info("oo-trap-user setting up vars for home directory '{0}'", homeDir);
+
             if (targetList == null)
             {
                 throw new ArgumentNullException("targetList");

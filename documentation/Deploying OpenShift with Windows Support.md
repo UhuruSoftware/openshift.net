@@ -1,5 +1,34 @@
 # Deploying OpenShift with Windows support #
 
+[Summary](#summary)
+
+[Cloud Topology](#cloud-topology)
+
+[Setting up things on Linux](#setting-up-things-on-linux)
+
+- [Using the Fedora all-in-one VM](#using-the-fedora-all-in-one-vm)
+- [Using an OpenShift Enterprise Installation](#using-an-openshift-enterprise-installation) 
+- [Update OpenShift with changes required for Windows Support](#update-openshift-with-changes-required-for-windows-support)
+
+[Windows Prerequisites](#windows-prerequisites)
+
+- [Screenshots](#screenshots)
+
+[Setting up DNS](#setting-up-dns)
+
+- [Using the Fedora all-in-one VM](#using-the-fedora-all-in-one-vm)
+- [Using an OpenShift Enterprise Installation](#using-an-openshift-enterprise-installation)
+
+[Installing the OpenShift Windows Node](#installing-the-openshift-windows-node)
+
+- [Restarting services on the broker](#restarting-services-on-the-broker)
+- [Install Script Manual](#install-script-manual)
+- [Using a proxy when installing the windows node](using-a-proxy-when-installing-the-windows-node)
+
+[Creating your first Windows application](#creating-your-first-windows-application)
+
+## Summary ##
+
 This document provides instructions on how to deploy an OpenShift environment that has Windows support. 
 There are two options:
 - use an Origin Fedora VM that comes with a full installation - a broker and a node on the same VM (good for development environments)
@@ -92,7 +121,7 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 
 - Install the Visual C++ Redistributable Packages for Visual Studio 2013. You can find it [here](http://www.microsoft.com/en-us/download/details.aspx?id=40784). Make sure to download the 'vcredist_x64.exe' version.
 
-- Install build tools for all versions of Visual Studio. **Please note that the 2008 version of the installer first sets up the 'real' installer in `C:\VS 2008 Shell Redist\Isolated Mode`. You will have to run the `vs_shell_isolated.enu` package from there to complete the installation**. Make sure to keep the filenames of the installers intact (use separate folders when downloading the packages); the installers are sensitive to their filenames being changed. You can find them at the following locations:
+- Install build tools for all versions of Visual Studio. **Please note that the 2008 version of the installer first sets up the 'real' installer in `C:\VS 2008 Shell Redist\Isolated Mode`. <span style='color:red'>You will have to run the `vs_shell_isolated.enu` package from there to complete the installation**</span>. Make sure to keep the filenames of the installers intact (use separate folders when downloading the packages); the installers are sensitive to their filenames being changed. You can find them at the following locations:
     - [Microsoft Visual Studio 2013 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=40764)
     - [Microsoft Visual Studio 2012 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=30670)
     - [Microsoft Visual Studio 2010 Shell (Isolated) - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=1366)
@@ -159,7 +188,11 @@ You have to setup the hosts files on both Windows and Linux (the OpenShift VM us
 
 ###Using an OpenShift Enterprise Installation
 
-On the Broker VM, add an A record for the Windows Node to named by editing `/var/named/dynamic/<your cloud domain>.db`, then restart named: `service named restart`.
+On the Broker VM, use the following command to register the windows node on the local DNS server:
+
+		oo-register-dns --with-node-hostname <the hostname of the windows node (not fqdn, e.g. winnode1)> \
+		--with-node-ip <the public ip of the node> --domain <domain of the cloud, e.g. mycloud.com> \
+		--dns-server <the hostname of the broker (e.g. broker.mycloud.com)>
 
 Setup a conditional forwarder for your cloud's domain in your organization's DNS server
 
@@ -179,6 +212,11 @@ Download the windows installer from [here](http://winjenkins.hosts.uhuruos.com/)
   - For a Fedora all-in-one installation you can simply run `./install.ps1` and the script will ask you for needed information
   - For an OpenShift Enterprise installation, you have to specify an mcollective psk plugin (asimplething), so provide that as a parameter: `./install.ps1 -mcollectivePskPlugin asimplething`
 - If you need special settings, please read the manual included below and run the script with the appropriate settings
+
+### Using a proxy when installing the windows node
+
+The installer script supports specifying an HTTP proxy, to be used when downloading software (Ruby, MCollective and Cygwin).
+Only http proxies without authentication can be used.
 
 ### Restarting services on the broker ###
 
@@ -318,6 +356,11 @@ After finishing the installation on Windows, clear the cache on the Linux machin
         SSHD listening port.
         Required?                    no
         Default value                22
+
+	-proxy <Url>
+    An http proxy to use for downloading software. By default the install script won't use a proxy.
+    Use the format http://host:port.
+		Required?					 no
 
     -skipRuby [<SwitchParameter>]
         This is a switch parameter that allows the user to skip downloading and installing Ruby.

@@ -1,4 +1,3 @@
-# Currently using the mcollective windows installer from kermit.fr
 [CmdletBinding()]
 param (
     [string] $installLocation = 'c:\openshift\mcollective\',
@@ -54,7 +53,14 @@ if ((Test-Path $setupPackage) -eq $true)
     rm $setupPackage -Force > $null
 }
 
-Invoke-WebRequest $mcollectiveSetupURL -OutFile $setupPackage
+if ([string]::IsNullOrWhiteSpace($env:osiProxy))
+{
+    Invoke-WebRequest $mcollectiveSetupURL -OutFile $setupPackage
+}
+else
+{
+    Invoke-WebRequest $mcollectiveSetupURL -OutFile $setupPackage -Proxy $env:osiProxy
+}
 
 Write-Verbose 'Looking up binaries from cygwin ...'
 

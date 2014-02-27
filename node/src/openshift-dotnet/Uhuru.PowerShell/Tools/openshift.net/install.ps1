@@ -68,8 +68,9 @@
 .PARAMETER mcollectiveActivemqPassword
     ActiveMQ Password. The default ActiveMQ password for an ActiveMQ installation is 'marionette'.
 
-.PARAMETER mcollectivePskPlugin    
-    Psk plugin used in MCollective. The default value is 'unset'. For an OpenShift Enterprise installation, the value should be 'asimplething'.
+.PARAMETER mcollectivePskPlugin
+    Psk plugin used in MCollective. The value for a Fedora all-in-one VM is 'unset'. 
+    For a default OpenShift Enterprise installation, the value should be 'asimplething'.
 
 .PARAMETER sshdCygwinDir
     Location of sshd installation. This is where cygwin will be installed.
@@ -79,6 +80,10 @@
     
 .PARAMETER sshdPort
     SSHD listening port.
+
+.PARAMETER proxy
+    An http proxy to use for downloading software. By default the install script won't use a proxy.
+    Use the format http://host:port.
 
 .PARAMETER skipRuby
     This is a switch parameter that allows the user to skip downloading and installing Ruby. 
@@ -116,11 +121,11 @@
     Date:   January 17, 2014
 
 .EXAMPLE
-.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
-Install the node by passing the minimum information required. 
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+Install the node by passing the minimum information required for a Fedora all-in-one installation. 
 .EXAMPLE
-.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104
-Install the node by also passing the public IP address of the machine.
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104
+Install the node by also passing the public IP address of the machine for a Fedora all-in-one installation.
 .EXAMPLE
 .\install.ps1 -mcollectivePskPlugin asimplething
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
@@ -156,11 +161,13 @@ param (
     [int] $mcollectiveActivemqPort = 61613,
     [string] $mcollectiveActivemqUser = 'mcollective',
     [string] $mcollectiveActivemqPassword = 'marionette',
-    [string] $mcollectivePskPlugin = 'unset',
+    [string] $mcollectivePskPlugin = $( Read-Host "MCollective psk plugin (default for a Fedora all-in-one VM is 'unset', for a default OpenShift Enterprise installation it's 'asimplething')" ),
     # parameters used for setting up sshd
     [string] $sshdCygwinDir = 'c:\openshift\cygwin',
     [string] $sshdListenAddress = '0.0.0.0',
     [int] $sshdPort = 22,
+    # parameters used for proxy settings
+    [string] $proxy = $null,
     # parameters used for skipping some installation steps
     [Switch] $skipRuby = $false,
     [Switch] $skipCygwin = $false,
@@ -181,7 +188,7 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 . (Join-Path $currentDir 'service-helpers.ps1')
 
 
-Write-Host 'Installation logs will be written in the c:\openshift\setup_logs'
+Write-Host 'Installation logs will be written in c:\openshift\setup_logs'
 New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 
 # TODO: vladi: Using a hardcoded mcollective path - this is no longer necessary, we can setup mcollective using a dynamic path
@@ -215,6 +222,24 @@ Write-Verbose "MCollective PSK plugin is '$mcollectivePskPlugin'"
 Write-Verbose "Target cygwin installation dir used is '$sshdCygwinDir'"
 Write-Verbose "SSHD listen address used is '$sshdListenAddress'"
 Write-Verbose "SSHD listening port used is '$sshdPort'"
+
+if ([string]::IsNullOrWhiteSpace($proxy))
+{
+    Write-Verbose "Not using a proxy server."
+}
+else
+{
+    Write-Warning "Using proxy ${proxy}"
+    $env:osiProxy = $proxy
+    if ($proxy.StartsWith('https'))
+    {
+        $env:https_proxy = $proxy
+    }
+    else
+    {
+        $env:http_proxy = $proxy
+    }
+}
 
 
 Write-Verbose "Verifying required variables are not empty ..."

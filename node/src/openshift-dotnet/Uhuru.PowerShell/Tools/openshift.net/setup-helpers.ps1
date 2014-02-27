@@ -3,11 +3,11 @@ function Cleanup-Directory($directory)
     if (Test-Path -Path $directory)
     {
         Write-Verbose "Directory '${directory}' exists, cleaning it up."
-        takeown /f $directory /r
+        takeown /f $directory /r >> c:\openshift\setup_logs\dir_cleanups.log
         $userDomain = [Environment]::UserDomainName
         $userName = [Environment]::UserName
-        Start-Process -Wait -NoNewWindow -PassThru 'icacls' """${directory}"" /grant ""${userDomain}\${userName}"":F /t"
-        Remove-Item -Path $directory -Force -Recurse
+        Start-Process -Wait -NoNewWindow -PassThru 'icacls' """${directory}"" /grant ""${userDomain}\${userName}"":F /t" >> c:\openshift\setup_logs\dir_cleanups.log
+        Remove-Item -Path $directory -Force -Recurse >> c:\openshift\setup_logs\dir_cleanups.log
     }
 }
 
@@ -111,7 +111,16 @@ function Setup-Ruby($rubyDownloadLocation, $rubyInstallLocation)
         Write-Verbose "Removing existing ruby setup package from temp dir."
         rm $rubySetupPackage -Force > $null
     }
-    Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage
+
+    if ([string]::IsNullOrWhiteSpace($env:osiProxy))
+    {
+        Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage
+    }
+    else
+    {
+        Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage -Proxy $env:osiProxy
+    }
+
     Write-Verbose "Ruby install package downloaded to '${rubySetupPackage}'"
 
     Cleanup-Directory $rubyInstallLocation
@@ -127,34 +136,6 @@ function Setup-Ruby($rubyDownloadLocation, $rubyInstallLocation)
     else
     {
         Write-Host "[OK] Ruby installed successfully."
-    }
-}
-
-function Setup-RubyDevkit($rubyDevKitDownloadLocation, $rubyDevKitInstallLocation)
-{
-    Write-Host "Downloading ruby devkit package from '${rubyDevKitDownloadLocation}'"
-    $rubyDevkitSetupPackage = Join-Path $env:TEMP "rubydevkit-setup.exe"
-    if ((Test-Path $rubyDevkitSetupPackage) -eq $true)
-    {
-        Write-Verbose "Removing existing ruby devkit setup package from temp dir."
-        rm $rubyDevkitSetupPackage -Force > $null
-    }
-    Invoke-WebRequest $rubyDevKitDownloadLocation -OutFile $rubyDevkitSetupPackage
-    Write-Verbose "Ruby devkit install package downloaded to '${rubyDevkitSetupPackage}'"
-    
-    Cleanup-Directory $rubyDevKitInstallLocation
-
-    Write-Host "Installing ruby devkit to '${rubyDevKitInstallLocation}' ..."
-    $rubyDevkitSetupProcess = Start-Process -Wait -PassThru -NoNewWindow $rubyDevkitSetupPackage "-o""${rubyDevKitInstallLocation}"" -y"
-
-    if ($rubyDevkitSetupProcess.ExitCode -ne 0)
-    {
-        Write-Error 'Ruby devkit setup failed. Please check installation logs.'
-        exit 1
-    }
-    else
-    {
-        Write-Host "[OK] Ruby devkit installed successfully."
     }
 }
 

@@ -1,3 +1,54 @@
+## Windows Extensions for OpenShift 0.5 Release Notes ##
+
+### Additions ###
+
+### Changes ###
+
+- install parameter psk is now mandatory
+- proxy parameters available for installation scripts
+- installation script is a bit less chatty, with some of the output redirected to c:\openshift\setup_logs
+- Windows applications must now be scalable
+- more logging verbosity for a gear's environment
+
+### Known Issues###
+
+- downloadable cartridges do not work on Windows
+- managing applications on Windows is slower than Linux
+- upgrade will not work from previous version
+- gears will not be gracefully stopped on system shutdown
+- district support is not available
+- applications are not detected as idle
+- port reservation for applications is not assigned based on 'uid'
+- the Uhuru Prison is not fully locked (network restrictions, disk ACLs and disk quotas are not enforced)
+- jenkins builds will not work with Windows apps
+- concurrency - the Windows Nodes might be unpredictable if used by multiple users at the same time
+
+## Windows Extensions for OpenShift 0.4 Release Notes ##
+
+### Additions ###
+
+### Changes ###
+
+- port forward to a SQL Server is now possible
+- oo-accept-systems works for Windows Nodes 
+- oo-admin-accept-node is available on Windows Nodes
+- the uhuru vendor is "known" by OpenShift, so prefixes are not displayed in cartridge list
+- the default web page for the .NET has the new updated design 
+
+### Known Issues###
+
+- downloadable cartridges do not work on Windows
+- managing applications on Windows is slower than Linux
+- upgrade will not work from previous version
+- gears will not be gracefully stopped on system shutdown
+- district support is not available
+- applications are not detected as idle
+- port reservation for applications is not assigned based on 'uid'
+- the Uhuru Prison is not fully locked (network restrictions, disk ACLs and disk quotas are not enforced)
+- jenkins builds will not work with Windows apps
+- concurrency - the Windows Nodes might be unpredictable if used by multiple users at the same time
+- non-scalable Windows applications are allowed, although they cannot be accessed via port 80
+
 ## Windows Extensions for OpenShift 0.3 Release Notes ##
 
 ### Additions ###

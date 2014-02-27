@@ -88,7 +88,7 @@
       <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
       <Name>Uhuru.Openshift.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\windows-prison\src\Uhuru.Prison\Uhuru.Prison.csproj">
+    <ProjectReference Include="..\windows-isolation\src\Uhuru.Prison\Uhuru.Prison.csproj">
       <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>
       <Name>Uhuru.Prison</Name>
     </ProjectReference>
