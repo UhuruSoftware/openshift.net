@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -395,12 +396,31 @@ namespace Uhuru.Openshift.Runtime
 
                     if (uri.Scheme == "git" || cartridge.SourceUrl.EndsWith(".git"))
                     {
-                        string template = @"{0} clone {1} {2}
-set GIT_DIR=./{2}.git
+                        // use intermediate temp directory to reset cygwin directories ACLs
+                        string tempRepo = cartridge.Name + ".temp";
+                        string tempRepoDir = Path.Combine(new DirectoryInfo(target).Parent.FullName, tempRepo);
+                        try
+                        {
+                            string template = @"{0} clone {1} {2}
+set GIT_DIR=./{2}/.git
 {0} repack";
-                        string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + "cmd.bat");
-                        File.WriteAllText(file, string.Format(template, Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe"), cartridge.SourceUrl, cartridge.Name));
-                        ProcessExtensions.RunCommandAndGetOutput("cmd.exe", string.Format("/c {0}", file), new DirectoryInfo(target).Parent.FullName);
+                            string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + "cmd.bat");
+                            File.WriteAllText(file, string.Format(template, Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\git.exe"), cartridge.SourceUrl, tempRepo));
+                            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput("cmd.exe", string.Format("/c {0}", file), new DirectoryInfo(target).Parent.FullName);
+                            if (result.ExitCode != 0)
+                            {
+                                throw new Exception(string.Format("Unable to clone cartridge from {0} stdout: {1} stderr {2}", cartridge.SourceUrl, result.StdOut, result.StdErr));
+                            }
+
+                            DirectoryUtil.DirectoryCopy(tempRepoDir, target, true);
+                        }
+                        finally
+                        {
+                            if (Directory.Exists(tempRepoDir))
+                            {
+                                Directory.Delete(tempRepoDir, true);
+                            }
+                        }                        
                     }
                     else if (Regex.IsMatch(uri.Scheme, @"^https*") && Regex.IsMatch(cartridge.SourceUrl, @"\.zip"))
                     {
@@ -493,7 +513,10 @@ set GIT_DIR=./{2}.git
             {
                 if (failureRemove)
                 {
-                    Directory.Delete(target);
+                    if (Directory.Exists(target))
+                    {
+                        Directory.Delete(target);
+                    }
                 }
                 throw e;
             }
@@ -526,12 +549,13 @@ set GIT_DIR=./{2}.git
             client.DownloadFile(uri, temporary);
             if(md5 != null)
             {
-                // check md5
+                //TODO check md5
             }
         }
 
         private static void Extract(string method, string source, string target)
         {
+            // use intermediate temp directory to reset cygwin directories ACLs
             string tempPath = target + ".temp";
             Directory.CreateDirectory(tempPath);
             Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\tar.exe");
@@ -539,9 +563,8 @@ set GIT_DIR=./{2}.git
             switch (method)
             {
                 case "zip":
-                    {                        
-                        ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\zip.exe"), string.Format("-d {0} {1}", LinuxFiles.Cygpath(tempPath), LinuxFiles.Cygpath(source)));
-                        Logger.Debug(result.StdOut + result.StdErr);
+                    {
+                        ZipFile.ExtractToDirectory(source, tempPath);
                         break;
                     }
                 case "tgz":
