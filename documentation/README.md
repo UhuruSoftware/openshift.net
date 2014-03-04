@@ -1,1 +1,0 @@
-Contains documentation and manual for the system’s usage on windows.
