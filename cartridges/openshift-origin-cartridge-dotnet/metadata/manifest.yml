@@ -19,12 +19,13 @@ Versions: ['4.5']
 #  is the list of the versions of the software packaged by this cartridge.
 License: "??"
 License-Url: "http://www.uhurusoftware.com"
-Vendor: "Microsoft Corporation"
+Vendor: "Uhuru Software"
+Platform: "Windows"
 Categories:
   - service
   - web_framework
   - windows
-Website: http://www.microsoft.com/
+Website: http://www.uhurusoftware.com/
 Help-Topics:
   "Developer Center": "http://www.uhurusoftware.com/community/developers"
 Cart-Data:
@@ -69,7 +70,8 @@ Subscribes:
     #ENV:* pulls in environment variables from all add-on cartridges within an application
 Scaling:
   Min: 1
-  Max: 2
+  Max: -1
+  Required: true
 Endpoints:
 #Endpoints are where front-end httpd mappings for your cartridge are declared to route traffic from the outside world to your cartridge’s services.
   - Private-IP-Name:   IP
