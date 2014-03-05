@@ -1,5 +1,7 @@
-OpenShift.NET - .NET extensions for the OpenShift PaaS
-======================================================
+OpenShift.NET
+=============
+.NET extensions for the OpenShift PaaS
+--------------------------------------
 
 This repository contains the OpenShift Windows node that enables running OpenShift applications on Microsoft Windows OS.
 The node uses the [Uhuru Windows Prison](https://github.com/UhuruSoftware/windows-isolation) to run the applications in isolated containers.
