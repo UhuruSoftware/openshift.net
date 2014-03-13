@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -20,6 +17,11 @@ namespace Uhuru.Openshift.Cmdlets
         public string CartName;
 
         protected override void ProcessRecord()
+        {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
         {
             ReturnStatus returnStatus = new ReturnStatus();
             try
@@ -43,8 +45,7 @@ namespace Uhuru.Openshift.Cmdlets
                 returnStatus.Output = "false";
                 returnStatus.ExitCode = 1;
             }
-
-            this.WriteObject(returnStatus);
+            return returnStatus;
         }
     }
 }

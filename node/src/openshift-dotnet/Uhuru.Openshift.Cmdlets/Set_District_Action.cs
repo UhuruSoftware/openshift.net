@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
 
@@ -26,6 +22,11 @@ namespace Uhuru.Openshift.Cmdlets
         public string MaxUid;
 
         protected override void ProcessRecord()
+        {            
+            WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
         {
             ReturnStatus returnStatus = new ReturnStatus();
 
@@ -46,7 +47,7 @@ namespace Uhuru.Openshift.Cmdlets
                 //TODO handle profiling
 
                 returnStatus.Output = string.Format("created/updated district {0} with active = {1}, first_uid = {2}, max_uid = {3}", Uuid, Active, FirstUid, MaxUid);
-                returnStatus.ExitCode = 0; 
+                returnStatus.ExitCode = 0;
             }
             catch (Exception ex)
             {
@@ -54,7 +55,7 @@ namespace Uhuru.Openshift.Cmdlets
                 returnStatus.Output = ex.ToString();
                 returnStatus.ExitCode = 255;
             }
-            WriteObject(returnStatus);
+            return returnStatus;
         }
     }
 }

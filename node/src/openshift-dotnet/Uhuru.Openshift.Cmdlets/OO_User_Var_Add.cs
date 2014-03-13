@@ -1,11 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -42,6 +38,11 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus status = new ReturnStatus();
 
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
@@ -57,7 +58,7 @@ namespace Uhuru.Openshift.Cmdlets
                     {
                         variables.Add(variable.Split('=')[0].Trim(), variable.Split('=')[1].Trim());
                     }
-                    
+
                 }
 
                 List<string> gears = new List<string>();
@@ -66,7 +67,7 @@ namespace Uhuru.Openshift.Cmdlets
                 {
                     gears = this.WithGears.Split(';').ToList();
                 }
-          
+
                 status.Output = container.AddUserVar(variables, gears);
                 status.ExitCode = 0;
             }
@@ -76,8 +77,7 @@ namespace Uhuru.Openshift.Cmdlets
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            this.WriteObject(status);
+            return status;
         }
-
     }
 }

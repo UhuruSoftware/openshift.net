@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Utilities;
 
@@ -45,18 +42,27 @@ namespace Uhuru.Openshift.Cmdlets
         public SwitchParameter All;
 
         [Parameter]
-        public SwitchParameter ParallelConcurrencyRatio;
+        public float ParallelConcurrencyRatio;
 
         protected override void ProcessRecord()
         {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus status = new ReturnStatus();
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                WithContainerName, WithNamespace, null, null, null);
-            RubyHash options = new RubyHash();
-            options["all"] = All;
-            options["parallelConcurrencyRatio"] = ParallelConcurrencyRatio;
             try
             {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
+                WithContainerName, WithNamespace, null, null, null);
+                RubyHash options = new RubyHash();
+                options["all"] = All;
+                if (ParallelConcurrencyRatio != 0.0)
+                {
+                    options["parallelConcurrencyRatio"] = ParallelConcurrencyRatio;
+                }
+
                 status.Output = container.Restart(CartName, options);
                 status.ExitCode = 0;
             }
@@ -65,8 +71,9 @@ namespace Uhuru.Openshift.Cmdlets
                 Logger.Error("Error running oo-restart command: {0} - {1}", ex.Message, ex.StackTrace);
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
+
             }
-            this.WriteObject(status);
-        }
+            return status;
+        }        
     }
 }

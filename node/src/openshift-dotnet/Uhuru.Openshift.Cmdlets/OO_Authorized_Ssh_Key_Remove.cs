@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -38,13 +35,17 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithSshComment;
 
         protected override void ProcessRecord()
-        {        
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                WithNamespace, null, null, null);
+        {                    
+            this.WriteObject(Execute());
+        }
 
+        public ReturnStatus Execute()
+        {
             ReturnStatus status = new ReturnStatus();
             try
             {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+                    WithNamespace, null, null, null);
                 status.Output = container.RemoveSshKey(WithSshKey, WithSshKeyType, WithSshComment);
                 status.ExitCode = 0;
             }
@@ -54,7 +55,7 @@ namespace Uhuru.Openshift.Cmdlets
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            this.WriteObject(status);
+            return status;
         }
     }
 }

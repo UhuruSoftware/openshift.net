@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -35,6 +32,11 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithSecretToken;
 
         protected override void ProcessRecord()
+        {            
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
         {
             ReturnStatus status = new ReturnStatus();
 
@@ -48,13 +50,13 @@ namespace Uhuru.Openshift.Cmdlets
                 status.Output = container.Create(token);
                 status.ExitCode = 0;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error("Error running oo-app-create command: {0} - {1}", ex.Message, ex.StackTrace);
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            this.WriteObject(status);
+            return status;
         }
     }
 }

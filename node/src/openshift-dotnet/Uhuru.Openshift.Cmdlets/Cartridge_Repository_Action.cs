@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -29,6 +25,11 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus returnStatus = new ReturnStatus();
 
             try
@@ -52,7 +53,7 @@ namespace Uhuru.Openshift.Cmdlets
                         {
                             Logger.Debug("Cartridge repository action list");
                             returnStatus.Output = CartridgeRepository.Instance.ToString();
-                            break;                            
+                            break;
                         }
                     default:
                         {
@@ -60,7 +61,7 @@ namespace Uhuru.Openshift.Cmdlets
                             returnStatus.ExitCode = 2;
                             break;
                         }
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -69,8 +70,7 @@ namespace Uhuru.Openshift.Cmdlets
                 returnStatus.ExitCode = 4;
             }
 
-            WriteObject(returnStatus);
+            return returnStatus;
         }
-
     }
 }

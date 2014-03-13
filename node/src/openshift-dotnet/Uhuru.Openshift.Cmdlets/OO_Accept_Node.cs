@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.ServiceProcess;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
@@ -38,6 +37,11 @@ namespace Uhuru.Openshift.Cmdlets
         EtcUser[] users;
 
         protected override void ProcessRecord()
+        {            
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
         {
             status = new ReturnStatus();
             status.ExitCode = 0;
@@ -46,7 +50,7 @@ namespace Uhuru.Openshift.Cmdlets
             FindExtNetDev();
             LoadUsers();
 
-            if(RunUpgradeChecks)
+            if (RunUpgradeChecks)
             {
                 CheckUpgrades();
             }
@@ -69,7 +73,7 @@ namespace Uhuru.Openshift.Cmdlets
                 CheckCartridgeRepository();
             }
 
-            this.WriteObject(status);
+            return status;
         }
 
         private void CheckCartridgeRepository()

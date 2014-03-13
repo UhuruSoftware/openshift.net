@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Utilities;
@@ -216,6 +214,11 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             int exitval = 0;
             try
             {
@@ -257,8 +260,8 @@ namespace Uhuru.Openshift.Cmdlets
                         }
                     case "status":
                         {
-                            this.WriteObject("Checking OpenshiftServices: ");
-                            this.WriteObject(Environment.NewLine);
+                            Console.WriteLine("Checking OpenshiftServices: ");
+                            Console.WriteLine(Environment.NewLine);
                             exitval = new AdminGearsControl().Status();
                             break;
                         }
@@ -343,15 +346,17 @@ namespace Uhuru.Openshift.Cmdlets
                         break;
                     default:
                         {
-                            WriteObject("Usage: {startall|stopall|forcestopall|status|restartall|waited-startall|condrestartall|startgear [uuid]|stopgear [uuid]|forcestopgear [uuid]|restartgear [uuid]|idlegear [gear]|unidlegear [gear]|list|listidle}");
+                            Console.WriteLine("Usage: {startall|stopall|forcestopall|status|restartall|waited-startall|condrestartall|startgear [uuid]|stopgear [uuid]|forcestopgear [uuid]|restartgear [uuid]|idlegear [gear]|unidlegear [gear]|list|listidle}");
                             break;
                         }
                 }
             }
             catch (Exception ex)
             {
-                this.WriteObject(ex.ToString());
+                Console.Error.WriteLine(ex.ToString());
             }
+
+            return new ReturnStatus();
         }
     }
 }

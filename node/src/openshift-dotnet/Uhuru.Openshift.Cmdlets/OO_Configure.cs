@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -41,20 +38,25 @@ namespace Uhuru.Openshift.Cmdlets
         public string CartridgeVendor;
 
         [Parameter]
-        public string TemplateGitUrl;
+        public string WithTemplateGitUrl;
 
         [Parameter]
         public string WithCartridgeManifest;
 
         protected override void ProcessRecord()
         {
-            ReturnStatus status = new ReturnStatus();
+            this.WriteObject(Execute());
+        }
 
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                WithNamespace, null, null, null);
+        public ReturnStatus Execute()
+        {
+            ReturnStatus status = new ReturnStatus();
             try
             {
-                status.Output = container.Configure(CartName, TemplateGitUrl, WithCartridgeManifest);
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+                                WithNamespace, null, null, null);
+
+                status.Output = container.Configure(CartName, WithTemplateGitUrl, WithCartridgeManifest);
                 status.ExitCode = 0;
             }
             catch (Exception ex)
@@ -63,7 +65,7 @@ namespace Uhuru.Openshift.Cmdlets
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            this.WriteObject(status);
+            return status;
         }
     }
 }
