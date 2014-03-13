@@ -84,7 +84,7 @@ namespace Uhuru.Openshift.Runtime
         {
             EtcUser etcUser = GetPasswdFor(containerUuid);
             string nameSpace = null;
-            Dictionary<string,string> env = Environ.Load(Path.Combine(etcUser.Dir, ".env"));
+            Dictionary<string,string> env = Environ.Load(Path.Combine(LinuxFiles.Cygpath(etcUser.Dir, true), ".env"));
             
             if (!string.IsNullOrEmpty(env["OPENSHIFT_GEAR_DNS"]))
             {
