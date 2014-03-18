@@ -181,7 +181,7 @@ function Setup-Privileges()
 
 
     Write-Host 'Setting up symlink privileges ...'
-    $objUser = New-Object System.Security.Principal.NTAccount('Local account')
+    $objUser = New-Object System.Security.Principal.NTAccount('Everyone')
     $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
     $userSID = $strSID.Value
 

@@ -120,6 +120,8 @@ namespace Uhuru.OpenShift.TrapUser
                 Process shell = Process.Start(shellStartInfo);
                 shell.WaitForExit();
                 exitCode = shell.ExitCode;
+
+                Logger.Debug("Process '{0}' exited with code '{1}'", shell.Id, shell.ExitCode); 
             }
             else
             {
@@ -135,6 +137,8 @@ namespace Uhuru.OpenShift.TrapUser
                 exitCode = process.ExitCode;
 
                 FixHomeDir(userHomeDir, prison.User.Username, gearUuid);
+
+                Logger.Debug("Process '{0}' exited with code '{1}'", process.Id, exitCode); 
             }
 
             return exitCode;
