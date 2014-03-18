@@ -2,12 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Runtime;
-using Uhuru.Openshift.Runtime.Model;
 
 namespace Uhuru.Openshift.Cmdlets
 {
@@ -37,11 +34,16 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus status = new ReturnStatus();
-            ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                WithNamespace, null, null, null);
             try
             {
+                ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
+                    WithNamespace, null, null, null);
                 List<SshKey> keys = new List<SshKey>();
                 if (!string.IsNullOrWhiteSpace(WithSshKeys))
                 {
@@ -58,7 +60,7 @@ namespace Uhuru.Openshift.Cmdlets
                 status.ExitCode = 1;
                 status.Output = ex.Message;
             }
-            this.WriteObject(status);
+            return status;
         }
     }
 }

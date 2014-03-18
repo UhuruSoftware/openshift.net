@@ -32,7 +32,7 @@ no_overcommit_active=false
 #
 
 # max percentage of CPU cycles used for a gear
-cpu_quota=10
+cpu_quota=80
 # max commit + (non) paged pool + shared memory per gear
 max_memory=2048
 # max upload bandwidth (bits/sec)

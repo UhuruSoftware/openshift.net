@@ -52,19 +52,19 @@ function Setup-OOAliases($binLocation, $cygwinDir)
 {
     $ooBinDir = "c:\openshift\oo-bin"
     Cleanup-Directory $ooBinDir
-    Write-Host "Setting bash aliases for oo-* powershell commands in '${ooBinDir}' ..."
+    Write-Host "Setting bash aliases for oo-* commands in '${ooBinDir}' ..."
     Write-Verbose "Creating oo-bin directory '${ooBinDir}' ..."
     New-Item -path $ooBinDir -type directory -Force | Out-Null
-    $ooPowerShelDir = (Join-Path $binLocation 'powershell\OO-Cmdlets\')
-    $ooScripts = Get-ChildItem -Path $ooPowerShelDir -Filter "*.ps1" 
-    foreach ($ooScript in $ooScripts)
-    {
-        $scriptPath = $ooScript.FullName.Replace("\", "/")
-        $aliasPath = (Join-Path $ooBinDir $ooScript.Name.SubString(0, $ooScript.Name.Length - 4).ToLower())
-        "powershell -File ${scriptPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
+
+	$nodeCommands = @("gear", "oo-accept-node", "oo-admin-cartridge", "oo-admin-ctl-gears")
+	$ooCmdPath = (Join-Path $binLocation 'oo-cmd.exe').Replace("\", "/")
+	foreach($nodeCommand in $nodeCommands)
+	{
+		$aliasPath = (Join-Path $ooBinDir $nodeCommand.ToLower())
+		"${ooCmdPath} ${nodeCommand} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
         $aliasUnixPath = & $cygpath $aliasPath
         & $chmod +x $aliasUnixPath
-    }
+	}
 
     Write-Host "Setting up oo-ssh ..."
     $ooSSHScriptPath = (Join-Path $ooBinDir "oo-ssh")
@@ -76,6 +76,16 @@ function Setup-OOAliases($binLocation, $cygwinDir)
 
     $bashProfileFile = (Join-Path $cygwinDir 'admin_home\.bash_profile')
     [System.IO.File]::WriteAllText($bashProfileFile, "export PATH=`$PATH:${ooBinDirCyg}")
+}
+
+function Setup-GAC($binLocation)
+{	
+	$executables = $("MsSQLSysGenerator.exe", "oo-cmd.exe", "oo-trap-user.exe")
+	foreach($exe in $executables)
+	{		
+		$exePath = Join-Path $binLocation $exe
+		& C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe install $exePath 
+	}
 }
 
 function Setup-GlobalEnv($binLocation)

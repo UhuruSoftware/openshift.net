@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Management.Automation;
-using Uhuru.Openshift.Common;
-using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Runtime;
 
 namespace Uhuru.Openshift.Cmdlets
@@ -23,10 +18,15 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            this.WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus status = new ReturnStatus();
             try
             {
-                status.Output = Node.GetCartridgeList(WithDescriptors, Porcelain, false);                
+                status.Output = Node.GetCartridgeList(WithDescriptors, Porcelain, false);
                 status.ExitCode = 0;
             }
             catch (Exception ex)
@@ -35,7 +35,8 @@ namespace Uhuru.Openshift.Cmdlets
                 status.Output = ex.ToString();
                 status.ExitCode = 1;
             }
-            this.WriteObject(status);
+
+            return status;
         }
     }
 }

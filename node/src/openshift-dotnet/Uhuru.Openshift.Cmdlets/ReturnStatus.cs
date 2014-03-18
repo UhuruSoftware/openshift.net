@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace Uhuru.Openshift.Cmdlets
 {
     public class ReturnStatus
@@ -10,7 +6,11 @@ namespace Uhuru.Openshift.Cmdlets
         public int ExitCode { get; set; }
         public object Output { get; set; }
 
-        public ReturnStatus() { }
+        public ReturnStatus() 
+        {
+            this.ExitCode = 0;
+            this.Output = string.Empty;
+        }        
 
         public ReturnStatus(object output, int exitCode)
         {

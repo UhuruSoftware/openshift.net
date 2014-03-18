@@ -317,6 +317,9 @@ New-Item -path $binLocation -type directory -Force | Out-Null
 $sourceItems = (Join-Path $currentDir '..\..\..\*')
 Copy-Item -Recurse -Force -Verbose:($PSBoundParameters['Verbose'] -eq $true) -Exclude 'cartridges' -Path $sourceItems $binLocation
 
+Write-Host 'Generating native images...'
+Setup-GAC($binLocation)
+
 # setup ruby
 if ($skipRuby -eq $false)
 {

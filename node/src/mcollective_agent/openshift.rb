@@ -26,15 +26,20 @@ module MCollective
       end
 
       def run_command(command ,args)
-        script = File.join(config.pluginconf['openshift.winbin'], "powershell/oo-cmdlets/#{command.to_s.gsub('_', '-')}.ps1")
-        ps_args = args.to_json.gsub('"', '"""')
-
-        powershell = 'c:\\windows\\sysnative\\windowspowershell\\v1.0\\powershell.exe'
-
-        cmd = "#{powershell} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file #{script} \"#{ps_args}\" 2>&1"
+        exe = File.join(config.pluginconf['openshift.winbin'], "oo-cmd.exe")
+        cmd = ""
+        if args.is_a?(Hash)
+          cmd = "#{exe} #{command} 2>&1"
+        else
+          ps_args = args.to_json.gsub('"', '"""')
+          cmd = "#{exe} #{command} \"#{ps_args}\" 2>&1"
+        end
         output = ""
         exitcode = 0
         Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+          if args.is_a?(Hash)
+            stdin.puts(args.to_json)
+          end
           output = stdout.read
           exitcode = wait_thr.value.exitstatus
           @logger.debug "EXECUTED COMMAND: #{cmd}"

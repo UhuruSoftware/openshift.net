@@ -77,6 +77,8 @@ namespace Uhuru.Openshift.Runtime.Utils
 
         public static void TakeOwnership(string directory, string windowsUser)
         {
+            Logger.Debug("User {0} taking ownership of directory {1}", windowsUser, directory);
+            Stopwatch sw = Stopwatch.StartNew();
             if (!Directory.Exists(directory))
             {
                 return;
@@ -98,6 +100,8 @@ namespace Uhuru.Openshift.Runtime.Utils
             {
                 dirInfo.SetAccessControl(dirSecurity);
             }
+            sw.Stop();
+            Logger.Debug("Took {0} ms to take ownership of {1}", sw.Elapsed.Milliseconds, directory);
         }
 
         public static void TakeOwnershipOfGearHome(string gearHome, string prisonUser)

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Uhuru.Openshift.Runtime;
 using Uhuru.Openshift.Runtime.Config;
 
@@ -22,6 +18,11 @@ namespace Uhuru.Openshift.Cmdlets
 
         protected override void ProcessRecord()
         {
+            WriteObject(Execute());
+        }
+
+        public ReturnStatus Execute()
+        {
             ReturnStatus returnStatus = new ReturnStatus();
             try
             {
@@ -31,7 +32,7 @@ namespace Uhuru.Openshift.Cmdlets
 
                 string districtInfo = File.ReadAllText(distrinctInfoPath);
 
-                districtInfo = Regex.Replace(districtInfo, "first_uid=\\d+", 
+                districtInfo = Regex.Replace(districtInfo, "first_uid=\\d+",
                     string.Format("first_uid={0}", FirstUid), RegexOptions.Multiline);
 
                 districtInfo = Regex.Replace(districtInfo, "max_uid=\\d+",
@@ -52,7 +53,8 @@ namespace Uhuru.Openshift.Cmdlets
                 returnStatus.Output = ex.ToString();
                 returnStatus.ExitCode = 255;
             }
-            WriteObject(returnStatus);
+
+            return returnStatus;
         }
 
     }
