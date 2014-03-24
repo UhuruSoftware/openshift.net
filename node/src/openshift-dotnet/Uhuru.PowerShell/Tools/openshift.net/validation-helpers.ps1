@@ -163,16 +163,27 @@ function Check-VCRedistributable()
     Write-Host "[OK] Prerequisite Visual C++ Redistributable for Visual Studio 2013 is installed."
 }
 
-function Check-Product($productName, $products)
+function Check-Product($productName, $products, $required)
 {
     $product = $products | Where {$_.Name -eq $productName }
     if ($product -eq $null)
     {
-        Write-Error "Prerequisite ${productName} is not installed. Please install this and then run this script again."
-        exit 1
-    }
+        $errorMessage = "Prerequisite ${productName} is not installed."
 
-    Write-Host "[OK] Prerequisite ${productName} is installed."
+        if ($required -eq $true)
+        {
+            Write-Error $errorMessage
+            exit 1
+        }
+        else
+        {
+            $global:endWarnings = $global:endWarnings + $errorMessage
+        }
+    }
+    else
+    {
+        Write-Host "[OK] Prerequisite ${productName} is installed."
+    }
 }
 
 function Check-Builders()
@@ -180,14 +191,14 @@ function Check-Builders()
     $products = Get-WmiObject Win32_Product
 
     # http://www.microsoft.com/en-us/download/details.aspx?id=40764
-    Check-Product 'Microsoft Visual Studio 2013 Shell (Isolated)' $products
+    Check-Product 'Microsoft Visual Studio 2013 Shell (Isolated)' $products $true
 
     # http://www.microsoft.com/en-us/download/details.aspx?id=30670
-    Check-Product 'Microsoft Visual Studio 2012 Shell (Isolated)' $products
+    Check-Product 'Microsoft Visual Studio 2012 Shell (Isolated)' $products $true
 
     # http://www.microsoft.com/en-us/download/details.aspx?id=1366
-    Check-Product 'Microsoft Visual Studio 2010 Shell (Isolated) - ENU' $products
+    Check-Product 'Microsoft Visual Studio 2010 Shell (Isolated) - ENU' $products $false
 
     # http://www.microsoft.com/en-us/download/details.aspx?id=7036
-    Check-Product 'Microsoft Visual Studio Shell 2008 - ENU' $products
+    Check-Product 'Microsoft Visual Studio Shell 2008 - ENU' $products $false
 }

@@ -187,6 +187,8 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 . (Join-Path $currentDir 'ruby-helpers.ps1')
 . (Join-Path $currentDir 'service-helpers.ps1')
 
+$global:endWarnings = @()
+
 Check-OpenShiftServices
 # Check to see if any processes are running
 Check-RunningProcesses
@@ -386,6 +388,8 @@ if ($skipServicesSetup -eq $false)
     net start openshift.mcollectived
     net start openshift.sshd
 }
+
+$global:endWarnings | ForEach-Object { Write-Warning $_ }
 
 Write-Warning "Please make sure that the Linux host '${brokerHost}' can properly resolve '${publicHostname}'."
 Write-Warning "Please make sure that all hosts, Windows and Linux have their clocks synchronized."

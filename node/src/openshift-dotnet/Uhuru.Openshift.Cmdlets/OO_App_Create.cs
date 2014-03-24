@@ -23,6 +23,9 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithNamespace;
 
         [Parameter]
+        public SwitchParameter WithInitialDeploymentDir;
+
+        [Parameter]
         public string WithRequestId;
 
         [Parameter]
@@ -30,9 +33,6 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter]
         public string WithSecretToken;
-
-        [Parameter]
-        public string WithInitialDeploymentDir;
 
         protected override void ProcessRecord()
         {            

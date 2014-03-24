@@ -44,7 +44,7 @@ namespace Uhuru.Openshift.Runtime
 
             prisonRules.CPUPercentageLimit = Convert.ToInt64(Node.ResourceLimits["cpu_quota"]);
             prisonRules.ActiveProcessesLimit = Convert.ToInt32(Node.ResourceLimits["max_processes"]);
-            prisonRules.PriorityClass = ProcessPriorityClass.BelowNormal;
+            prisonRules.PriorityClass = ProcessPriorityClass.Normal;
 
             // TODO: vladi: make sure these limits are ok being the same
             prisonRules.NetworkOutboundRateLimitBitsPerSecond = Convert.ToInt64(Node.ResourceLimits["max_upload_bandwidth"]);
@@ -72,6 +72,7 @@ namespace Uhuru.Openshift.Runtime
 
             LinuxFiles.TakeOwnershipOfGearHome(this.container.ContainerDir, prison.User.Username);
         }
+
         public string RemoveSshdUser()
         {
             Sshd.RemoveUser(NodeConfig.Values["SSHD_BASE_DIR"], container.Uuid, Environment.UserName, container.ContainerDir, NodeConfig.Values["GEAR_SHELL"]);
