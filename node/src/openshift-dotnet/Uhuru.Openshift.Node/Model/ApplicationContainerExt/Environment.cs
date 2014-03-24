@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Uhuru.Openshift.Common.JsonHelper;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Model.ApplicationContainerExt;
+using Uhuru.Openshift.Runtime.Utils;
 using Uhuru.Openshift.Utilities;
 
 
@@ -138,23 +139,8 @@ namespace Uhuru.Openshift.Runtime
             string output = "";
 
             string key = string.Format("{0} {1} {2}", keyType, sshKey, comment);
-            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            string addKeyScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\remove-key.ps1"));
-
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.UseShellExecute = false;
-            pi.RedirectStandardError = true;
-            pi.RedirectStandardOutput = true;
-            pi.FileName = ProcessExtensions.Get64BitPowershell();
-
-            pi.Arguments = string.Format(@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -windowsUser administrator -key ""{1}""", addKeyScript, key, NodeConfig.Values["SSHD_BASE_DIR"]);
-            Process p = Process.Start(pi);
-            p.WaitForExit(60000);
-            output += p.StandardError.ReadToEnd();
-            output += p.StandardOutput.ReadToEnd();
-
+            Sshd.RemoveKey(NodeConfig.Values["SSHD_BASE_DIR"], this.Uuid, key);
             return output;
-
         }
         
         /// <summary>

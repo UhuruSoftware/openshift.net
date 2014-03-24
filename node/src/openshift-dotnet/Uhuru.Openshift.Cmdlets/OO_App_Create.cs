@@ -31,6 +31,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string WithSecretToken;
 
+        [Parameter]
+        public string WithInitialDeploymentDir;
+
         protected override void ProcessRecord()
         {            
             this.WriteObject(Execute());

@@ -64,19 +64,7 @@ namespace Uhuru.Openshift.Runtime
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
             string configureScript = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\configure-sshd.ps1"));
 
-            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(ProcessExtensions.Get64BitPowershell(), string.Format(
-@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}",
-                configureScript,
-                container.Uuid,
-                NodeConfig.Values["SSHD_BASE_DIR"],
-                container.ContainerDir,
-                NodeConfig.Values["GEAR_SHELL"],
-                Environment.UserName));
-
-            if (result.ExitCode != 0)
-            {
-                throw new Exception(string.Format("Error setting up sshd for gear {0} - rc={1}; out={2}; err={3}", container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
-            }
+            Sshd.ConfigureSshd(NodeConfig.Values["SSHD_BASE_DIR"], container.Uuid, Environment.UserName, container.ContainerDir, NodeConfig.Values["GEAR_SHELL"]);
 
             this.container.InitializeHomedir(this.container.BaseDir, this.container.ContainerDir);
 
@@ -86,24 +74,8 @@ namespace Uhuru.Openshift.Runtime
         }
         public string RemoveSshdUser()
         {
-            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            string script = Path.GetFullPath(Path.Combine(binLocation, @"powershell\Tools\sshd\remove-sshd-user.ps1"));
-
-            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(ProcessExtensions.Get64BitPowershell(), string.Format(
-@"-ExecutionPolicy Bypass -InputFormat None -noninteractive -file {0} -targetDirectory {2} -user {1} -windowsUser {5} -userHomeDir {3} -userShell {4}",
-                script,
-                this.container.Uuid,
-                NodeConfig.Values["SSHD_BASE_DIR"],
-                this.container.ContainerDir,
-                NodeConfig.Values["GEAR_SHELL"],
-                Environment.UserName));
-
-            if (result.ExitCode != 0)
-            {
-                throw new Exception(string.Format("Error deleting sshd user for gear {0} - rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
-            }
-
-            return result.StdOut;
+            Sshd.RemoveUser(NodeConfig.Values["SSHD_BASE_DIR"], container.Uuid, Environment.UserName, container.ContainerDir, NodeConfig.Values["GEAR_SHELL"]);
+            return string.Empty;
         }
 
         public string Destroy()

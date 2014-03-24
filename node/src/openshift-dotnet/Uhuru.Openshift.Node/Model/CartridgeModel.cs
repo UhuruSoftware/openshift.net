@@ -52,6 +52,8 @@ namespace Uhuru.Openshift.Runtime
 
         public string Configure(string cartName, string templateGitUrl, string manifest)
         {
+            StringBuilder sb = new StringBuilder();
+
             this.CartridgeName = cartName;            
             string name = cartName.Split('-')[0];
             string softwareVersion = cartName.Split('-')[1];
@@ -65,11 +67,14 @@ namespace Uhuru.Openshift.Runtime
             {
                 cartridge = CartridgeRepository.Instance.Select(name, softwareVersion);
             }
-
-            this.CreatePrivateEndpoints(cartridge);
-
+           
             CreateCartridgeDirectory(cartridge, softwareVersion);
-            return PopulateGearRepo(name, templateGitUrl);
+            this.CreatePrivateEndpoints(cartridge);
+            this.CreateDependencyDirectories(cartridge);
+            sb.AppendLine(CartridgeAction(cartridge, "setup", softwareVersion, true));
+            sb.AppendLine(CartridgeAction(cartridge, "install", softwareVersion));
+            sb.AppendLine(PopulateGearRepo(name, templateGitUrl));
+            return sb.ToString();
         }
 
         public Manifest GetPrimaryCartridge()
@@ -327,9 +332,20 @@ namespace Uhuru.Openshift.Runtime
             
             ProcessCartridges(cartridgeDirectory, delegate(string cartridgeDir)
             {
-                string control = Path.Combine(cartridgeDir, "bin", "control.ps1");
-                string cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} -command {2}", ProcessExtensions.Get64BitPowershell(), control, action);
+                bool isExe = File.Exists(Path.Combine(cartridgeDir, "bin", "control.exe"));
+                string control = string.Empty;
+                string cmd = string.Empty;
 
+                if (isExe)
+                {
+                    control = Path.Combine(cartridgeDir, "bin", "control.exe");
+                    cmd = string.Format("{0} {1}", control, action);
+                }
+                else
+                {
+                    control = Path.Combine(cartridgeDir, "bin", "control.ps1");
+                    cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} -command {2}", ProcessExtensions.Get64BitPowershell(), control, action);
+                }
                 ProcessResult processResult = container.RunProcessInContainerContext(container.ContainerDir, cmd);
 
                 output.AppendLine(processResult.StdOut);
@@ -559,7 +575,16 @@ namespace Uhuru.Openshift.Runtime
         public string CartridgeAction(Manifest cartridge, string action, string softwareVersion, bool renderErbs = false)
         {
             string cartridgeHome = Path.Combine(this.container.ContainerDir, cartridge.Dir);
-            action = Path.Combine(cartridgeHome, "bin", action + ".ps1");
+            bool ps = false;
+            if (File.Exists(Path.Combine(cartridgeHome, "bin", action + ".exe")))
+            {
+                action = Path.Combine(cartridgeHome, "bin", action + ".exe");
+            }
+            else
+            {
+                action = Path.Combine(cartridgeHome, "bin", action + ".ps1");
+                ps = true;
+            }
             if (!File.Exists(action))
             {
                 return string.Empty;
@@ -579,7 +604,15 @@ namespace Uhuru.Openshift.Runtime
             }
 
             // TODO: vladi: implement hourglass
-            string cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} --version {2}", ProcessExtensions.Get64BitPowershell(), action, softwareVersion);
+            string cmd = null;
+            if (ps)
+            {
+                cmd = string.Format("{0} -ExecutionPolicy Bypass -InputFormat None -noninteractive -file {1} --version {2}", ProcessExtensions.Get64BitPowershell(), action, softwareVersion);
+            }
+            else
+            {
+                cmd = string.Format("{0} --version {1}", action, softwareVersion);
+            }
             string output = this.container.RunProcessInContainerContext(cartridgeHome, cmd, 0).StdOut;
 
             // TODO: vladi: add logging

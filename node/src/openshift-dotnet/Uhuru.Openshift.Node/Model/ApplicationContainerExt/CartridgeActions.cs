@@ -182,6 +182,8 @@ namespace Uhuru.Openshift.Runtime
                     deploymentMetadata.Save();
 
                     UpdateCurrentDeploymentDateTimeSymlink(deploymentDatetime);
+                    
+                    FixHomeDir();
                 }
             }
 
@@ -415,6 +417,8 @@ namespace Uhuru.Openshift.Runtime
 
                 UpdateCurrentDeploymentDateTimeSymlink(deploymentDateTime);
 
+                FixHomeDir();
+
                 Manifest primaryCartridge = this.Cartridge.GetPrimaryCartridge();
                 
                 this.Cartridge.DoControl("update-configuration", primaryCartridge);
@@ -594,6 +598,39 @@ namespace Uhuru.Openshift.Runtime
         private string DeployBinaryArtifact(dynamic options)
         {
             throw new NotImplementedException();
+        }
+
+        private void FixHomeDir()
+        {
+            string userHomeDir = this.ContainerDir;
+            string username = null;
+            string gearUuid = this.Uuid;
+            if (Environment.UserName.StartsWith(Prison.PrisonUser.GlobalPrefix))
+            {
+                username = Environment.UserName;
+            }
+            else
+            {
+                username = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.Uuid.PadLeft(32, '0'))).User.Username;
+            }
+            if (!string.IsNullOrEmpty(userHomeDir))
+            {
+                LinuxFiles.TakeOwnershipOfGearHome(userHomeDir, username);
+
+                Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
+                try
+                {
+                    LinuxFiles.FixSymlinks(Path.Combine(userHomeDir, "app-deployments"));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("There was an error while trying to fix symlinks for gear {0}: {1} - {2}", gearUuid, ex.Message, ex.StackTrace);
+                }
+            }
+            else
+            {
+                Logger.Warning("Not taking ownership or fixing symlinks for gear {0}. Could not locate its home directory.", gearUuid);
+            }
         }
     }
 }
