@@ -65,6 +65,12 @@ function Setup-OOAliases($binLocation, $cygwinDir)
         $aliasUnixPath = & $cygpath $aliasPath
         & $chmod +x $aliasUnixPath
 	}
+	
+	$ooDiagnosticsAlias = (Join-Path $ooBinDir 'oo-diagnostics')
+	$ooDiagnosticsPath = (Join-Path $binLocation 'oo-diagnostics.exe').Replace("\", "/")
+	"${ooDiagnosticsPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $ooDiagnosticsAlias
+	 $aliasUnixDiagnosticsPath = & $cygpath $ooDiagnosticsAlias
+	 & $chmod +x $aliasUnixDiagnosticsPath
 
     Write-Host "Setting up oo-ssh ..."
     $ooSSHScriptPath = (Join-Path $ooBinDir "oo-ssh")

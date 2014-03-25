@@ -63,7 +63,7 @@ namespace Uhuru.Openshift.Common
                 if (idx == -1)
                     currentSection[line] = "";
                 else
-                    currentSection[line.Substring(0, idx)] = line.Substring(idx + 1);
+                    currentSection[line.Substring(0, idx).Trim()] = line.Substring(idx + 1).Trim();
             }
         }
 
