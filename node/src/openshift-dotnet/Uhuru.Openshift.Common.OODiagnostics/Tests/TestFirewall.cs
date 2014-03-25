@@ -22,7 +22,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
 
         public void Run()
         {
-            Output.WriteDebug("Testing if firewall is enables ");
+            Output.WriteDebug("Testing if firewall is enabled");
             Type netFwMgrType = Type.GetTypeFromProgID("HNetCfg.FwMgr", false);
             INetFwMgr mgr = (INetFwMgr)Activator.CreateInstance(netFwMgrType);
             bool firewallEnabled = mgr.LocalPolicy.CurrentProfile.FirewallEnabled;
@@ -37,7 +37,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
             Output.WriteDebug("Testing if ssh port is opened");
             CheckRule(SSHDFWRULENAME, 22);
 
-            Output.WriteDebug("Testing prison firewall rulles");
+            Output.WriteDebug("Testing prison firewall rules");
             Prison.Prison[] prisonUsers = Prison.Prison.Load();
             foreach (var prisonUser in prisonUsers)
             {
@@ -61,7 +61,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
                 if (localPort != port.ToString())
                 {
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendLine(string.Format("Incorect Local Port setup for rule {0}", ruleName));
+                    sb.AppendLine(string.Format("Incorrect Local Port setup for rule {0}", ruleName));
                     sb.AppendLine(string.Format("Expected {0} but is {1}", port, localPort));
                     output = sb.ToString();                    
                 }

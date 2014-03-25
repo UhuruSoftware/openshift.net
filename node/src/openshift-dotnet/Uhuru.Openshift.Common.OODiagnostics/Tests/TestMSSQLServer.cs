@@ -21,10 +21,10 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
         public void Run()
         {
             Output.WriteDebug("Testing MS SQL 2008");
-            TestSqlServer(SQL2008REGPATH, "MSSQLSERVER", "Microsfot SQL Server 2008");
+            TestSqlServer(SQL2008REGPATH, "MSSQLSERVER", "Microsoft SQL Server 2008");
             
             Output.WriteDebug("Testing MS SQL 2012");
-            TestSqlServer(SQL2012REGPATH, "MSSQLSERVER2012", "Microsfot SQL Server 2012");
+            TestSqlServer(SQL2012REGPATH, "MSSQLSERVER2012", "Microsoft SQL Server 2012");
         }
 
         private void TestSqlServer(string regPath, string serviceName, string serverName)

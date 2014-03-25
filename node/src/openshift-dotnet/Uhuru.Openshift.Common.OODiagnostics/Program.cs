@@ -71,11 +71,11 @@ namespace Uhuru.Openshift.Common.OODiagnostics
         public static void ShowHelp()
         {
             StringBuilder helpmessage = new StringBuilder();
-            helpmessage.Append("Detect common problems on Openshift Windows Node");
+            helpmessage.Append("Detect common problems on OpenShift Windows Node");
             helpmessage.AppendLine();
             helpmessage.AppendLine("Usage: oo-diagnostics [switches] [test methods to run]");
             helpmessage.AppendLine("Example: oo-diagnostics");
-            helpmessage.AppendLine("Example: oo-diagnostics -v -w 1 test_broker_accept_script"); 
+            helpmessage.AppendLine("Example: oo-diagnostics -v -w 1 test_host_names"); 
             helpmessage.AppendLine();
  
 

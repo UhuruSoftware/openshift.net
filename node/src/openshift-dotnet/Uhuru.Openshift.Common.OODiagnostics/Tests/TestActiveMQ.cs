@@ -32,7 +32,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
             }
             catch (SocketException)
             {
-                Output.WriteFail(string.Format("Could not esttamblish TCP connection to Active MQ server at {0}:{1}", activemqHost, activemqPort));
+                Output.WriteFail(string.Format("Could not establish TCP connection to Active MQ server at {0}:{1}", activemqHost, activemqPort));
                 exitCode = ExitCode.FAIL;
             }
             

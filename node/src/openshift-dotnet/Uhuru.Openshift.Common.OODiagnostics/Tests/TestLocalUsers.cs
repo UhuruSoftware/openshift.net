@@ -28,7 +28,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
             {
                 if (!localUser.StartsWith("prison_"))
                 {
-                    //Skiping non prison users
+                    //Skipping non prison users
                     continue;
                 }
                 Output.WriteDebug(string.Format("Testing local user {0}", localUser));
