@@ -17,7 +17,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
 
         public void Run()
         {
-            Output.WriteDebug("Checking Uhuru Prison users existance");
+            Output.WriteDebug("Checking Uhuru Prison users existence");
             Prison.Prison[] prisonUsers = Prison.Prison.Load();
             List<string> notExistingUsers = new List<string>();
             Output.WriteDebug(string.Format("Found {0} prison users on the system", prisonUsers.Count()));

@@ -29,7 +29,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
             NodeConfig nodeConfig = new NodeConfig();
             Etc etc = new Etc(nodeConfig);
             EtcUser[] etcUsers = etc.GetAllUsers();
-            Output.WriteDebug(string.Format("Found {0} Etc Usrs", etcUsers));
+            Output.WriteDebug(string.Format("Found {0} Etc Users", etcUsers));
 
             Prison.Prison[] prisons = Prison.Prison.Load();
             Output.WriteDebug(string.Format("Found {0} Prison Users", prisons.Count()));
@@ -43,7 +43,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
 
                 if (etcUser.Name == "administrator")
                 {
-                    //skiping administrator user
+                    //skipping administrator user
                     continue;
                 }
 
