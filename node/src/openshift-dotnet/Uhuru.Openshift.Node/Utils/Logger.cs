@@ -115,6 +115,8 @@ namespace Uhuru.Openshift.Runtime
                 LogManager.Configuration.LoggingRules.Add(fileRule);
 
                 LogManager.ReconfigExistingLoggers();
+
+                configured = true;
             }
         }
 

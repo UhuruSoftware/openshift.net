@@ -120,8 +120,7 @@ namespace Uhuru.OpenShift.TrapUser
                 Process shell = Process.Start(shellStartInfo);
                 shell.WaitForExit();
                 exitCode = shell.ExitCode;
-
-                Logger.Debug("Process '{0}' exited with code '{1}'", shell.Id, shell.ExitCode); 
+                Logger.Debug("Process '{0}' exited with code '{1}'", shell.Id, shell.ExitCode);                 
             }
             else
             {
@@ -135,10 +134,7 @@ namespace Uhuru.OpenShift.TrapUser
                 var process = prison.Execute(bashBin, string.Format("--norc --login --noprofile {0}", arguments), false, envVars);
                 process.WaitForExit();
                 exitCode = process.ExitCode;
-
-                FixHomeDir(userHomeDir, prison.User.Username, gearUuid);
-
-                Logger.Debug("Process '{0}' exited with code '{1}'", process.Id, exitCode); 
+                Logger.Debug("Process '{0}' exited with code '{1}'", process.Id, exitCode);                 
             }
 
             return exitCode;
@@ -153,7 +149,7 @@ namespace Uhuru.OpenShift.TrapUser
                 Logger.Debug("Fixing symlinks for gear {0}", gearUuid);
                 try
                 {
-                    LinuxFiles.FixSymlinks(userHomeDir);
+                    LinuxFiles.FixSymlinks(Path.Combine(userHomeDir, "app-deployments"));
                 }
                 catch (Exception ex)
                 {
