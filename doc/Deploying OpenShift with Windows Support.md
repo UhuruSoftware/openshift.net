@@ -20,12 +20,17 @@
 - [Using an OpenShift Enterprise Installation](#using-an-openshift-enterprise-installation)
 
 [Installing the OpenShift Windows Node](#installing-the-openshift-windows-node)
-
+- [Build the installer](#build-the-installer)
+- [Install on the node](#install-on-the-node)
 - [Restarting services on the broker](#restarting-services-on-the-broker)
 - [Install Script Manual](#install-script-manual)
 - [Using a proxy when installing the windows node](using-a-proxy-when-installing-the-windows-node)
 
 [Creating your first Windows application](#creating-your-first-windows-application)
+
+[Creating districts](#creating-districts)
+
+[Diagnosing the Windows Node](#diagnosing-the-windows-node)
 
 ## Summary ##
 
@@ -146,7 +151,25 @@ To make sure everything is in order, see if these return the proper response:
 
 ## Installing the OpenShift Windows Node ##
 
-Download the windows installer from [here](http://winjenkins.hosts.uhuruos.com/). Credentials are required.
+### Build the installer ###
+
+1. Make sure you have Visual Studio 2013 installed 
+2. Clone the [openshift.net](https://github.com/UhuruSoftware/openshift.net) repo
+
+		git clone git@github.com:UhuruSoftware/openshift.net.git 
+
+3. Open a Visual Studio 2013 x64 Native tools command prompt, usually located at:
+		
+		"%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\Common7\Tools\Shortcuts\VS2013 x64 Native Tools Command Prompt"
+
+4. Change directory to your openshift.net clone
+5. Run the following commands:
+
+		build
+		powershell -file package.ps1 package
+6. Done. You should have an installer `uhuru-openshift-winnode.exe` in your openshift.net clone dir.
+
+### Install on the node ###
 
 - Disable powershell execution policy: `Set-ExecutionPolicy Unrestricted`
 - Run the installer
@@ -370,9 +393,6 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
 `.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
     
-
-
-
 ## Creating your first Windows application ##
 
 From a client machine, use rhc to connect to your OpenShift cloud.
