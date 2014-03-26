@@ -4,7 +4,7 @@
 
 [Cloud Topology](#cloud-topology)
 
-[Setting up things on Linux](#setting-up-things-on-linux)
+[Linux](#linux)
 
 - [Using the Fedora all-in-one VM](#using-the-fedora-all-in-one-vm)
 - [Using an OpenShift Enterprise Installation](#using-an-openshift-enterprise-installation) 
