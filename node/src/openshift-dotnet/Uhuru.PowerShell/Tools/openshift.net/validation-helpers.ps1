@@ -162,7 +162,7 @@ function Check-SQLServer2012()
         exit 1
     }
 
-    if ((get-service MSSQLSERVER).Status -ne "Stopped")
+    if ((get-service MSSQLSERVER2012).Status -ne "Stopped")
     {
         Write-Error "The SQL Server 2012 service 'MSSQLSERVER' is running. Please stop and disable the service and then run this script again."
         exit 1

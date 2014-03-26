@@ -39,8 +39,6 @@ namespace Uhuru.Openshift.Runtime
             prisonRules.CellType |= Prison.RuleType.WindowStation;
             prisonRules.CellType |= Prison.RuleType.Httpsys;
             prisonRules.CellType |= Prison.RuleType.IISGroup;
-            // prisonRules.CellType |= Prison.RuleType.Filesystem;
-            prisonRules.CellType |= Prison.RuleType.MsSqlInstance;
 
             prisonRules.CPUPercentageLimit = Convert.ToInt64(Node.ResourceLimits["cpu_quota"]);
             prisonRules.ActiveProcessesLimit = Convert.ToInt32(Node.ResourceLimits["max_processes"]);

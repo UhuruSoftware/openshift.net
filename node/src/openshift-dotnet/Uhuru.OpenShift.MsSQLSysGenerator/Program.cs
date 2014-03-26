@@ -179,7 +179,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 
         static Process StartMSSQLInstance(string instanceName, string path)
         {
-            Output.WriteInfo(string.Format("Starting MSSQL instance {0}", instanceName));
+            Output.WriteInfo(string.Format("Starting MSSQL instance {0} from path {1}", instanceName, path));
             Process proc = new Process();
             try
             {

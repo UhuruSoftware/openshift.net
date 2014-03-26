@@ -376,11 +376,13 @@ namespace Uhuru.Openshift.Runtime
             // TODO (vladi): make sure there isn't a more elegant way to deal with SQL Server Instances
             if (cartName == "mssql")
             {
+                Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL10_50", "MSSQLSERVER");
                 CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL10_50", "MSSQLSERVER");
             }
 
             if (cartName == "mssql2012")
             {
+                Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL11", "MSSQLSERVER2012");
                 CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL11", "MSSQLSERVER2012");
             }
 
