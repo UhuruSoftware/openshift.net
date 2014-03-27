@@ -92,6 +92,8 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - The password you set for the `sa` account has to be the same as the one for SQL Server 2008
 	- Enable TCP/IP SQL Server 2012 Protocol to listen to All IPs
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER2012)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
+	- **<font color=red>IMPORTANT! Make sure that the TCP/IP protocol is enabled for SQL Server 2012 and that the port 1433 is set to for "IPAll" in the Sql Server Configuration Manager</font>**
+	<img src="sqlserver2012config.png"/>
 
 - **MAKE SURE THE TIME OF THE VM IS SYNCED**
 
@@ -448,6 +450,11 @@ To create a district follow these steps:
 ## Diagnosing the Windows Node ##
 
 oo-diagnostics is a tool that helps in diagnosing the deployment and consistency of a windows node.
+
+### Running the tool ###
+
+If running from a windows command prompt or PowerShell, run `c:\openshift\bin\oo-diagnostics.exe`.
+If you're connected via ssh as the administrator user, you can use the alias `oo-diagnostics`.
 
 **SYNOPSIS**
         
