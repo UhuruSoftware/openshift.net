@@ -164,7 +164,7 @@ function Check-SQLServer2012()
 
     if ((get-service MSSQLSERVER2012).Status -ne "Stopped")
     {
-        Write-Error "The SQL Server 2012 service 'MSSQLSERVER' is running. Please stop and disable the service and then run this script again."
+        Write-Error "The SQL Server 2012 service 'MSSQLSERVER2012' is running. Please stop and disable the service and then run this script again."
         exit 1
     }
 
@@ -172,9 +172,20 @@ function Check-SQLServer2012()
 
     if ($sqlServerStartMode -ne "Disabled")
     {
-        Write-Error "The SQL Server 2012 service 'MSSQLSERVER' is not disabled. Please disable the service and then run this script again."
+        Write-Error "The SQL Server 2012 service 'MSSQLSERVER2012' is not disabled. Please disable the service and then run this script again."
         exit 1
     }
+
+	# Load SMO Wmi.ManagedComputer assembly
+	$wmi = new-object ('Microsoft.SqlServer.Management.Smo.Wmi.ManagedComputer').
+
+	# Get TCP/IP protocol value for named SQL Server 2012 Instance MSSQLSERVER2012
+	$TcpEnabled = $Wmi.GetSmoObject("ManagedComputer[@Name='$env:COMPUTERNAME']/ServerInstance[@Name='MSSQLSERVER2012']/ServerProtocol[@Name='Tcp']").IsEnabled
+	if ($TcpEnabled -ne "True")
+	{
+		Write-Error "The TCP/IP protocol for SQL Server 2012 service 'MSSQLSERVER2012' is disabled. Please enable the service protocol and then run this script again."
+		exit 1
+	}
 
     Write-Host "[OK] Prerequisite SQL Server 2012 is installed."
 }
