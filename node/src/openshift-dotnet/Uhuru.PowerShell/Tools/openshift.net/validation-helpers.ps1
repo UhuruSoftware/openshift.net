@@ -150,6 +150,36 @@ function Check-SQLServer2008()
 }
 
 
+function Check-SQLServer2012()
+{
+    Write-Verbose "Checking if MS SQL Server 2012 is installed ..."
+
+    $mssqlRegistry = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\Setup' -ErrorAction SilentlyContinue)
+
+    if (($mssqlRegistry -eq $null) -or ((Test-Path $mssqlRegistry.SQLPath) -eq $false))
+    {
+        Write-Error "Prerequisite SQL Server 2012 is not installed. Please install this and then run this script again."
+        exit 1
+    }
+
+    if ((get-service MSSQLSERVER2012).Status -ne "Stopped")
+    {
+        Write-Error "The SQL Server 2012 service 'MSSQLSERVER' is running. Please stop and disable the service and then run this script again."
+        exit 1
+    }
+
+    $sqlServerStartMode = Get-WMIObject win32_service -filter "name='mssqlserver'" -computer "." | select -expand startMode
+
+    if ($sqlServerStartMode -ne "Disabled")
+    {
+        Write-Error "The SQL Server 2012 service 'MSSQLSERVER' is not disabled. Please disable the service and then run this script again."
+        exit 1
+    }
+
+    Write-Host "[OK] Prerequisite SQL Server 2012 is installed."
+}
+
+
 function Check-VCRedistributable()
 {
     $vcRegistry = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\DevDiv\VC\Servicing\12.0\RuntimeMinimum' -ErrorAction SilentlyContinue)

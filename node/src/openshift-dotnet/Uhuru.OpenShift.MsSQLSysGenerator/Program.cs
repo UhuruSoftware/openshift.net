@@ -14,10 +14,12 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 {
     class Program
     {
-        static string CommandFormat = "MsSQLSysGenerator.exe pass=currentSAPassword dir=destinationDirectory newPass=newSAPassword";
+        static string CommandFormat = "MsSQLSysGenerator.exe pass=currentSAPassword dir=destinationDirectory newPass=newSAPassword instanceType=MSSQL10_50 defaultInstanceName=MSSQLSERVER";
         static string currentPass = string.Empty;
         static string destinationDir = string.Empty;
         static string newPass = string.Empty;
+        static string instanceType = string.Empty;
+        static string defaultInstanceName = string.Empty;
         static string mssqlBasePath = string.Empty;
         static string mssqlRegPath = string.Empty;
         static string mssqlDefaultInstanceName = "MSSQLSERVER";
@@ -34,9 +36,11 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             currentPass = args[0].Split('=')[1];
             destinationDir = args[1].Split('=')[1];
             newPass = args[2].Split('=')[1];
-            
-            mssqlBasePath = (string)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup").GetValue("SQLPath");
-            mssqlRegPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER";
+            instanceType = args[3].Split('=')[1];
+            defaultInstanceName = args[4].Split('=')[1];
+
+            mssqlBasePath = (string)Registry.LocalMachine.OpenSubKey(string.Format(@"SOFTWARE\Microsoft\Microsoft SQL Server\{0}.{1}\Setup", instanceType, defaultInstanceName)).GetValue("SQLPath");
+            mssqlRegPath = string.Format(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\{0}.{1}", instanceType, defaultInstanceName);
             workingDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             backupDirectory = Path.Combine(workingDirectory, "sql_instance_backup");
             
@@ -50,7 +54,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             }
 
             BackupSystem();
-            Process defaultInstance = StartMSSQLInstance("MSSQLSERVER", mssqlBasePath);
+            Process defaultInstance = StartMSSQLInstance(defaultInstanceName, mssqlBasePath);
 
             CheckMSSQLInstance("", currentPass);
 
@@ -175,7 +179,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 
         static Process StartMSSQLInstance(string instanceName, string path)
         {
-            Output.WriteInfo(string.Format("Starting MSSQL instance {0}", instanceName));
+            Output.WriteInfo(string.Format("Starting MSSQL instance {0} from path {1}", instanceName, path));
             Process proc = new Process();
             try
             {
@@ -260,7 +264,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 
         static bool ValidArgs(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length != 5)
             {
                 Output.WriteError("Invalid number of parameters. The comand format is :" + Environment.NewLine + CommandFormat);
                 return false;

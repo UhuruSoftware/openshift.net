@@ -376,7 +376,14 @@ namespace Uhuru.Openshift.Runtime
             // TODO (vladi): make sure there isn't a more elegant way to deal with SQL Server Instances
             if (cartName == "mssql")
             {
-                CreateSQLServerInstanceDatabases(cartName, prison);
+                Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL10_50", "MSSQLSERVER");
+                CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL10_50", "MSSQLSERVER");
+            }
+
+            if (cartName == "mssql2012")
+            {
+                Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL11", "MSSQLSERVER2012");
+                CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL11", "MSSQLSERVER2012");
             }
 
             Logger.Debug("Setting permisions to home dir gear {0}, prison user {1}", this.container.Uuid, prison.User.Username);
@@ -395,7 +402,7 @@ namespace Uhuru.Openshift.Runtime
             return string.Empty;
         }
 
-        public void CreateSQLServerInstanceDatabases(string cartName, Prison.Prison prison)
+        public void CreateSQLServerInstanceDatabases(string cartName, Prison.Prison prison, string instanceType, string defaultInstanceName)
         {
             // TODO: vladi: GLOBAL LOCK
             Logger.Debug("Setting up SQL Server system databases for gear {0}, cart {1}", this.container.Uuid, cartName);
@@ -405,10 +412,10 @@ namespace Uhuru.Openshift.Runtime
 
             string sqlServerPassword = NodeConfig.Values["SQL_SERVER_SA_PASSWORD"];
 
-            string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "mssql");
+            string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "mssql");
             string newSAPassword = string.Format("Pr!5{0}", Prison.Utilities.Credentials.GenerateCredential(10));
 
-            string arguments = string.Format("pass={0} dir={1} newPass={2}", sqlServerPassword, destination, newSAPassword);
+            string arguments = string.Format("pass={0} dir={1} newPass={2} instanceType={3} defaultInstanceName={4}", sqlServerPassword, destination, newSAPassword, instanceType, defaultInstanceName);
 
             ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
 
@@ -417,7 +424,7 @@ namespace Uhuru.Openshift.Runtime
                 throw new Exception(string.Format("Could not create system databases for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
             } 
             
-            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("MSSQL10_50.Instance{0}", prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
+            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
 
             Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
 
