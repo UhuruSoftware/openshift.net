@@ -85,6 +85,13 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - Make sure you set it up with mixed authentication
     - Please note the password you set for the `sa` account - you will need to configure the OpenShift node with it
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
+	
+- Install SQL Server 2012
+	- Install SQL Server 2012 with a simple named instance MSSQLSERVER2012(no extra services, just the database engine)
+    - Make sure you set it up with mixed authentication
+    - The password you set for the `sa` account has to be the same as the one for SQL Server 2008
+	- Enable TCP/IP SQL Server 2012 Protocol to listen to All IPs
+    - After the installation is complete, stop the `SQL Server (MSSQLSERVER2012)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 
 - **MAKE SURE THE TIME OF THE VM IS SYNCED**
 
