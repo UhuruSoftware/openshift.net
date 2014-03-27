@@ -68,7 +68,7 @@ function Setup-OOAliases($binLocation, $cygwinDir)
 	
 	$ooDiagnosticsAlias = (Join-Path $ooBinDir 'oo-diagnostics')
 	$ooDiagnosticsPath = (Join-Path $binLocation 'oo-diagnostics.exe').Replace("\", "/")
-	"${ooDiagnosticsPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $ooDiagnosticsAlias
+	"c:/windows/system32/cmd.exe /c ${ooDiagnosticsPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $ooDiagnosticsAlias
 	 $aliasUnixDiagnosticsPath = & $cygpath $ooDiagnosticsAlias
 	 & $chmod +x $aliasUnixDiagnosticsPath
 
