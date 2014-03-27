@@ -24,7 +24,7 @@ namespace Uhuru.Openshift.Common.OODiagnostics.Tests
             TestSqlServer(SQL2008REGPATH, "MSSQLSERVER", "Microsoft SQL Server 2008");
             
             Output.WriteDebug("Testing MS SQL 2012");
-            TestSqlServer(SQL2012REGPATH, "MSSQLSERVER2012", "Microsoft SQL Server 2012");
+            TestSqlServer(SQL2012REGPATH, "MSSQL$MSSQLSERVER2012", "Microsoft SQL Server 2012");
         }
 
         private void TestSqlServer(string regPath, string serviceName, string serverName)
