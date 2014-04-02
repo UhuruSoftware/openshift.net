@@ -49,9 +49,9 @@ namespace Uhuru.Openshift.Common.Utils
             return ports;
         }
 
-        public static int GetAvailablePort(int ApplicationUid)
+        public static int GetAvailablePort(int ApplicationUid,int PortsPerUser=10,int MinUid=1000, int StartPort =10001)
         {
-            List<int> availableport = GetPortRange(ApplicationUid, 10, 1000);
+            List<int> availableport = GetPortRange(ApplicationUid, PortsPerUser, MinUid, StartPort);
             foreach (int port in availableport)
             {
                 TcpClient tcpClient = new TcpClient();

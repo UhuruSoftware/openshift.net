@@ -24,6 +24,7 @@ action "cartridge_do", :description => "run a cartridge action" do
         :type           => :list,
         :list           => %w(
                               add-alias
+							  admin-restore-acls
                               aliases
                               app-create
                               app-destroy
