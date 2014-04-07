@@ -11,6 +11,8 @@ namespace Uhuru.Openshift.Common.Models
         public int Max { get; set; }
         public int MinManaged { get; set; }
         public int Multiplier { get; set; }
+        public bool Required { get; set; }
+
         public bool Generated 
         {
             get
@@ -34,6 +36,7 @@ namespace Uhuru.Openshift.Common.Models
             scaling.Max = spec.ContainsKey("Max") ? spec["Max"] : -1;
             scaling.MinManaged = spec.ContainsKey("Min-Managed") ? spec["Min-Managed"] : 1;
             scaling.Multiplier = spec.ContainsKey("Multiplier") ? spec["Multiplier"] : 1;
+            scaling.Required = spec.ContainsKey("Required") ? spec["Required"] : true;
             return scaling;
         }
 
@@ -44,6 +47,7 @@ namespace Uhuru.Openshift.Common.Models
             h["Max"] = this.Max;
             h["Min-Managed"] = this.MinManaged;
             h["Multiplier"] = this.Multiplier;
+            h["Required"] = this.Required;
             return h;
         }
     }

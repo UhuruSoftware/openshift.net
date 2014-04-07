@@ -55,6 +55,9 @@ namespace Uhuru.Openshift.Common.Models
 
         public Dictionary<string, Profile> ProfileMap { get; set; }
 
+        public string Platform { get; set; }
+
+
         public Cartridge()
         {
             ProfileMap = new Dictionary<string, Profile>();
@@ -77,6 +80,8 @@ namespace Uhuru.Openshift.Common.Models
             cart.Vendor = spec["Vendor"] ?? "unknown";
             cart.CartridgeVendor = spec["Cartridge-Vendor"] ?? "unknown";
             cart.Description = spec["Description"] ?? "";
+            cart.Platform = spec["Platform"] ?? "Windows";
+
             if (spec.ContainsKey("Provides"))
             {
                 if (spec["Provides"] is String)
@@ -192,6 +197,8 @@ namespace Uhuru.Openshift.Common.Models
             h["Website"] = this.Website;
             h["HelpTopics"] = this.HelpTopics;
             h["Cart-Data"] = this.CartDataDef;
+            h["Platform"] = this.Platform;
+
             if (this.AdditionalControlActions.Count > 0)
                 h["Additional-Control-Actions"] = this.AdditionalControlActions;
             if (this.Provides.Count > 0)
@@ -256,47 +263,5 @@ namespace Uhuru.Openshift.Common.Models
             }
         }
 
-        public class HelpTopicsObj
-        {
-            public string DeveloperCenter { get; set; }
-        }
-
-        public class CartDataObj
-        {
-            public string Key { get; set; }
-
-            public string Type { get; set; }
-
-            public string Description { get; set; }
-        }
-
-        public class PublishesObj
-        {
-            public PublishHttpUrlObj PublishHttpUrl { get; set; }
-
-            public class PublishHttpUrlObj
-            {
-                public string Type { get; set; }
-            }
-        }
-
-        public class SubscribesObj
-        {
-            public SetEnvObj SetEnv { get; set; }
-
-            public class SetEnvObj
-            {
-                public string Type { get; set; }
-
-                public bool Required { get; set; }
-            }
-        }
-
-        public class ScalingObj
-        {
-            public string Min { get; set; }
-
-            public string Max { get; set; }
-        }
     }
 }
