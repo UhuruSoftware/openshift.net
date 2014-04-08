@@ -17,12 +17,13 @@ namespace Uhuru.Openshift.Common.Models
         {
             this.Publishes = new List<Connector>();
             this.Subscribes = new List<Connector>();
+            Generated = false;
         }
 
-        public static Component FromDescriptor(Profile profile, dynamic spec)
+        public static Component FromDescriptor(Cartridge cartridge, dynamic spec)
         {
             Component component = new Component();
-            component.Name = spec["Name"];
+            component.Name = string.IsNullOrEmpty(spec["Name"]) ? cartridge.Name : spec["Name"];
             if (((Dictionary<object, object>)spec).ContainsKey("Publishes"))
             {
                 foreach (dynamic c in spec["Publishes"])
@@ -43,7 +44,7 @@ namespace Uhuru.Openshift.Common.Models
                 }
             }
 
-            component.Scaling = spec.ContainsKey("Scaling") ? Scaling.FromDescriptor(spec) : null;
+            component.Scaling = spec.ContainsKey("Scaling") ? Scaling.FromDescriptor(spec["Scaling"]) : null;
             return component;
         }
 

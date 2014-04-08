@@ -5,6 +5,9 @@ namespace Uhuru.Openshift.Common.Models
 {
     public class Cartridge
     {
+
+        public string Id { get; set; }
+
         public string OriginalName { get; set; }
 
         public string Version { get; set; }
@@ -45,31 +48,46 @@ namespace Uhuru.Openshift.Common.Models
 
         public List<object> AdditionalControlActions { get; set; }
 
+        public string CartridgeVersion { get; set; }
+
         public List<Endpoint> Endpoints { get; set; }
 
-        public List<Profile> Profiles { get; set; }
-
-        public string DefaultProfile { get; set; }
+        public List<object> StartOrder { get; set; }
+        public List<object> StopOrder { get; set; }
+        public List<object> ConfigureOrder { get; set; }
 
         public dynamic Spec { get; set; }
 
-        public Dictionary<string, Profile> ProfileMap { get; set; }
-
         public string Platform { get; set; }
 
+        public List<Component> Components { get; set; }
+
+        public Dictionary<string, Component> ComponentNameMap { get; set; }
+
+        public List<Connection> Connections { get; set; }
+
+        public List<object> GroupOverrides { get; set; }
+
+        public bool Obsolete { get; set; }
 
         public Cartridge()
         {
-            ProfileMap = new Dictionary<string, Profile>();
-            Profiles = new List<Profile>();
+            this.Components = new List<Component>();
+            this.ComponentNameMap = new Dictionary<string, Component>();
+            this.StartOrder = new List<object>();
+            this.StopOrder = new List<object>();
+            this.ConfigureOrder = new List<object>();
             Endpoints = new List<Endpoint>();
+            this.Connections = new List<Connection>();
+            this.GroupOverrides = new List<object>();
         }
 
         public static Cartridge FromDescriptor(dynamic spec)
         {
             Cartridge cart = new Cartridge();
-
+            
             cart.Spec = spec;
+            cart.Id = spec.ContainsKey("Id") ?  spec["Id"] :  "";
             cart.OriginalName = spec["Name"];
             cart.Version = spec.ContainsKey("Version") ? spec["Version"] : "0.0";
             cart.Versions = spec.ContainsKey("Versions") ? spec["Versions"] : new List<object>();
@@ -80,7 +98,6 @@ namespace Uhuru.Openshift.Common.Models
             cart.Vendor = spec["Vendor"] ?? "unknown";
             cart.CartridgeVendor = spec["Cartridge-Vendor"] ?? "unknown";
             cart.Description = spec["Description"] ?? "";
-            cart.Platform = spec["Platform"] ?? "Windows";
 
             if (spec.ContainsKey("Provides"))
             {
@@ -147,6 +164,8 @@ namespace Uhuru.Openshift.Common.Models
             cart.HelpTopics = spec["Help-Topics"] ?? new object();
             cart.CartDataDef = spec["Cart-Data"] ?? new object();
             cart.AdditionalControlActions = spec.ContainsKey("Additional-Control-Actions") ? spec["Additional-Control-Actions"] : new List<object>() { };
+            cart.CartridgeVersion = spec["Cartridge-Version"] ?? "0.0.0";
+            cart.Platform = spec["Platform"] ?? "Windows";
 
             if (((Dictionary<object, object>)spec).ContainsKey("Endpoints"))
             {
@@ -159,26 +178,92 @@ namespace Uhuru.Openshift.Common.Models
                 }
             }
 
-            if (((Dictionary<object, object>)spec).ContainsKey("Profiles"))
+            if (spec.ContainsKey("Start-Order"))
             {
-                foreach (dynamic p in spec["Profiles"])
+                if (spec["Start-Order"] is String)
                 {
-                    KeyValuePair<string, dynamic> pair = (KeyValuePair<string, dynamic>)p;
-                    Profile profile = Profile.FromDescriptor(cart, pair.Value);
-                    profile.Name = pair.Key;
-                    cart.Profiles.Add(profile);
-                    cart.ProfileMap[pair.Key] = profile;
+                    cart.StartOrder = new List<object>() { spec["Start-Order"] };
+                }
+                else
+                {
+                    cart.StartOrder = spec["Start-Order"];
                 }
             }
             else
             {
-                Profile profile = Profile.FromDescriptor(cart, spec);
-                profile.Name = cart.Name;
-                profile.Generated = true;
-                cart.Profiles.Add(profile);
-                cart.ProfileMap[profile.Name] = profile;
+                cart.StartOrder = new List<object>() { };
             }
-            cart.DefaultProfile = spec.ContainsKey("Default-Profile") ? spec["Default-Profile"] : cart.Profiles[0].Name;
+
+            if (spec.ContainsKey("Stop-Order"))
+            {
+                if (spec["Stop-Order"] is String)
+                {
+                    cart.StopOrder = new List<object>() { spec["Stop-Order"] };
+                }
+                else
+                {
+                    cart.StopOrder = spec["Stop-Order"];
+                }
+            }
+            else
+            {
+                cart.StopOrder = new List<object>() { };
+            }
+
+            if (spec.ContainsKey("Configure-Order"))
+            {
+                if (spec["Configure-Order"] is String)
+                {
+                    cart.ConfigureOrder = new List<object>() { spec["Configure-Order"] };
+                }
+                else
+                {
+                    cart.ConfigureOrder = spec["Configure-Order"];
+                }
+            }
+            else
+            {
+                cart.ConfigureOrder = new List<object>() { };
+            }
+
+            if (((Dictionary<object, object>)spec).ContainsKey("Components"))
+            {
+                foreach (dynamic c in spec["Components"])
+                {
+                    KeyValuePair<string, dynamic> pair = (KeyValuePair<string, dynamic>)c;
+                    Component component = Component.FromDescriptor(cart, pair.Value);
+                    component.Name = pair.Key;
+                    cart.Components.Add(component);
+                    cart.ComponentNameMap[component.Name] = component;
+                }
+            }
+            else
+            {
+                Component component = Component.FromDescriptor(cart, spec);
+                component.Generated = true;
+                cart.Components.Add(component);
+                cart.ComponentNameMap[component.Name] = component;
+            }
+
+            if (((Dictionary<object, object>)spec).ContainsKey("Connections"))
+            {
+                foreach (dynamic c in spec["Connections"])
+                {
+                    KeyValuePair<string, dynamic> pair = (KeyValuePair<string, dynamic>)c;
+                    cart.Connections.Add(Connection.FromDescriptor(pair.Key, pair.Value));
+                }
+            }
+
+            if (((Dictionary<object, object>)spec).ContainsKey("Group-Overrides"))
+            {
+                foreach (dynamic c in spec["Group-Overrides"])
+                {
+                    cart.GroupOverrides.Add(c);
+                }
+            }
+
+            cart.Obsolete = spec.ContainsKey("Obsolete") ?  spec["spec"] : false;
+            
 
             return cart;
         }
@@ -188,10 +273,12 @@ namespace Uhuru.Openshift.Common.Models
             Dictionary<object, object> h = new Dictionary<object, object>();
             h["Name"] = this.OriginalName;
             h["Display-Name"] = this.DisplayName;
+            h["Id"] = this.Id;
             h["Architecture"] = this.Architecture;
             h["Version"] = this.Version;
             h["Versions"] = this.Versions;
             h["Description"] = this.Description;
+            h["License"] = this.License;
             h["License-Url"] = this.LicenseUrl;
             h["Categories"] = this.Categories;
             h["Website"] = this.Website;
@@ -201,6 +288,7 @@ namespace Uhuru.Openshift.Common.Models
 
             if (this.AdditionalControlActions.Count > 0)
                 h["Additional-Control-Actions"] = this.AdditionalControlActions;
+            h["Cartridge-Version"] = this.CartridgeVersion;
             if (this.Provides.Count > 0)
                 h["Provides"] = this.Provides;
             if (this.Requires.Count > 0)
@@ -213,8 +301,8 @@ namespace Uhuru.Openshift.Common.Models
                 h["Native-Requires"] = this.NativeRequires;
             h["Vendor"] = this.Vendor;
             h["Cartridge-Vendor"] = this.CartridgeVendor;
-            if (this.DefaultProfile != null && !this.ProfileMap[this.DefaultProfile].Generated)
-                h["Default-Profile"] = this.DefaultProfile;
+
+            h["Obsolete"] = this.Obsolete;
 
             if (this.Endpoints.Count > 0)
             {
@@ -226,24 +314,42 @@ namespace Uhuru.Openshift.Common.Models
                 h["Endpoints"] = endps;
             }
 
-            if (this.Profiles.Count == 1 && this.Profiles[0].Generated)
+            if (this.StartOrder.Count > 0)
+                h["Start-Order"] = this.StartOrder;
+            if (this.StopOrder.Count > 0)
+                h["Stop-Order"] = this.StopOrder;
+            if (this.ConfigureOrder.Count > 0)
+                h["Configure-Order"] = this.ConfigureOrder;
+
+            if (this.Components.Count == 1 && this.Components[0].Generated)
             {
-                dynamic profile = this.Profiles[0].ToDescriptor();
-                profile.Remove("Name");
-                foreach (KeyValuePair<object, object> pair in profile)
+                dynamic comp = this.Components[0].ToDescriptor();
+                ((Dictionary<object, object>)comp).Remove("Name");
+                foreach (KeyValuePair<object, object> pair in comp)
                 {
-                    h[pair.Key] = profile[pair.Key];
+                    h[pair.Key] = comp[pair.Key];
                 }
             }
             else
             {
-                Dictionary<object, object> profiles = new Dictionary<object, object>();
-                foreach (Profile prof in this.Profiles)
+                Dictionary<string, object> comp = new Dictionary<string, object>();
+                foreach (Component com in this.Components)
                 {
-                    profiles[prof.Name] = prof.ToDescriptor();
+                    comp[com.Name] = com.ToDescriptor();
                 }
-                h["Profiles"] = profiles;
+                h["Components"] = comp;
             }
+
+            if (this.Connections.Count != 0)
+            {
+                Dictionary<string, object> conns = new Dictionary<string, object>();
+                foreach (Connection con in this.Connections)
+                {
+                    conns[con.Name] = con.ToDescriptor();
+                }
+                h["Connections"] = conns;
+            }
+            h["Group-Overrides"] = this.GroupOverrides;
 
             return h;
         }
