@@ -159,6 +159,10 @@ module MCollective
       def oo_authorized_ssh_key_add(args)
         run_command(__method__, args)
       end
+	  
+	  def oo_authorized_ssh_key_batch_add(args)
+	    run_command(__method__, args)
+	  end
 
       def oo_authorized_ssh_key_remove(args)
         run_command(__method__, args)

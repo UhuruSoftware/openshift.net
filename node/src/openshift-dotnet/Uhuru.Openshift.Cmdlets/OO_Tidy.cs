@@ -37,6 +37,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string CartridgeVendor;
 
+        [Parameter]
+        public string WithExposePorts;
+
         protected override void ProcessRecord()
         {
             this.WriteObject(Execute());

@@ -43,6 +43,10 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string WithCartridgeManifest;
 
+
+        [Parameter]
+        public string WithExposePorts;
+
         protected override void ProcessRecord()
         {
             this.WriteObject(Execute());
@@ -56,7 +60,7 @@ namespace Uhuru.Openshift.Cmdlets
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
                                 WithNamespace, null, null, null);
 
-                status.Output = container.Configure(CartName, WithTemplateGitUrl, WithCartridgeManifest);
+                status.Output = container.Configure(CartName, WithTemplateGitUrl, WithCartridgeManifest, bool.Parse(WithExposePorts));
                 status.ExitCode = 0;
             }
             catch (Exception ex)
