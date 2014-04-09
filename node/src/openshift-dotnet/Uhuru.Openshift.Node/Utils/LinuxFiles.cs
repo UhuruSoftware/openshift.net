@@ -39,6 +39,14 @@ namespace Uhuru.Openshift.Runtime.Utils
             }
         }
 
+        private static string ChownBinary
+        {
+            get
+            {
+                return Path.Combine(NodeConfig.Values["SSHD_BASE_DIR"], @"bin\chown.exe");
+            }
+        }
+
         public static string Cygpath(string directory, bool toWindows = false)
         {
             if (toWindows)
@@ -54,6 +62,11 @@ namespace Uhuru.Openshift.Runtime.Utils
         public static int Chmod(string file, string mod)
         {
             return ProcessExtensions.RunCommandAndGetOutput(ChmodBinary, string.Format("{0} {1}", mod, file)).ExitCode;
+        }
+
+        public static int Chown(string user, string file)
+        {
+            return ProcessExtensions.RunCommandAndGetOutput(ChownBinary, string.Format("{0} {1}", user, file)).ExitCode;
         }
 
         public static void FixSymlinks(string directory)

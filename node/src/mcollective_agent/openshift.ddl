@@ -23,8 +23,7 @@ action "cartridge_do", :description => "run a cartridge action" do
         :description    => "Cartridge hook to run",
         :type           => :list,
         :list           => %w(
-                              add-alias
-							  admin-restore-acls
+                              add-alias							  
                               aliases
                               app-create
                               app-destroy
@@ -127,6 +126,22 @@ action "get_facts", :description => "get a specific list of facts" do
     output :output,
         :description    => "A hash of facts and their values",
         :display_as     => "Facts"
+end
+
+action "admin_restore_acls", :description => "restore user rights after moving gear on windows machines" do
+    display:always
+
+    input :uuid,
+        :prompt         => "Gear uuid",
+        :description    => "Unique gear identifier",
+        :type           => :string,
+        :validation     => '^[a-zA-Z0-9]+$',
+        :maxlength	=> 32,
+        :optional	=> false
+
+    output :exitcode,
+        :description    => "Exit code",
+        :display_as     => "Exit Code"
 end
 
 action "execute_parallel", :description => "run commands in parallel" do
