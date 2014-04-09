@@ -43,6 +43,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string WithToken;
 
+        [Parameter]
+        public string WithExposePorts;
+
         protected override void ProcessRecord()
         {
             this.WriteObject(Execute());

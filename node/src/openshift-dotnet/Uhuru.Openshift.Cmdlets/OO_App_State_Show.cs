@@ -24,6 +24,9 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter]
         public string WithRequestId;
+
+        [Parameter]
+        public string WithExposePorts;
         
         protected override void ProcessRecord()
         {

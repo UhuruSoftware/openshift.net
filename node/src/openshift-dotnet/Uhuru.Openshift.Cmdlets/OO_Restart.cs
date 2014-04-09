@@ -42,6 +42,9 @@ namespace Uhuru.Openshift.Cmdlets
         public SwitchParameter All;
 
         [Parameter]
+        public string WithExposePorts;
+
+        [Parameter]
         public float ParallelConcurrencyRatio;
 
         protected override void ProcessRecord()

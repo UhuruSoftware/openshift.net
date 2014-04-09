@@ -51,11 +51,8 @@ namespace Uhuru.Openshift.Runtime
 
         public List<object> AdditionalControlActions { get; set; }
 
-        public List<Uhuru.Openshift.Common.Models.Profile> Profiles { get; set; }
 
         public string DefaultProfile { get; set; }
-
-        public Dictionary<string, Uhuru.Openshift.Common.Models.Profile> ProfileMap { get; set; }
 
         public bool Deployable
         {

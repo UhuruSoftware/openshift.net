@@ -85,6 +85,8 @@
     <Compile Include="Install_Cartridges.cs" />
     <Compile Include="OO_Activate.cs" />
     <Compile Include="OO_Admin_Cartridge.cs" />
+    <Compile Include="OO_Authorized_Ssh_Key_Batch_Add.cs" />
+    <Compile Include="OO_Authorized_Ssh_Key_Batch_Remove.cs" />
     <Compile Include="OO_Force_Stop.cs" />
     <Compile Include="OO_Env_Var_Add.cs" />
     <Compile Include="OO_Authorized_Ssh_Keys_Replace.cs" />

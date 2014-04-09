@@ -30,6 +30,9 @@ namespace Uhuru.Openshift.Cmdlets
 
         [Parameter]
         public string WithKey;
+
+        [Parameter]
+        public string WithExposePorts;
         
         protected override void ProcessRecord()
         {            

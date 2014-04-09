@@ -40,6 +40,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string PublishingCartName;
 
+        [Parameter]
+        public string WithExposePorts;
+
 
         protected override void ProcessRecord()
         {

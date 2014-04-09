@@ -142,6 +142,16 @@ namespace Uhuru.Openshift.Runtime
             Sshd.RemoveKey(NodeConfig.Values["SSHD_BASE_DIR"], this.Uuid, key);
             return output;
         }
+
+         public string RemoveSshKeys(List<SshKey> keys)
+        {
+            string output = "";
+             foreach (SshKey key in keys)
+             {
+                  RemoveSshKey(key.Key, key.Type, key.Comment);
+             }
+             return output;
+        }
         
         /// <summary>
         /// Add broker authorization keys so gear can communicate with broker.

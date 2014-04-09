@@ -17,6 +17,7 @@ using Uhuru.Openshift.Common.Models;
 using Uhuru.Openshift.Common.Utils;
 using System.Text.RegularExpressions;
 using System.Net;
+using Uhuru.Openshift.Common.JsonHelper;
 
 
 namespace Uhuru.Openshift.Runtime
@@ -177,9 +178,14 @@ namespace Uhuru.Openshift.Runtime
             return this.StopGear(options);
         }
 
-        public string Configure(string cartName, string templateGitUrl, string manifest)        
+        public string Configure(string cartName, string templateGitUrl, string manifest, bool doExposePorts)        
         {
-            return Cartridge.Configure(cartName, templateGitUrl, manifest);
+            string output = Cartridge.Configure(cartName, templateGitUrl, manifest);
+            if (doExposePorts)
+            {
+               output = output + CreatePublicEndpoints(cartName);
+            }
+            return output;
         }
 
         public string ConnectorExecute(string cartName, string hookName, string publishingCartName, string connectionType, string inputArgs)
@@ -215,6 +221,19 @@ namespace Uhuru.Openshift.Runtime
 
             return output;
         }
+
+        public string AddSshKeys(List<SshKey> sshKeys)
+        {
+            string output = "";
+
+            foreach (SshKey sshKey in sshKeys)
+            {
+                AddSshKey(sshKey.Key, sshKey.Type, sshKey.Comment);
+            }
+
+            return output;
+        }
+
 
         public void Distribute(dynamic options)
         {

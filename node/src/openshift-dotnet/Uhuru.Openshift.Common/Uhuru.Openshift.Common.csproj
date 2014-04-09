@@ -80,7 +80,6 @@
     <Compile Include="Models\Connector.cs" />
     <Compile Include="Models\Endpoint.cs" />
     <Compile Include="Models\Manifest.cs" />
-    <Compile Include="Models\Profile.cs" />
     <Compile Include="Models\Scaling.cs" />
     <Compile Include="ParseConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

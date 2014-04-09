@@ -27,16 +27,17 @@ namespace Uhuru.Openshift.Common.Models
             this.Max = -1;
             this.MinManaged = 1;
             this.Multiplier = 1;
+            this.Required = true;
         }
 
         public static Scaling FromDescriptor(dynamic spec)
         {
             Scaling scaling = new Scaling();
-            scaling.Min = spec.ContainsKey("Min") ? spec["Min"] : 1;
-            scaling.Max = spec.ContainsKey("Max") ? spec["Max"] : -1;
-            scaling.MinManaged = spec.ContainsKey("Min-Managed") ? spec["Min-Managed"] : 1;
-            scaling.Multiplier = spec.ContainsKey("Multiplier") ? spec["Multiplier"] : 1;
-            scaling.Required = spec.ContainsKey("Required") ? spec["Required"] : true;
+            scaling.Min = spec.ContainsKey("Min") ? int.Parse(spec["Min"]) : 1;
+            scaling.Max = spec.ContainsKey("Max") ? int.Parse(spec["Max"]) : -1;
+            scaling.MinManaged = spec.ContainsKey("Min-Managed") ? int.Parse(spec["Min-Managed"]) : 1;
+            scaling.Multiplier = spec.ContainsKey("Multiplier") ? int.Parse(spec["Multiplier"]) : 1;
+            scaling.Required = spec.ContainsKey("Required") ? bool.Parse(spec["Required"]) : true;
             return scaling;
         }
 
