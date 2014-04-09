@@ -125,12 +125,29 @@ namespace Control
         }
 
         private static void Build()
-        {
-            ProcessStartInfo pi = new ProcessStartInfo();
-            pi.WindowStyle = ProcessWindowStyle.Hidden;
-            pi.FileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe";
-            pi.WorkingDirectory = Environment.GetEnvironmentVariable("OPENSHIFT_REPO_DIR");
-            Process.Start(pi).WaitForExit();
+        {            
+            foreach (string sln in Directory.GetFiles(Environment.GetEnvironmentVariable("OPENSHIFT_REPO_DIR"), "*.sln"))
+            {
+                Process p = new Process();
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                p.StartInfo.FileName = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe";
+                p.StartInfo.Arguments = string.Format("{0} /t:Rebuild", sln);
+                p.StartInfo.WorkingDirectory = Environment.GetEnvironmentVariable("OPENSHIFT_REPO_DIR");
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.RedirectStandardError = true;
+                p.OutputDataReceived += new DataReceivedEventHandler(delegate(object sender, DataReceivedEventArgs args) { Console.WriteLine(args.Data); });
+                p.ErrorDataReceived += new DataReceivedEventHandler(delegate(object sender, DataReceivedEventArgs args) { Console.Error.WriteLine(args.Data); });
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+                p.WaitForExit();
+                if (p.ExitCode != 0)
+                {
+                    throw new Exception("Build failed");
+                }
+            }
         }
 
         private static bool ProcessRunning(string processName, string pidFile)

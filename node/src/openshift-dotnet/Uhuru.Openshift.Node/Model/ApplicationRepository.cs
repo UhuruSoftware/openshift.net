@@ -186,7 +186,7 @@ set GIT_DIR=./{2}.git
             string hooks = Path.Combine(this.RepositoryPath, "hooks");
             Container.SetRoPermissions(hooks);
             File.WriteAllText(Path.Combine(this.RepositoryPath, "description"), string.Format(GIT_DESCRIPTION, this.cartridgeName, this.applicationName));
-            File.WriteAllText(Path.Combine(this.Container.ContainerDir, "gitconfig"), GIT_CONFIG);
+            File.WriteAllText(Path.Combine(this.Container.ContainerDir, ".gitconfig"), GIT_CONFIG);
             File.WriteAllText(Path.Combine(hooks, "pre-receive"), PRE_RECEIVE);
             File.WriteAllText(Path.Combine(hooks, "post-receive"), POST_RECEIVE);
         }
@@ -215,6 +215,16 @@ set GIT_DIR=./{2}.git
             if (!Exists())
                 return false;
             return Directory.GetFiles(this.RepositoryPath).Length == 0;
+        }
+
+        public bool FileExists(string filename, string refId)
+        {
+            ProcessResult pr = ProcessExtensions.RunCommandAndGetOutput("cmd", string.Format("git ls-tree {0} -- {1}", refId, filename), this.RepositoryPath);
+            if(pr.ExitCode == 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public string GetSha1(string refId)

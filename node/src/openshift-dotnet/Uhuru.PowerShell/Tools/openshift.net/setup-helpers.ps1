@@ -105,6 +105,7 @@ function Setup-GlobalEnv($binLocation)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_BROKER_HOST'), $brokerHost)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CLOUD_DOMAIN'), $cloudDomain)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_POWERSHELL'), (Join-Path $binLocation 'cartridge_sdk\powershell\sdk.ps1'))
+	[System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_BASH'), (Join-Path $binLocation 'cartridge_sdk\bash\sdk'))
 
     $pathEnvEntries =@('/usr/local/bin',
         '/usr/bin',

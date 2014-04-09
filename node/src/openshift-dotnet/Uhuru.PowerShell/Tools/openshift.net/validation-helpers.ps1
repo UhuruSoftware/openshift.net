@@ -193,6 +193,17 @@ function Check-VCRedistributable()
     Write-Host "[OK] Prerequisite Visual C++ Redistributable for Visual Studio 2013 is installed."
 }
 
+function Check-Java()
+{
+	java -version
+	if($LASTEXITCODE -ne 0)
+	{
+		Write-Error "Could not find java executable. Please install the Java Runtime Environment if not installed and make sure it is included in PATH"
+		exit 1
+	}
+	Write-Host "[OK] Prerequisite Java is installed."
+}
+
 function Check-Product($productName, $products, $required)
 {
     $product = $products | Where {$_.Name -eq $productName }
