@@ -224,7 +224,7 @@ namespace Uhuru.Openshift.Runtime
             Activate(options);
         }
 
-        private string Build(RubyHash options)
+        public string Build(RubyHash options)
         {
             this.State.Value(Runtime.State.BUILDING);
             string deploymentDateTime = options["deployment_datetime"] != null ? options["deployment_datetime"] : LatestDeploymentDateTime();
@@ -234,7 +234,14 @@ namespace Uhuru.Openshift.Runtime
             {
                 // this will execute if coming from a CI builder, since it doesn't
                 // specify :deployment_datetime in the options hash
-                throw new NotImplementedException();
+                ApplicationRepository applicationRepository = options["git_repo"];
+                string gitRef = options["ref"];
+                string gitSha1 = applicationRepository.GetSha1(gitRef);
+                deploymentMetadata.GitSha = gitSha1;
+                deploymentMetadata.GitRef = gitRef;
+                deploymentMetadata.HotDeploy = options["hot_deploy"];
+                deploymentMetadata.ForceCleanBuild = options["force_clean_build"];
+                deploymentMetadata.Save();
             }
 
             StringBuilder buffer = new StringBuilder();

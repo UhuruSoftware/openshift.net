@@ -16,3 +16,5 @@ PasswordAuthentication yes
 UsePrivilegeSeparation no
 PidFile /var/run/sshd.pid
 Subsystem	sftp	/usr/sbin/sftp-server
+
+AcceptEnv GIT_SSH

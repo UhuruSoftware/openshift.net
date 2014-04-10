@@ -905,6 +905,13 @@ namespace Uhuru.Openshift.Runtime
             AddEnvVar("GEAR_UUID", this.Uuid, true);
             AddEnvVar("HOMEDIR", homeDir, true);
             AddEnvVar("HOME", homeDir, false);
+
+            AddEnvVar("DEPENDENCIES_DIR", Path.Combine(gearAppDir, "runtime", "dependencies"), true);
+            Directory.CreateDirectory(Path.Combine(gearAppDir, "runtime", "dependencies"));
+
+            AddEnvVar("BUILD_DEPENDENCIES_DIR", Path.Combine(gearAppDir, "runtime", "build-dependencies"), true);
+            Directory.CreateDirectory(Path.Combine(gearAppDir, "runtime", "build-dependencies"));
+
             AddEnvVar("NAMESPACE", this.Namespace, true);
 
             string repoDir = Path.Combine(gearAppDir, "runtime", "repo");

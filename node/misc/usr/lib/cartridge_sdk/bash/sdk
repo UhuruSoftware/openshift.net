@@ -1,0 +1,638 @@
+#!/bin/echo 'This is function library. To use: source $OPENSHIFT_CARTRIDGE_SDK_BASH'; exit 1
+
+# This is a library of functions for OpenShift cartridge authors.
+# To use this library add 'source $OPENSHIFT_CARTRIDGE_SDK_BASH' to your bash script.
+
+[ ${OO_BASH_SDK:-false} == true ] && return 0
+OO_BASH_SDK=true
+
+# report message on stderr and exit with provided exit status
+function error {
+    echo "$1" 1>&2
+    exit "$2"
+}
+
+# report message on stderr
+function warning {
+    echo "$1" 1>&2
+}
+
+# report text to application developer
+# Argument(s):
+# - Text to be displayed on success
+function client_result {
+    client_out "CLIENT_RESULT" "$1"
+}
+
+# report text to application developer
+# Argument(s):
+# - Text will always be displayed. Used to notify application developer of a transient issue.
+function client_message {
+    client_out "CLIENT_MESSAGE" "$1"
+}
+
+# report text to application developer as error
+# Argument(s):
+# - Text will be displayed when there is an error
+function client_error {
+    client_out "CLIENT_ERROR" "$1"
+}
+
+# report text to application developer as error in your code
+# Will be displayed...
+function client_internal_error {
+    client_out "CLIENT_INTERNAL_ERROR" "$1"
+}
+
+# report text to application developer as debugging information
+function client_debug {
+    client_out "CLIENT_DEBUG" "$1"
+}
+
+# format text for reporting to application developer
+#
+# Argument(s):
+# - type of message, will be prefix for each line in text
+# - text to be processed
+function client_out() {
+    local type=$1
+    local output=$2
+    local IFS_BAK=$IFS
+IFS="
+"
+    if [ -z "$output" ]
+    then
+      echo "$type: "
+    else
+      for line in $output
+      do
+          echo "$type: $line"
+      done
+    fi
+    IFS=$IFS_BAK
+}
+
+# set application information in Broker data store
+# Argument(s):
+# - name of attribute to add plus value
+function set_app_info {
+    echo "APP_INFO: $1"
+}
+
+# set cartridge attribute in Broker data store
+# Argument(s):
+# - name of attribute to add plus value
+function send_attr {
+    echo "ATTR: $1"
+}
+
+function add_domain_ssh_key {
+    echo "SSH_KEY_ADD: $1"
+}
+
+function add_app_ssh_key {
+    echo "APP_SSH_KEY_ADD: $1 $2"
+}
+
+# Add environment variable visible to all gears in a domain
+# Argument(s):
+# - name of environment variable to add plus value
+function add_domain_env_var {
+    echo "ENV_VAR_ADD: $1"
+}
+
+# remove environment variable visible to all gears in application
+# Argument(s):
+# - name of environment variable to remove
+function app_remove_env_var {
+    echo "APP_ENV_VAR_REMOVE: $1"
+}
+
+function add_broker_auth_key {
+    echo "BROKER_AUTH_KEY_ADD: "
+}
+
+# add cartridge data in Broker data store
+# Argument(s):
+# - list of cartridge datums
+function cart_data {
+    echo "CART_DATA: $@"
+}
+
+# add cartridge properties in Broker data store
+# Argument(s):
+# - list of cartridge properties
+function cart_props {
+    echo "CART_PROPERTIES: $@"
+}
+
+# Sets the appropriate env variable files
+# Arguments:
+#  - Variable to set
+#  - Value
+#  - Target ENV directory
+function set_env_var {
+  local var=$1
+  local val=$2
+  local target=$3
+
+  [[ -z $target || -z $var || -z $val ]] && \
+    error "Must provide a variable name, value, and target directory for environment variables" 64
+  [ ! -d $target ] && \
+    error "Target directory must exist for environment variables" 64
+
+  echo "$val" >"${target}/${var}"
+}
+
+# Pad a string with random characters
+# Arguments:
+#  - String to pad
+#  - Desired length
+#  - Pattern to pad with (optional)
+function pad_string {
+  local str=$1
+  local len=$2
+  local pattern=$3
+
+  local remain=$(( $len - ${#str} ))
+  if [ "$remain" -ge 1 ]
+  then
+    local rnstr=$(random_string $remain $pattern)
+    str="${str}${rnstr}"
+  fi
+  echo $str
+}
+
+# Generate a password
+# Arguments:
+#  - Desired length (optional)
+#  - Character space (optional)
+#  - Ignore pattern (optional)
+function generate_password {
+  local DEFAULT_LEN=12
+  local DEFAULT_CHAR="a-np-zA-NP-Z1-9-_" #Dash, underscore, Alphanumeric except o,O,0
+  local DEFAULT_IGNORE="^-"
+
+  echo $(random_string ${1-$DEFAULT_LEN} ${2-$DEFAULT_CHAR} ${3-$DEFAULT_IGNORE})
+}
+
+# Generate a username and pad it to a certain length
+# Arguments:
+#  - Username (optional)
+#  - Desired length (optional)
+#  - Pad characters (optional)
+function generate_username {
+  local DEFAULT_USERNAME='admin'
+  local DEFAULT_LEN=12
+  local DEFAULT_CHAR="a-np-zA-NP-Z1-9" #Alphanumeric except o,O,0
+
+  echo $(pad_string ${1-$DEFAULT_USERNAME} ${2-$DEFAULT_LEN} ${3-$DEFAULT_CHAR})
+}
+
+function web_gears {
+  oo-gear-registry web
+}
+
+function proxy_gears {
+  oo-gear-registry proxy
+}
+
+function all_gears {
+  oo-gear-registry all
+}
+
+function wait_for_pid_file {
+  [ -f "$1" ] && return 0
+  for i in {1..20}; do
+    sleep .5
+    [ -f "$1" ] && break;
+  done
+}
+
+# wait up to 30 seconds for given process to stop
+# Argument(s):
+#  - process id to wait on
+function wait_for_stop {
+    local pid=$1
+    for i in {1..60}
+    do
+        if `ps --pid $pid > /dev/null 2>&1`
+        then
+            echo "Waiting for stop to finish"
+            sleep .5
+        else
+            break
+        fi
+    done
+}
+
+# report processing running for given user uid.
+# Argument(s):
+# - user uid    Do not use user login name, all numeric user login names will break ps
+function print_user_running_processes {
+    local userid=$1
+    echo ""
+    echo "Running Processes:"
+    echo ""
+    ps -FCvx -U "${userid}"
+    echo ""
+}
+
+# Check is a process is running
+# Arguments:
+#  - Process name
+#  - Pidfile
+#  - UID to check (optional)
+function process_running {
+  local process=$1
+  local pidfile=$2
+  local uid=${3-`id -u`}
+
+  # Check the pidfile for a running process
+  {
+    if [ -f $pidfile ]; then
+      local error=$(pgrep -F $pidfile 2>&1)
+      # pgrep returns 0 with an invalid pidfile, so we need to check the output
+      [ $? ] && ! [[ "${error}" =~ 'pidfile not valid' ]] && return 0
+    fi
+  }
+
+  # Check pgrep for the process name and user id
+  {
+    $(pgrep -x ${process} -u ${uid} > /dev/null 2>&1) && return 0
+  }
+  return 1
+}
+
+function pid_is_httpd() {
+    ps -p "$1" 2> /dev/null | grep httpd > /dev/null
+}
+
+function killall_matching_httpds() {
+   [ -z "$1" ]  &&  return 1
+   ps -u `id -u` -o pid,command | grep "$1" | grep -v "grep" |    \
+       awk '{ print $1 }' |  xargs kill -9  > /dev/null 2>&1  || :
+}
+
+# Attempt to resurrect the Apache PID file if its corrupt.
+#  Caution: there may be multiple Apache processes on the gear.
+function ensure_valid_httpd_pid_file() {
+    local pid_file="$1"
+    local cfg_file="$2"
+
+    local force_rebuild=""
+    local pid_contents=""
+    local pid_regex='^[1-9][0-9]+$'
+    local real_pid=""
+
+    if [ -e "$pid_file" ]
+    then
+        # Is it a file, owned by me and readable?
+        if ! [ -f "$pid_file" -a -O "$pid_file" -a -r "$pid_file" ]
+        then
+            force_rebuild="true"
+        else
+            # The pid file must contain one and only one number, nothing else or be blank.
+            pid_contents=$(cat "$pid_file" 2>/dev/null || :)
+            if ! [[ "$pid_contents" =~ $pid_regex ]]
+            then
+                force_rebuild="true"
+            fi
+        fi
+    fi
+
+    # If we are very lucky, we can find a valid PID to replace corrupt data.
+    if [ -n "$force_rebuild" ]
+    then
+        rm -rf "$pid_file"  # Could be a corrupt inode, a dir, symlink, context or ownership problems, etc...
+        if [ "$cfg_file" ]
+        then
+            real_pid=$(pgrep -o -u `id -u` -f -- "-f $cfg_file" )
+            if [ -n "$real_pid" ]
+            then
+                echo "$real_pid" > "$pid_file"
+            fi
+        fi
+    fi
+}
+
+function ensure_valid_httpd_process() {
+    # $1 == pidfile.
+    # $2 == httpd config file.
+    ensure_valid_httpd_pid_file "$1" "$2"
+    [ -n "$1" ]  &&  [ -f "$1" ]  &&  pid_is_httpd `cat "$1"`  &&  return 0
+    [ -n "$1" ]  &&  rm -f "$1"
+    killall_matching_httpds "$2"
+}
+
+# application developer has requested a hot deploy, 0 == true, 1 == false
+function hot_deploy_marker_is_present() {
+    hot_deploy_enabled_for_latest_deployment
+}
+
+# return 'start' instead of restart if the HTTPD pid file is corrupted and the
+# HTTPD is not running
+function ensure_httpd_restart_succeed() {
+    local pid_file="$1"
+    local cfg_file="$2"
+
+    if process_running 'httpd' $pid_file; then
+      ensure_valid_httpd_process "${pid_file}" "${cfg_file}"
+    else
+      rm -f $pid_file 2>/dev/null
+    fi
+}
+
+# report the primary cartridge name for this gear
+function primary_cartridge_name() {
+  awk -F: '{printf "%s-%s-%s", $1, $2, $3}' $OPENSHIFT_PRIMARY_CARTRIDGE_DIR/env/OPENSHIFT_*_IDENT
+}
+
+# Returns 0 if the named marker $1 exists, otherwise 1.
+function marker_present() {
+  [ -f "${OPENSHIFT_REPO_DIR}/.openshift/markers/$1" ]
+}
+
+# Add element(s) to end of path
+#
+# $1 path
+# $2 element(s) to add
+# return modified path
+function path_append {
+    local canon="$(path_remove $1 $2)"
+    echo -n "${canon:+"$canon:"}$2"
+}
+
+# Add element(s) to front of path
+#
+# $1 path
+# $2 element(s) to add
+# return modified path
+function path_prepend {
+    local canon="$(path_remove $1 $2)"
+    echo -n "$2${canon:+":$canon"}"
+}
+
+# Remove element(s) from path
+#
+# $1 path
+# $2 element(s) to remove
+# return modified path
+function path_remove {
+  local results="$1"
+  for e in $(echo -n "$2" | sed -e 's/:/ /g'); do
+    results=$(echo -n "$results" | awk -v RS=: -v ORS=: '$0 != "'$e'"' | sed 's/:$//')
+  done
+  echo -n "$results"
+}
+
+# Update the PassEnv directives in the httpd configuration file
+#
+# $1 full path to httpd.conf file
+function update_httpd_passenv {
+  [ -f $1 ] || (client_error "HTTP Configuration for PassEnv failed: $1 missing" && return)
+
+  updated=$(mktemp)
+  ( sed <$1 -e '/^PassEnv /d'
+    for key in $(env |cut -d= -f1)
+    do
+      if [[ $key =~ ^[A-Z].* ]]
+      then
+        echo PassEnv $key
+      fi
+    done ) >$updated
+
+  if [ -s $updated ]
+  then
+    cat $updated >$1
+  else
+    client_error "HTTP Configuration for PassEnv failed: update corrupted for $1, using old configuration"
+  fi
+  rm -f $updated
+}
+
+# Write the PassEnv directives into the httpd configuration file
+#
+# $1 full path to PassEnv.conf file
+function write_httpd_passenv {
+  ( for key in $(env |cut -d= -f1)
+    do
+      # Exclude these three variables as Apache unset them
+      [[ $key == 'SHELL' ]] && continue
+      [[ $key == 'USER' ]] && continue
+      [[ $key == 'LOGNAME' ]] && continue
+      if [[ $key =~ ^[A-Z].* ]]
+      then
+        echo PassEnv $key
+      fi
+    done ) >$1
+}
+
+# Returns 1 if we have a web_proxy cartridge installed
+function has_web_proxy() {
+    has_web_proxy_cart=0
+    for manifest in ${HOME}/*/metadata/manifest.yml; do
+        check_for_web_proxy=$(awk '/:$/ {section=$1} /^- web_proxy/ {if (section == "Categories:") print 1}' $manifest)
+        if  [ "$check_for_web_proxy" == "1" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+
+# Wrapper for the OpenShift Ruby SDK
+#
+function ruby_sdk() {
+  oo-ruby -I/usr/lib/openshift/cartridge_sdk -rruby/sdk -e "include OpenShift::CartridgeSdk; puts $1"
+}
+
+function primary_cartridge_short_name() {
+  ruby_sdk "primary_cartridge_manifest['Cartridge-Short-Name']"
+}
+
+function primary_cartridge_private_ip_name() {
+  ruby_sdk 'primary_cartridge_manifest["Endpoints"][0]["Private-IP-Name"]'
+}
+
+function primary_cartridge_private_port_name() {
+  ruby_sdk 'primary_cartridge_manifest["Endpoints"][0]["Private-Port-Name"]'
+}
+
+function app_web_to_proxy_ratio_and_colocated_gears() {
+  ruby_sdk 'app_web_to_proxy_ratio_and_colocated_gears'
+}
+
+function get_gear_ld_library_path() {
+  ruby_sdk 'get_path_from_elements "LD_LIBRARY_PATH"'
+}
+
+function get_gear_path() {
+  ruby_sdk 'get_path_from_elements "PATH"'
+}
+
+function hot_deploy_enabled_for_latest_deployment() {
+  enabled=$(ruby_sdk 'latest_deployment_metadata.hot_deploy')
+
+  if [ "$enabled" == "true" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function force_clean_build_enabled_for_latest_deployment() {
+  enabled=$(ruby_sdk 'latest_deployment_metadata.force_clean_build')
+
+  if [ "$enabled" == "true" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Generate a random string from /dev/urandom
+# Arguments:
+#  - Desired length (optional)
+#  - Possible character space (optional)
+#  - Patterns to omit (optional)
+function random_string {
+  local DEFAULT_SPACE="a-zA-Z0-9"
+  local DEFAULT_LEN=12
+
+  local len=${1-$DEFAULT_LEN}
+  local space=${2-"${DEFAULT_SPACE}"}
+  local omit=${3-""}
+
+  local rnd=$(head -n 50 /dev/urandom | tr -dc $space | fold -w $len)
+  [ -n "${omit}" ] && rnd=$(echo "${rnd}" | grep -v "${omit}")
+  echo $(echo "${rnd}" | head -n1)
+
+}
+
+# Compare two numeric version numbers with arbitrary numbers of segments.  For
+# more information see comments for version_in_range on special handling
+# required for usage inside of the upgrade script (or any script that runs with
+# "set -e".
+#
+# Returns:
+# 0 if equal
+# 1 if arg1 is greater than arg2
+# 2 if arg1 is less than arg2
+function version_comp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    # setting the field seperator to . allows us to chop the segments up
+    # easily.
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # Handle the case where ver2 has more segments than ver1 by padding with
+    # zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        # We have to test for a variable that may be unset.  Many scripts that
+        # use this function will have 'set -u' so we need to temporarily undo
+        # that (without using a subshell).
+        [[ $- = *u* ]]; oldu=$?
+        set +u
+
+        # Handle the case where ver1 is has more segments than ver2
+        if [[ -z ${ver2[i]} ]]
+        then
+            ver2[i]=0
+        fi
+
+        # in case 'set -u' wasn't actually set
+        (( $oldu )) || set -u
+
+        # comparing using base 10 turns values like 05 or 005 into just 5
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+# Compare two versions of arbitrary segment lenth.
+#
+# Returns 0 if arg1 is greater than arg2
+function version_gt() {
+  local greater_than=1
+
+  version_comp $1 $2
+  RESULT=$?
+
+  if [[ $RESULT -eq 1 ]]; then
+    greater_than=0
+  fi
+
+  return $greater_than
+}
+
+# Compare two versions of arbitrary segment lenth.
+#
+# Returns 0 if arg1 is less than arg2
+function version_lt() {
+  local less_than=1
+
+  version_comp $1 $2
+  RESULT=$?
+
+  if [[ $RESULT -eq 2 ]]; then
+    less_than=0
+  fi
+
+  return $less_than
+}
+
+# Test if a given version is within the range of two other versions
+# (inclusively)
+#
+# Argument 1: The version to test
+# Argument 2: The lower bound
+# Argument 3: The upper bound
+#
+# Returns 0 if inside the range
+# Returns 1 if outside the range
+#
+# Note: For use inside of cartridge upgrade scripts special care must be taken
+# since most 'set -e' by default which causes the script to exit if non-zero is
+# returned.  See the bash man page's documentation on the "set" command.  One
+# was to do this with "set -e" is:
+#
+# if version_in_range "0.0.11.5" "0.0.11" "0.1.0"; then
+#   echo "this works"
+# fi
+#
+# In that case bash knows not to abort execution because the non-zero return
+# code is part of a test.
+function version_in_range() {
+  local i=$1
+  local lower_bound=$2
+  local upper_bound=$3
+  local in_range=1
+
+  version_comp $i $lower_bound
+  RESULT=$?
+
+  if [[ $RESULT -eq 0 ]] || [[ $RESULT -eq 1 ]]; then
+    version_comp $i $upper_bound
+    RESULT=$?
+    if [[ $RESULT -eq 0 ]] || [[ $RESULT -eq 2 ]]; then
+      in_range=0
+    fi
+  fi
+
+  return $in_range
+}

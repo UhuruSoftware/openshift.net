@@ -27,6 +27,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter(HelpMessage = "Run the build steps", ParameterSetName = "Build")]
         public SwitchParameter Build;
 
+        [Parameter(ParameterSetName="Build", Position=1)]
+        public String RefId;
+
         [Parameter(HelpMessage = "Prepare a binary deployment artifact for distribution and activation", ParameterSetName = "Prepere", Position = 0)]
         public SwitchParameter Prepare;
 
@@ -154,6 +157,9 @@ namespace Uhuru.Openshift.Cmdlets
         ApplicationContainer container = null;
         ApplicationRepository repo = null;
 
+        private const string HOT_DEPLOY_MARKER = ".openshift/markers/hot_deploy";
+        private const string FORCE_CLEAN_BUILD_MARKER = ".openshift/markers/force_clean_build";
+
         protected override void ProcessRecord()
         {            
             this.WriteObject(Execute());
@@ -198,7 +204,40 @@ namespace Uhuru.Openshift.Cmdlets
                 }
                 else if (Build)
                 {
-                    throw new NotImplementedException();
+                    string ciRepoPath = Path.Combine(Environment.GetEnvironmentVariable("OPENSHIFT_REPO_DIR"), ".git");
+                    string repoDir = null;
+                    if(Directory.Exists(ciRepoPath))
+                    {
+                        repoDir = ciRepoPath;
+                    }
+                    repo = new ApplicationRepository(this.container, repoDir);
+                    string gitRef = null;
+                    bool archive =false;
+                    if(repoDir == null)
+                    {
+                        gitRef = this.container.DetermineDeploymentRef(this.RefId);
+                        archive = true;
+                    }
+                    else
+                    {
+                        gitRef = Environment.GetEnvironmentVariable("GIT_BRANCH");
+                    }
+                    if(!ValidGitRef(gitRef))
+                    {
+                        throw new Exception(string.Format("Git ref {0} is invalid", gitRef));
+                    }
+                    if(archive)
+                    {
+                        repo.Archive(Environment.GetEnvironmentVariable("OPENSHIFT_REPO_DIR"), gitRef);
+                    }
+
+                    RubyHash options = new RubyHash();
+                    options["ref"] = gitRef;
+                    options["hot_deploy"] = repo.FileExists(HOT_DEPLOY_MARKER, gitRef);
+                    options["force_clean_build"] = repo.FileExists(FORCE_CLEAN_BUILD_MARKER, gitRef);
+                    options["git_repo"] = repo;
+
+                    Console.WriteLine(container.Build(options));
                 }
                 else if (Prepare)
                 {

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
@@ -16,6 +18,14 @@ namespace Uhuru.OpenShift.TrapUser
 {
     public class UserShellTrap
     {
+        public static readonly IList<string> PassEnvs = new ReadOnlyCollection<string>(new[]
+            {
+                "GIT_SSH",
+                "SSH_AUTH_SOCK",
+                "SSH_CLIENT",
+                "SSH_CONNECTION"
+            });
+
         private static void LoadEnv(string directory, Dictionary<string, string> targetList)
         {
             Logger.Info("oo-trap-user loading env vars from directory '{0}'", directory);
@@ -79,6 +89,13 @@ namespace Uhuru.OpenShift.TrapUser
             string assemblyLocation = Path.GetDirectoryName(typeof(UserShellTrap).Assembly.Location);
 
             Dictionary<string, string> envVars = new Dictionary<string, string>();
+            foreach(DictionaryEntry de in Environment.GetEnvironmentVariables())
+            {
+                if (PassEnvs.Contains(de.Key))
+                {
+                    envVars[de.Key.ToString()] = de.Value.ToString();
+                }
+            }
 
             string homeDir = Environment.GetEnvironmentVariable("HOME");
 

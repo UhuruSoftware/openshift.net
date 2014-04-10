@@ -148,6 +148,7 @@
     <Compile Include="Tools\mcollective\setup-mcollective.ps1" />
     <Compile Include="Tools\openshift.net\ruby-helpers.ps1" />
     <Compile Include="Tools\openshift.net\rubycmd.bat.template" />
+    <Compile Include="Tools\sshd\git_ssh_wrapper.sh" />
   </ItemGroup>
   <Target Name="Build">
     <!-- Copying everything (except 'bin', 'obj', *pssproj*, .idea). Also including the mcollective ruby node agent. -->

@@ -51,6 +51,10 @@ namespace Uhuru.Openshift.Utilities
 
         public static void EmptyDirectory(string directory)
         {
+            if(!Directory.Exists(directory))
+            {
+                return;
+            }
             DirectoryInfo dir = new DirectoryInfo(directory);
             foreach (FileInfo fi in dir.GetFiles())
             {

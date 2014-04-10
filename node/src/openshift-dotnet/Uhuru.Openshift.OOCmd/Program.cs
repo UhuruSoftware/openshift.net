@@ -58,6 +58,14 @@ namespace Uhuru.Openshift.OOCmd
                                             arguments["DeploymentId"] = args[2];
                                             break;
                                         }
+                                    case "build":
+                                        {
+                                            if (args.Length > 2)
+                                            {
+                                                arguments["RefId"] = args[2];
+                                            }
+                                            break;
+                                        }
                                     default:
                                         break;
                                 }

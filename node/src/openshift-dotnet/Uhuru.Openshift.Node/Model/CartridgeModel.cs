@@ -350,6 +350,11 @@ namespace Uhuru.Openshift.Runtime
 
                 output.AppendLine(processResult.StdOut);
                 output.AppendLine(processResult.StdErr);
+
+                if(processResult.ExitCode != 0)
+                {
+                    throw new Exception(string.Format("CLIENT_ERROR: Failed to execute: 'control {0}' for {1}", action, container.ContainerDir));
+                }
             });
 
             return output.ToString();
