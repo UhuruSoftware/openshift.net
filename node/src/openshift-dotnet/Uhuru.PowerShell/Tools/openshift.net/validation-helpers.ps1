@@ -195,13 +195,18 @@ function Check-VCRedistributable()
 
 function Check-Java()
 {
-	java -version
-	if($LASTEXITCODE -ne 0)
-	{
-		Write-Error "Could not find java executable. Please install the Java Runtime Environment if not installed and make sure it is included in PATH"
-		exit 1
-	}
-	Write-Host "[OK] Prerequisite Java is installed."
+    try
+    {
+        java -version
+    }
+    catch
+    {
+        [System.Management.Automation.CommandNotFoundException]
+        Write-Error "Could not find java executable. Please install the Java Runtime Environment if not installed and make sure it is included in PATH"
+        exit 1
+    }
+
+    Write-Host "[OK] Prerequisite Java is installed."
 }
 
 function Check-Product($productName, $products, $required)

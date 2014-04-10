@@ -1,6 +1,6 @@
 #!/bin/echo 'This is function library. To use: source $OPENSHIFT_CARTRIDGE_SDK_BASH'; exit 1
 
-# This is a library of functions for OpenShift cartridge authors.
+# This is a library of functions for OpenShift Windows cartridge authors.
 # To use this library add 'source $OPENSHIFT_CARTRIDGE_SDK_BASH' to your bash script.
 
 [ ${OO_BASH_SDK:-false} == true ] && return 0
