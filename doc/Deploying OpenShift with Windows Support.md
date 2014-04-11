@@ -17,7 +17,7 @@
 [Setting up DNS](#setting-up-dns)
 
 - [Using the Fedora all-in-one VM](#using-the-fedora-all-in-one-vm)
-- [Using an OpenShift Enterprise Installation](#using-an-openshift-enterprise-installation)
+- [Using an OpenShift Origin or Enterprise Installation](#using-an-openshift-origin-or-enterprise-installation)
 
 [Installing the OpenShift Windows Node](#installing-the-openshift-windows-node)
 - [Build the installer](#build-the-installer)
