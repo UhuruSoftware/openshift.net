@@ -95,6 +95,9 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 	- **<font color=red>IMPORTANT! Make sure that the TCP/IP protocol is enabled for SQL Server 2012 and that the port 1433 is set to for "IPAll" in the Sql Server Configuration Manager</font>**
 	<img src="sqlserver2012config.png"/>
 
+- Download and install Java JRE 7 x64 from here: http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html
+	
+ 
 - **MAKE SURE THE TIME OF THE VM IS SYNCED**
 
 ###Screenshots###
