@@ -145,7 +145,7 @@ You have to setup the hosts files on both Windows and Linux (the OpenShift VM us
 
 	e.g.: `10.2.0.21 broker-a211bd.openshift.local`
 
-###Using an OpenShift Enterprise Installation
+###Using an OpenShift Origin or Enterprise Installation
 
 On the Broker VM, use the following command to register the windows node on the local DNS server:
 
