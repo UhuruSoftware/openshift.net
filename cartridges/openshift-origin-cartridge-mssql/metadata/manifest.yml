@@ -8,10 +8,12 @@ Compatible-Versions: ['0.0.1']
 Cartridge-Vendor: redhat
 #  is used to differentiate cartridges when installed in the system. As an individual, you should use the same unique value for all your cartridges to identify yourself; otherwise, use your company name.
 Display-Name: MS SQL Server 2008
-Description: "Microsoft SQL Server 2008 Cartrige."
+Description: "Microsoft SQL Server Cartrige."
 Version: '2008'
 # is the default or only version of the software packaged by this cartridge.
-Versions: ['2008']
+Versions: 
+  - '2008'
+  - '2012'
 #  is the list of the versions of the software packaged by this cartridge.
 License: "??"
 License-Url: "http://www.uhurusoftware.com"
@@ -41,6 +43,7 @@ Cart-Data:
   Description: MSSQL DB connection URL
 Provides:
   - mssql-2008
+  - mssql
 Publishes:
   publish-db-connection-info:
     Type: ENV:NET_TCP:db:connection-info
@@ -55,3 +58,10 @@ Endpoints:
   Public-Port-Name: DB_PROXY_PORT
   Protocols:
   - mssql
+Version-Overrides:
+  '2012':
+    Display-Name: MS SQL Server 2012
+    Provides:
+    - mssql-2012
+    - mssql
+    - mssql(version) = 2012

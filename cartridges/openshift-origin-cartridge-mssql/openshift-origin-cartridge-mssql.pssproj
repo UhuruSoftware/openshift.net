@@ -54,7 +54,10 @@
     <Folder Include="env" />
     <Folder Include="hooks" />
     <Folder Include="metadata" />
+    <Folder Include="versions\" />
     <Folder Include="run" />
+    <Folder Include="versions\2008\" />
+    <Folder Include="versions\2012\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="bin\control.ps1" />

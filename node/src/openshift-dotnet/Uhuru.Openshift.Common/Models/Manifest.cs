@@ -146,6 +146,18 @@ namespace Uhuru.Openshift.Runtime
                 this.Version = ManifestSpec["Version"];
             }
 
+            if (this.ManifestSpec.ContainsKey("Version-Overrides"))
+            {
+                if (this.ManifestSpec["Version-Overrides"].ContainsKey(this.Version))
+                {
+                    Dictionary<object, object> vtree = this.ManifestSpec["Version-Overrides"][this.Version];
+                    foreach (string key in vtree.Keys)
+                    {
+                        this.ManifestSpec[key] = vtree[key];
+                    }
+                }
+            }
+
             this.CartridgeVendor = this.ManifestSpec["Cartridge-Vendor"];
             this.Name = ManifestSpec["Name"];
             this.ShortName = ManifestSpec["Cartridge-Short-Name"];
