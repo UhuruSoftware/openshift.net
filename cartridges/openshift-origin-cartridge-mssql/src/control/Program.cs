@@ -74,7 +74,8 @@ namespace Control
             }
             Console.WriteLine(string.Format("Startring MSSQL {0} cartridge", version));
             string mssqlDir = Environment.GetEnvironmentVariable("OPENSHIFT_MSSQL_DIR");
-            Directory.CreateDirectory(Path.Combine(mssqlDir, "log"));
+            string logDir = Path.Combine(mssqlDir, "log");
+            Directory.CreateDirectory(logDir);
 
             // set variables
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -98,8 +99,8 @@ namespace Control
             //start SQL server service
             ProcessStartInfo sqlserver = new ProcessStartInfo();
             sqlserver.WindowStyle = ProcessWindowStyle.Hidden;
-            sqlserver.FileName = Path.Combine(instanceDir , @"mssql\binn\sqlservr.exe");
-            sqlserver.Arguments = string.Format(@"-c -s {0}", instanceName);
+            sqlserver.FileName = @"cmd.exe";
+            sqlserver.Arguments = string.Format(@"/c {0}\mssql\binn\sqlservr.exe -c -s {1} 1>>{2}\\stdout.log 2>>{2}\stderr.log", instanceDir, instanceName, logDir);
             Process sqlProcess = Process.Start(sqlserver);
 
             //list databases on SQL server
