@@ -56,7 +56,14 @@ namespace Uhuru.Openshift.Runtime
             //NodeConfig.Values["PORTS_PER_USER"] should be used DistrictConfig.Values["first_uid"] if available in the configuration           
             try
             {
-                prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]),Int32.Parse(DistrictConfig.Values["first_uid"]),Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                try
+                {
+                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), Int32.Parse(DistrictConfig.Values["first_uid"]), Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                }
+                catch
+                {
+                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]),0, Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                }
             }
             catch(Exception ex)
             {
