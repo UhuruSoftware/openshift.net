@@ -1,6 +1,11 @@
 @echo off
 echo Assuming msbuild is here: %WINDIR%\Microsoft.NET\Framework\v4.0.30319
 
+echo Checking visual studio native tools path
+set vcvar="C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
+
+if exist %vcvar% call %vcvar%
+
 set msBuildDir=%WINDIR%\Microsoft.NET\Framework\v4.0.30319
 
 :: Clean output dir first
