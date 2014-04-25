@@ -53,16 +53,16 @@ namespace Uhuru.Openshift.Common.Utils
         {
             List<int> availableport = GetPortRange(ApplicationUid, PortsPerUser, MinUid, StartPort);
             foreach (int port in availableport)
-            {
-                TcpClient tcpClient = new TcpClient();
-                try
-                {
-                    tcpClient.Connect("127.0.0.1", port);
-                }
-                catch
-                {
-                    return port;
-                }
+            {                
+                    TcpClient tcpClient = new TcpClient();
+                    try
+                    {
+                        tcpClient.Connect("127.0.0.1", port);
+                    }
+                    catch
+                    {
+                        return port;
+                    }                
             }
             throw new Exception(string.Format("No available port for application Uid:{0}", ApplicationUid));
         }
