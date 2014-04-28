@@ -28,6 +28,8 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithRequestId;
 
         public string WithSshKeys;
+        
+        public string WithUid;
 
         public ReturnStatus Execute()
         {
