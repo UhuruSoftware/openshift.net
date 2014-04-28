@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Cmdlets", "Uhuru.Openshift.Cmdlets\Uhuru.Openshift.Cmdlets.csproj", "{164C85D3-7F57-4937-9EEC-4C0A47C24745}"
 EndProject
@@ -54,8 +54,8 @@ Global
 		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Debug|x64.Build.0 = Debug|x64
 		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Release|x64.ActiveCfg = Release|x64
 		{D10A5A01-7A90-4C28-9C76-E2C5213592C9}.Release|x64.Build.0 = Release|x64
-		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|x64.ActiveCfg = Debug|x64
-		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|x64.Build.0 = Debug|x64
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Debug|x64.Build.0 = Debug|Any CPU
 		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|x64.ActiveCfg = Release|x64
 		{714A39AD-F1B1-4062-B67D-2B4CA1F5C3EB}.Release|x64.Build.0 = Release|x64
 		{C69F8537-81E8-45DF-846B-508DA2AD1B0E}.Debug|x64.ActiveCfg = Debug|x64
