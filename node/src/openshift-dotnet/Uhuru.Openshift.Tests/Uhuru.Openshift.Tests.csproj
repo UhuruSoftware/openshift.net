@@ -92,9 +92,17 @@
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Uhuru.OpenShift.TrapUser\Uhuru.OpenShift.TrapUser.csproj">
+      <Project>{d3949f75-d14c-411d-b4dc-fe4f2783160b}</Project>
+      <Name>Uhuru.OpenShift.TrapUser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj">
       <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
       <Name>Uhuru.Openshift.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\windows-isolation\src\Uhuru.Prison\Uhuru.Prison.csproj">
+      <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>
+      <Name>Uhuru.Prison</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +111,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="local.runsettings" />
+    <Content Include="Assets\resource_limits.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="local.runsettings">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

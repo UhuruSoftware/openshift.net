@@ -21,6 +21,7 @@ namespace Uhuru.Openshift.Runtime
         private const string DEFAULT_NO_OVERCOMMIT_ACTIVE = "false";
         private const string DEFAULT_MAX_ACTIVE_GEARS = "0";
         private const string DEFAULT_QUOTA_FILES = "80000";
+        private static string limitsFile = @"c:\openshift\resource_limits.conf";
 
         public static string GetCartridgeList(bool listDescriptors, bool porcelain, bool oo_debug)
         {
@@ -162,6 +163,19 @@ namespace Uhuru.Openshift.Runtime
         }
 
 
+        public static string LimitsFile
+        {
+            set
+            {
+                limitsFile = value;
+            }
+            get
+            {
+                return limitsFile;
+            }
+        }
+
+
         public static Common.Config ResourceLimits
         {
             get
@@ -175,7 +189,7 @@ namespace Uhuru.Openshift.Runtime
                 {
                     if (resourceLimitsCache == null)
                     {
-                        string limitsFile = @"c:\openshift\resource_limits.conf";
+                        
                         if (File.Exists(limitsFile))
                         {
                             return new Common.Config(limitsFile);

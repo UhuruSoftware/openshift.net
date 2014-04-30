@@ -20,7 +20,7 @@ namespace Uhuru.Openshift.Tests.Integration
         public void TestFacterOK()
         {
             // Arrange
-
+            TestHelper.InitTests();
             // Act
             RubyHash facts = Uhuru.Openshift.Runtime.Utils.Facter.GetFacterFacts();
 
