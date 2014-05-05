@@ -113,44 +113,47 @@ namespace Uhuru.Openshift.OOCmd
         {            
             foreach(KeyValuePair<string, object> pair in args)
             {
-                if(pair.Value is JObject)
+                if (pair.Value != null)
                 {
-                    SetInstanceFields(instance, ((JObject)pair.Value).ToObject<RubyHash>());
-                }
-                else
-                {
-                    Type classType = instance.GetType();
-                    string fieldName = GetFieldName(pair.Key);
-                    Logger.Debug("Computed field name {0} from arg {1} with value {2}", fieldName, pair.Key, pair.Value.ToString());
-                    FieldInfo fi = classType.GetField(fieldName);
-                    if (fi != null)
+                    if (pair.Value is JObject)
                     {
-                        if (fi.FieldType == typeof(bool))
-                        {
-                            bool value = bool.Parse(pair.Value.ToString());
-                            fi.SetValue(instance, value);
-                        }
-                        else if (fi.FieldType == typeof(int))
-                        {
-                            int value = int.Parse(pair.Value.ToString());
-                            fi.SetValue(instance, value);
-                        }
-                        else if (fi.FieldType == typeof(System.Management.Automation.SwitchParameter))
-                        {
-                            fi.SetValue(instance, System.Management.Automation.SwitchParameter.Present);
-                        }
-                        else if(fi.FieldType == typeof(string))
-                        {
-                            fi.SetValue(instance, pair.Value.ToString());
-                        }
-                        else
-                        {
-                            fi.SetValue(instance, pair.Value);
-                        }
+                        SetInstanceFields(instance, ((JObject)pair.Value).ToObject<RubyHash>());
                     }
                     else
                     {
-                        throw new MissingFieldException(string.Format("Field {0} not found", fieldName));
+                        Type classType = instance.GetType();
+                        string fieldName = GetFieldName(pair.Key);
+                        Logger.Debug("Computed field name {0} from arg {1} with value {2}", fieldName, pair.Key, pair.Value.ToString());
+                        FieldInfo fi = classType.GetField(fieldName);
+                        if (fi != null)
+                        {
+                            if (fi.FieldType == typeof(bool))
+                            {
+                                bool value = bool.Parse(pair.Value.ToString());
+                                fi.SetValue(instance, value);
+                            }
+                            else if (fi.FieldType == typeof(int))
+                            {
+                                int value = int.Parse(pair.Value.ToString());
+                                fi.SetValue(instance, value);
+                            }
+                            else if (fi.FieldType == typeof(System.Management.Automation.SwitchParameter))
+                            {
+                                fi.SetValue(instance, System.Management.Automation.SwitchParameter.Present);
+                            }
+                            else if (fi.FieldType == typeof(string))
+                            {
+                                fi.SetValue(instance, pair.Value.ToString());
+                            }
+                            else
+                            {
+                                fi.SetValue(instance, pair.Value);
+                            }
+                        }
+                        else
+                        {   
+                                throw new MissingFieldException(string.Format("Field {0} not found", fieldName));                            
+                        }
                     }
                 }
             }

@@ -14,11 +14,17 @@ namespace Uhuru.Openshift.Tests
     public class TestHelper
     {
         const string nodeConfigFile = "Assets/node_test.conf";
+        const string resourceLimitsFile = "Assets/resource_limits.conf";
 
         public static string GetNodeConfigPath()
         {
             string path = Path.GetFullPath(nodeConfigFile);
             return path;
+        }
+
+        public static void InitTests()
+        {
+            Environment.SetEnvironmentVariable("OPENSHIFT_CONF_DIR", @"Assets/");
         }
 
         public static ApplicationContainer CreateAppContainer()
@@ -34,12 +40,12 @@ namespace Uhuru.Openshift.Tests
             object quotaBlocks = null;
             object quotaFiles = null;
             Hourglass hourglass = null;
-
+            Node.LimitsFile = resourceLimitsFile;
             ApplicationContainer container = new ApplicationContainer(
                 applicationUuid, containerUuid, null,
                 applicationName, containerName, namespaceName,
                 quotaBlocks, quotaFiles, hourglass);
-
+            
             return container;
         }
     }

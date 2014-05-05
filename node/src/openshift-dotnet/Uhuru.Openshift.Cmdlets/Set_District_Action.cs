@@ -32,9 +32,7 @@ namespace Uhuru.Openshift.Cmdlets
 
             try
             {
-                NodeConfig config = new NodeConfig();
-
-                string distrinctHome = Path.Combine(config.Get("GEAR_BASE_DIR"), ".settings");
+                string distrinctHome = Path.Combine(NodeConfig.ConfigDir, ".settings");
 
                 if (!Directory.Exists(distrinctHome))
                 {

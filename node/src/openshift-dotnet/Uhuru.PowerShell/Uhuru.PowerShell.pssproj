@@ -84,6 +84,7 @@
     <Content Include="OO-Cmdlets\has-app-cartridge-action.ps1" />
     <Content Include="OO-Cmdlets\install-cartridges.ps1" />
     <Content Include="OO-Cmdlets\oo-admin-cartridge.ps1" />
+    <Content Include="OO-Cmdlets\oo-admin-restore-acls.ps1" />
     <Content Include="OO-Cmdlets\oo-app-create.ps1" />
     <Content Include="OO-Cmdlets\oo-app-destroy.ps1" />
     <Content Include="OO-Cmdlets\oo-app-state-show.ps1" />

@@ -34,6 +34,9 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string WithSshComment;
 
+        [Parameter]
+        public string WithUid;
+
         protected override void ProcessRecord()
         {                    
             this.WriteObject(Execute());

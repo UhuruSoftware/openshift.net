@@ -52,7 +52,10 @@ namespace Uhuru.Openshift.Runtime
             prisonRules.DiskQuotaBytes = Convert.ToInt64(Node.ResourceLimits["quota_blocks"]) * 1024;
 
             prisonRules.PrisonHomePath = container.ContainerDir;
-            prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
+
+            //TO DO: Fix this: This is not good: see dev.log ->Notify endpoint create exposed port !!!!!!
+            prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid);
+            //prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
 
             Logger.Debug("Assigning port {0} to gear {1}", prisonRules.UrlPortAccess, container.Uuid);
 

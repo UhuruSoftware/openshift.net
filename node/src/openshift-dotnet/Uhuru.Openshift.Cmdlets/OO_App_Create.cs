@@ -35,7 +35,13 @@ namespace Uhuru.Openshift.Cmdlets
         public string WithSecretToken;
 
         [Parameter]
-        public string WithExposePorts;
+        public int WithUid;
+
+        [Parameter]
+        public int WithQuotaBlocks;
+
+        [Parameter]
+        public int WithQuotaFiles;
 
         protected override void ProcessRecord()
         {            
@@ -52,7 +58,7 @@ namespace Uhuru.Openshift.Cmdlets
                 if (!string.IsNullOrEmpty(WithSecretToken))
                     token = WithSecretToken;
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                    WithContainerName, WithNamespace, null, null, null);
+                    WithContainerName, WithNamespace, null, null, null,WithUid);
                 status.Output = container.Create(token);
                 status.ExitCode = 0;
             }
