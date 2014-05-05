@@ -45,6 +45,7 @@ namespace Uhuru.Openshift.Runtime.Utils
                     {"district_first_uid", DistrictConfig.Exists() ? DistrictConfig.Values["first_uid"] : "1000" },
                     {"district_max_uid", DistrictConfig.Exists() ? DistrictConfig.Values["max_uid"] : "6999"},
 
+                    {"ipaddress_eth0", NodeConfig.Values["PUBLIC_IP"]},
                     {"public_ip", NodeConfig.Values["PUBLIC_IP"]},
                     {"public_hostname", NodeConfig.Values["PUBLIC_HOSTNAME"]},
 
