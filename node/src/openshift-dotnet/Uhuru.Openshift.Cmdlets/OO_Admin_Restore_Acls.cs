@@ -27,7 +27,7 @@ namespace Uhuru.Openshift.Cmdlets
             ReturnStatus status = new ReturnStatus();
 
             try
-            {
+            {                
                 Dictionary<string, string> envVars = new Dictionary<string, string>();
 
                 string homeDir = Environment.GetEnvironmentVariable("HOME");
@@ -40,7 +40,7 @@ namespace Uhuru.Openshift.Cmdlets
                 
                 UserShellTrap.FixHomeDir(userHomeDir, prison.User.Username, Uuid);
                  
-                status.ExitCode = 0;
+                status.ExitCode = 0;                
             }
             catch (Exception ex)
             {
