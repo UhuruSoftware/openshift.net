@@ -35,8 +35,8 @@ function DoAction-Package()
     Write-Host 'Packaging windows node files from the .\output dir ...'
     [Reflection.Assembly]::LoadWithPartialName( "System.IO.Compression.FileSystem" ) | out-null
 
-    $src_folder = ".\output"
-    $destfile = ".\output.zip"
+    $src_folder = Join-Path $(Get-Location) "output"
+    $destfile = Join-Path $(Get-Location) "output.zip"
     $compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
     $includebasedir = $false
     Remove-Item -Force -Path $destfile -ErrorAction SilentlyContinue
