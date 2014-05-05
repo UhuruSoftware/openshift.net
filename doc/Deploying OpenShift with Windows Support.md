@@ -72,7 +72,9 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
     - [Microsoft Visual Studio 2013 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=40764)
     - [Microsoft Visual Studio 2012 Shell (Isolated)](http://www.microsoft.com/en-us/download/details.aspx?id=30670)
     - [Microsoft Visual Studio 2010 Shell (Isolated) - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=1366)
-    - [Microsoft Visual Studio Shell 2008 - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=7036) 
+    - [Microsoft Visual Studio Shell 2008 - ENU](http://www.microsoft.com/en-us/download/details.aspx?id=7036)
+
+- Install Microsoft Agents for Visual Studio 2013. You can find it [here](http://www.microsoft.com/en-us/download/details.aspx?id=40750). This is not mandatory. It is needed if you want to run mstest during a jenkins build. Make sure to add the directory containing mstest.exe (C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE) to PATH environment variable.
 
 - Install Internet Information Services
 	- Add the Web Server role to Windows, with the following features enabled:

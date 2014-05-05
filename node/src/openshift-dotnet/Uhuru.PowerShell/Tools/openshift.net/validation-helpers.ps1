@@ -247,4 +247,7 @@ function Check-Builders()
 
     # http://www.microsoft.com/en-us/download/details.aspx?id=7036
     Check-Product 'Microsoft Visual Studio Shell 2008 - ENU' $products $false
+
+	# http://www.microsoft.com/en-us/download/details.aspx?id=40750
+	Check-Product 'Microsoft Agents for Visual Studio 2013' $products  $false
 }
