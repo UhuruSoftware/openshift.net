@@ -65,49 +65,6 @@ namespace Uhuru.Openshift.Common.Utils
                     }                
             }
             throw new Exception(string.Format("No available port for application Uid:{0}", ApplicationUid));
-        }
-
-        public static int GetUniquePredictablePort(string portCounterFile)
-        {
-            // TODO: vladi: GLOBAL LOCK
-
-            if (string.IsNullOrWhiteSpace(portCounterFile))
-            {
-                throw new ArgumentNullException("portCounterFile");
-            }
-
-            int counter = 0;
-
-            if (File.Exists(portCounterFile))
-            {
-                string strCounter = File.ReadAllText(portCounterFile);
-                Int32.TryParse(strCounter, out counter);
-            }
-
-            int port = 0;
-
-            bool isAvailable = false;
-            while (!isAvailable)
-            {
-                counter++;
-                port = counter % 40000 + 10000;
-
-                TcpClient tcpClient = new TcpClient();
-                try
-                {
-                    tcpClient.Connect("127.0.0.1", port);
-                }
-                catch (Exception)
-                {
-                    isAvailable = true;
-                }
-            }
-
-            File.WriteAllText(portCounterFile, counter.ToString());
-
-            return port;
-
-            // TODO: vladi: GLOBAL LOCK
-        }
+        }      
     }
 }

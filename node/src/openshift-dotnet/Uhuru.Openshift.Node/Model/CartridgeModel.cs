@@ -409,31 +409,41 @@ namespace Uhuru.Openshift.Runtime
 
         public void CreateSQLServerInstanceDatabases(string cartName, Prison.Prison prison, string instanceType, string defaultInstanceName)
         {
-            // TODO: vladi: GLOBAL LOCK
-            Logger.Debug("Setting up SQL Server system databases for gear {0}, cart {1}", this.container.Uuid, cartName);
-            
-            string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            string dbBuilderExe = Path.Combine(binLocation, "MsSQLSysGenerator.exe");
-
-            string sqlServerPassword = NodeConfig.Values["SQL_SERVER_SA_PASSWORD"];
-
-            string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "mssql");
-            string newSAPassword = string.Format("Pr!5{0}", Prison.Utilities.Credentials.GenerateCredential(10));
-
-            string arguments = string.Format("pass={0} dir={1} newPass={2} instanceType={3} defaultInstanceName={4}", sqlServerPassword, destination, newSAPassword, instanceType, defaultInstanceName);
-
-            ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
-
-            if (result.ExitCode != 0)
+            Mutex mutex = new Mutex(false, StopLock.Replace("\\", ""));
+            try
             {
-                throw new Exception(string.Format("Could not create system databases for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
-            } 
-            
-            File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
+                mutex.WaitOne();
+                Logger.Debug("Setting up SQL Server system databases for gear {0}, cart {1}", this.container.Uuid, cartName);
 
-            Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
+                string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
+                string dbBuilderExe = Path.Combine(binLocation, "MsSQLSysGenerator.exe");
 
-            // TODO: vladi: GLOBAL LOCK
+                string sqlServerPassword = NodeConfig.Values["SQL_SERVER_SA_PASSWORD"];
+
+                string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "mssql");
+                string newSAPassword = string.Format("Pr!5{0}", Prison.Utilities.Credentials.GenerateCredential(10));
+
+                string arguments = string.Format("pass={0} dir={1} newPass={2} instanceType={3} defaultInstanceName={4}", sqlServerPassword, destination, newSAPassword, instanceType, defaultInstanceName);
+
+                ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
+
+                if (result.ExitCode != 0)
+                {
+                    throw new Exception(string.Format("Could not create system databases for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr));
+                }
+
+                File.WriteAllText(Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "sqlpasswd"), newSAPassword);
+
+                Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
+            }
+            catch(Exception SQLServerGeneratorException)
+            {
+                Logger.Error(SQLServerGeneratorException.Message);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
         }
 
         public string PostConfigure(string cartridgeName)
