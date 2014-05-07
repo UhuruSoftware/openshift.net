@@ -178,7 +178,7 @@ function Get-UpdatedPrivilegeRule($iniDictionary, $privilege, $itemToAdd)
 
 function Setup-Privileges()
 {
-    $serviceAccount = 'openshift_service'
+    $serviceAccount = 'openshift_admins'
     $outFile = 'c:\openshift\secedit_symlink_out.inf'
     $inFile = 'c:\openshift\secedit_symlink.inf'
 
@@ -191,6 +191,7 @@ function Setup-Privileges()
     $objUser = New-Object System.Security.Principal.NTAccount('Everyone')
     $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
     $userSID = $strSID.Value
+    $currentDir = 'C:\openshift\installer\powershell\Tools\openshift.net'
 
     Write-Template (Join-Path $currentDir "secedit_symlink.template") $inFile @{
         seCreateSymbolicLinkPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateSymbolicLinkPrivilege' "*${userSID}"

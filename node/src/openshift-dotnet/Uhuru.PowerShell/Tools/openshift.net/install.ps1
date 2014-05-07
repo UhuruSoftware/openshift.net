@@ -179,6 +179,7 @@ param (
 )
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
+$upgradeDeployment = $false
 
 Write-Verbose 'Loading modules and scripts ...'
 Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -DisableNameChecking
@@ -189,7 +190,13 @@ Import-Module (Join-Path $currentDir '..\..\common\openshift-common.psd1') -Disa
 
 $global:endWarnings = @()
 
-Check-OpenShiftServices
+$upgradeDeployment = Check-OpenShiftServices
+
+if ($upgradeDeployment)
+{
+    Stop-Gears
+}
+
 # Check to see if any processes are running
 Check-RunningProcesses
 
@@ -268,7 +275,6 @@ if ($skipChecks -eq $false)
     Check-Builders
 }
 
-# TODO: stop all services, gears, etc., or tell the user to do it
 
 Write-Host 'Generating node.conf file ...'
 Write-Verbose 'Creating directory c:\openshift ...'
@@ -304,6 +310,7 @@ Write-Template (Join-Path $currentDir "resource_limits.conf.template") "c:\opens
 
 if ($skipServicesSetup -eq $false)
 {
+    Create-OpenshiftGroup
     $openshiftServiceUserPassword = [string]::Empty
     Create-OpenshiftUser ([REF]$openshiftServiceUserPassword)
     Setup-Privileges
@@ -389,6 +396,11 @@ if ($skipServicesSetup -eq $false)
     Write-Host 'Starting services ...'
     net start openshift.mcollectived
     net start openshift.sshd
+}
+
+if ($upgradeDeployment)
+{
+    Start-Gears
 }
 
 $global:endWarnings | ForEach-Object { Write-Warning $_ }
