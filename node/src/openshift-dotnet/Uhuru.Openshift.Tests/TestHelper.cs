@@ -15,6 +15,7 @@ namespace Uhuru.Openshift.Tests
     {
         const string nodeConfigFile = "Assets/node_test.conf";
         const string resourceLimitsFile = "Assets/resource_limits.conf";
+        const string sampletManifestFile = "Assets/SampleManifest.yaml";
 
         public static string GetNodeConfigPath()
         {
@@ -30,7 +31,7 @@ namespace Uhuru.Openshift.Tests
         public static ApplicationContainer CreateAppContainer()
         {
             string applicationUuid = Guid.NewGuid().ToString("N");
-            string containerUuid = applicationUuid;
+            string containerUuid = applicationUuid;            
             NodeConfig config = new NodeConfig();
             // EtcUser etcUser = new Etc(config).GetPwanam(containerUuid);
             string userId = WindowsIdentity.GetCurrent().Name;
@@ -39,14 +40,19 @@ namespace Uhuru.Openshift.Tests
             string namespaceName = "uhuru";
             object quotaBlocks = null;
             object quotaFiles = null;
-            Hourglass hourglass = null;
-            Node.LimitsFile = resourceLimitsFile;
+            Hourglass hourglass = null;            
+            Node.LimitsFile = Path.GetFullPath(resourceLimitsFile);
             ApplicationContainer container = new ApplicationContainer(
                 applicationUuid, containerUuid, null,
                 applicationName, containerName, namespaceName,
                 quotaBlocks, quotaFiles, hourglass);
             
             return container;
+        }
+
+        public static Manifest GetSampleManifest()
+        {           
+            return new Manifest(sampletManifestFile,null,"file");
         }
     }
 }
