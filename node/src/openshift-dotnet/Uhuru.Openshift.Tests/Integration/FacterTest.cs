@@ -28,5 +28,13 @@ namespace Uhuru.Openshift.Tests.Integration
             Assert.IsTrue(facts.ContainsKey("operatingsystem"));
             Assert.AreEqual(facts["operatingsystem"], "windows");
         }
+
+        [TestMethod]
+        [TestCategory("Integration")]
+        public void Test_FacterOpenshift()
+        {
+            RubyHash facts = Uhuru.Openshift.Runtime.Utils.Facter.GetOpenshiftFacts();
+            Assert.IsTrue(facts.ContainsKey("node_profile"));
+        }
     }
 }

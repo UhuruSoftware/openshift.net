@@ -22,7 +22,7 @@ namespace Uhuru.Openshift.Tests
             var input = new StringReader(document);
             var deserializer = new Deserializer();
             dynamic spec = (dynamic)deserializer.Deserialize(input);
-            Cartridge cart = Cartridge.FromDescriptor(spec);
+            Cartridge cart = Cartridge.FromDescriptor(spec);            
             Assert.AreEqual("dotnet", cart.OriginalName);
         }
 
@@ -39,6 +39,23 @@ namespace Uhuru.Openshift.Tests
             Cartridge cart = Cartridge.FromDescriptor(spec);
             dynamic desc = cart.ToDescriptor();
             Assert.IsTrue(desc.ContainsKey("Name"));
+        }
+
+        [TestMethod]
+        [TestCategory("Unit")]
+        public void Test_CartridgeFromDescriptor()
+        {
+            bool testresult = false;
+            Manifest sampleManifest = TestHelper.GetSampleManifest();
+            var input = new StringReader(sampleManifest.ToManifestString());            
+            var deserializer = new Deserializer();
+            dynamic spec = (dynamic)deserializer.Deserialize(input);
+            Cartridge cart = Cartridge.FromDescriptor(spec);
+            if (cart != null)
+            {
+                testresult = true;
+            }
+            Assert.AreEqual(true, testresult);
         }
     }
 }
