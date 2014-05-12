@@ -36,7 +36,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="mscorlib.4.0.0.0.Fakes">
+      <HintPath>FakesAssemblies\mscorlib.4.0.0.0.Fakes.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.4.0.0.0.Fakes">
+      <HintPath>FakesAssemblies\System.4.0.0.0.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="Uhuru.Openshift.Node.Fakes">
+      <HintPath>FakesAssemblies\Uhuru.Openshift.Node.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="Uhuru.Prison.Fakes">
+      <HintPath>FakesAssemblies\Uhuru.Prison.Fakes.dll</HintPath>
+    </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>..\lib\YamlDotNet.dll</HintPath>
     </Reference>
@@ -86,6 +99,10 @@
       <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
       <Name>Uhuru.Openshift.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\windows-isolation\src\Uhuru.Prison\Uhuru.Prison.csproj">
+      <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>
+      <Name>Uhuru.Prison</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\node_test.conf">
@@ -101,6 +118,18 @@
     <Content Include="Assets\SampleManifest.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\System.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\mscorlib.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\Uhuru.Openshift.Node.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\Uhuru.Prison.fakes" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -1,0 +1,2009 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.Prison.Fakes</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.Prison.Allowances.Fakes.ShimHttpsys">
+            <summary>Shim type of Uhuru.Prison.Allowances.Httpsys</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.#ctor(Uhuru.Prison.Allowances.Httpsys)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AddPortAccessInt32String">
+            <summary>Sets the shim of Httpsys.AddPortAccess(Int32 port, String Username)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.ApplyPrison">
+            <summary>Sets the shim of Httpsys.Apply(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.Constructor">
+            <summary>Sets the shim of Httpsys.Httpsys()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.DestroyPrison">
+            <summary>Sets the shim of Httpsys.Destroy(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.GetFlag">
+            <summary>Sets the shim of Httpsys.GetFlag()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.Init">
+            <summary>Sets the shim of Httpsys.Init()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.List">
+            <summary>Sets the shim of Httpsys.List()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.ListPortAccess">
+            <summary>Sets the shim of Httpsys.ListPortAccess()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.RecoverPrison">
+            <summary>Sets the shim of Httpsys.Recover(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.RemovePortAccessInt32Boolean">
+            <summary>Sets the shim of Httpsys.RemovePortAccess(Int32 port, Boolean ignoreFailure)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.ApplyPrison">
+            <summary>Sets the shim of Httpsys.Apply(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.DestroyPrison">
+            <summary>Sets the shim of Httpsys.Destroy(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.GetFlag">
+            <summary>Sets the shim of Httpsys.GetFlag()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.Init">
+            <summary>Sets the shim of Httpsys.Init()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.List">
+            <summary>Sets the shim of Httpsys.List()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.ShimHttpsys.AllInstances.RecoverPrison">
+            <summary>Sets the shim of Httpsys.Recover(Prison prison)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Allowances.Fakes.StubHttpsys">
+            <summary>Stub type of Uhuru.Prison.Allowances.Httpsys</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.Apply(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Httpsys.Apply(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.ApplyPrison">
+            <summary>Sets the stub of Httpsys.Apply(Prison prison)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.Destroy(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Httpsys.Destroy(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.DestroyPrison">
+            <summary>Sets the stub of Httpsys.Destroy(Prison prison)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.GetFlag">
+            <summary>Sets the stub of Httpsys.GetFlag()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.GetFlag01">
+            <summary>Sets the stub of Httpsys.GetFlag()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.Init">
+            <summary>Sets the stub of Httpsys.Init()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.Init01">
+            <summary>Sets the stub of Httpsys.Init()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.InitializeStub">
+            <summary>Initializes a new instance of type StubHttpsys</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.List">
+            <summary>Sets the stub of Httpsys.List()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.List01">
+            <summary>Sets the stub of Httpsys.List()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Allowances.Fakes.StubHttpsys.Recover(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Httpsys.Recover(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Allowances.Fakes.StubHttpsys.RecoverPrison">
+            <summary>Sets the stub of Httpsys.Recover(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.StubHttpsys.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.StubHttpsys.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Allowances.Fakes.StubHttpsys.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimFirewallTools">
+            <summary>Shim type of Uhuru.Prison.FirewallTools</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimFirewallTools.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimFirewallTools.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimFirewallTools.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.BlockAllInboundStringString">
+            <summary>Sets the shim of FirewallTools.BlockAllInbound(String ruleName, String windowsUsername)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.BlockAllOutboundStringString">
+            <summary>Sets the shim of FirewallTools.BlockAllOutbound(String ruleName, String windowsUsername)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.ClosePortInt32">
+            <summary>Sets the shim of FirewallTools.ClosePort(Int32 port)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.DeleteRuleString">
+            <summary>Sets the shim of FirewallTools.DeleteRule(String ruleName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.GetLocalUserSidString">
+            <summary>Sets the shim of FirewallTools.GetLocalUserSid(String windowsUsername)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.OpenPortInt32String">
+            <summary>Sets the shim of FirewallTools.OpenPort(Int32 port, String rulName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimFirewallTools.OpenPortRangeInt32Int32String">
+            <summary>Sets the shim of FirewallTools.OpenPortRange(Int32 lowPort, Int32 highPort, String ruleName)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimLogger">
+            <summary>Shim type of Uhuru.Prison.Logger</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimLogger.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimLogger.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimLogger.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.DebugString">
+            <summary>Sets the shim of Logger.Debug(String message)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.DebugStringObjectArray">
+            <summary>Sets the shim of Logger.Debug(String message, Object[] args)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.ErrorString">
+            <summary>Sets the shim of Logger.Error(String message)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.ErrorStringObjectArray">
+            <summary>Sets the shim of Logger.Error(String message, Object[] args)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.FatalString">
+            <summary>Sets the shim of Logger.Fatal(String message)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.FatalStringObjectArray">
+            <summary>Sets the shim of Logger.Fatal(String message, Object[] args)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.InfoString">
+            <summary>Sets the shim of Logger.Info(String message)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.InfoStringObjectArray">
+            <summary>Sets the shim of Logger.Info(String message, Object[] args)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.StaticConstructor">
+            <summary>Sets the shim of Logger.Logger()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.WarningString">
+            <summary>Sets the shim of Logger.Warning(String message)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimLogger.WarningStringObjectArray">
+            <summary>Sets the shim of Logger.Warning(String message, Object[] args)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool">
+            <summary>Shim type of Uhuru.Prison.MsSqlInstanceTool</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.AllowReadOfBaseMSSQLInstanceStringPrison">
+            <summary>Sets the shim of MsSqlInstanceTool.AllowReadOfBaseMSSQLInstance(String path, Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.ConfigureMsSqlInstanceRegistryPrisonStringString">
+            <summary>Sets the shim of MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(Prison prison, String instanceType, String defaultInstanceName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.GrantRegistryAccessStringPrison">
+            <summary>Sets the shim of MsSqlInstanceTool.GrantRegistryAccess(String key, Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimMsSqlInstanceTool.RemoveUnusedMsSqlInstanceFromRegistry">
+            <summary>Sets the shim of MsSqlInstanceTool.RemoveUnusedMsSqlInstanceFromRegistry()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative">
+            <summary>Shim type of Uhuru.Prison.Native</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION">
+            <summary>Shim type of Uhuru.Prison.Native+PROCESS_INFORMATION</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimPROCESS_INFORMATION.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO">
+            <summary>Shim type of Uhuru.Prison.Native+PROFILEINFO</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimPROFILEINFO.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES">
+            <summary>Shim type of Uhuru.Prison.Native+SECURITY_ATTRIBUTES</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSECURITY_ATTRIBUTES.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO">
+            <summary>Shim type of Uhuru.Prison.Native+STARTUPINFO</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSTARTUPINFO.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle">
+            <summary>Shim type of Uhuru.Prison.Native+SafeWindowStationHandle</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.#ctor(Uhuru.Prison.Native.SafeWindowStationHandle)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.Bind(System.IDisposable)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.Constructor">
+            <summary>Sets the shim of SafeWindowStationHandle.SafeWindowStationHandle()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.ReleaseHandle">
+            <summary>Sets the shim of SafeWindowStationHandle.ReleaseHandle()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSafeWindowStationHandle.AllInstances.ReleaseHandle">
+            <summary>Sets the shim of SafeWindowStationHandle.ReleaseHandle()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes">
+            <summary>Shim type of Uhuru.Prison.Native+SecurityAttributes</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.#ctor(Uhuru.Prison.Native.SecurityAttributes)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.Constructor">
+            <summary>Sets the shim of SecurityAttributes.SecurityAttributes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.InheritGet">
+            <summary>Sets the shim of SecurityAttributes.get_Inherit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.InheritSetBoolean">
+            <summary>Sets the shim of SecurityAttributes.set_Inherit(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.SecurityDescriptorGet">
+            <summary>Sets the shim of SecurityAttributes.get_SecurityDescriptor()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.SecurityDescriptorSetIntPtr">
+            <summary>Sets the shim of SecurityAttributes.set_SecurityDescriptor(IntPtr value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.AllInstances.InheritGet">
+            <summary>Sets the shim of SecurityAttributes.get_Inherit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.AllInstances.InheritSetBoolean">
+            <summary>Sets the shim of SecurityAttributes.set_Inherit(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.AllInstances.SecurityDescriptorGet">
+            <summary>Sets the shim of SecurityAttributes.get_SecurityDescriptor()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimNative.ShimSecurityAttributes.AllInstances.SecurityDescriptorSetIntPtr">
+            <summary>Sets the shim of SecurityAttributes.set_SecurityDescriptor(IntPtr value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPersistence">
+            <summary>Shim type of Uhuru.Prison.Persistence</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistence.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistence.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistence.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.ReadData">
+            <summary>Sets the shim of Persistence.ReadData()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.ReadValueStringString">
+            <summary>Sets the shim of Persistence.ReadValue(String groupKey, String valueKey)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.SaveValueStringStringObject">
+            <summary>Sets the shim of Persistence.SaveValue(String group, String key, Object value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.SetLocationString">
+            <summary>Sets the shim of Persistence.SetLocation(String location)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistence.StaticConstructor">
+            <summary>Sets the shim of Persistence.Persistence()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPersistenceRow">
+            <summary>Shim type of Uhuru.Prison.PersistenceRow</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistenceRow.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistenceRow.#ctor(Uhuru.Prison.PersistenceRow)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistenceRow.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPersistenceRow.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistenceRow.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistenceRow.Constructor">
+            <summary>Sets the shim of PersistenceRow.PersistenceRow()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPersistenceRow.ConstructorStringStringObject">
+            <summary>Sets the shim of PersistenceRow.PersistenceRow(String groupKey, String valueKey, Object value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPersistenceRow.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrison">
+            <summary>Shim type of Uhuru.Prison.Prison</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrison.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrison.#ctor(Uhuru.Prison.Prison)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrison.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrison.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AddProcessToGuardJobObjectProcess">
+            <summary>Sets the shim of Prison.AddProcessToGuardJobObject(Process p)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.BuildEnvironmentVariableDictionaryOfStringString">
+            <summary>Sets the shim of Prison.BuildEnvironmentVariable(Dictionary`2&lt;String,String&gt; environmentVariables)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.CellEnabledRuleType">
+            <summary>Sets the shim of Prison.CellEnabled(RuleType cellTypeQuery)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ChangeProfilePathString">
+            <summary>Sets the shim of Prison.ChangeProfilePath(String destination)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.CheckGuard">
+            <summary>Sets the shim of Prison.CheckGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Constructor">
+            <summary>Sets the shim of Prison.Prison()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ConstructorGuid">
+            <summary>Sets the shim of Prison.Prison(Guid id)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.CreateUserProfile">
+            <summary>Sets the shim of Prison.CreateUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.DeletePersistedPrirson">
+            <summary>Sets the shim of Prison.DeletePersistedPrirson()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.DeleteUserProfile">
+            <summary>Sets the shim of Prison.DeleteUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Destroy">
+            <summary>Sets the shim of Prison.Destroy()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ExecuteString">
+            <summary>Sets the shim of Prison.Execute(String filename)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ExecuteStringString">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ExecuteStringStringBoolean">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments, Boolean interactive)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ExecuteStringStringBooleanDictionaryOfStringString">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments, Boolean interactive, Dictionary`2&lt;String,String&gt; extraEnvironmentVariables)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.GetChildPrecessesInt32">
+            <summary>Sets the shim of Prison.GetChildPrecesses(Int32 parentId)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.GetCreateProcessDeletegatePath">
+            <summary>Sets the shim of Prison.GetCreateProcessDeletegatePath()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.GetDefaultEnvironmentVarialbes">
+            <summary>Sets the shim of Prison.GetDefaultEnvironmentVarialbes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.GetGuardPath">
+            <summary>Sets the shim of Prison.GetGuardPath()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.GetLocalUserSidString">
+            <summary>Sets the shim of Prison.GetLocalUserSid(String windowsUsername)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.IDGet">
+            <summary>Sets the shim of Prison.get_ID()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.IDSetGuid">
+            <summary>Sets the shim of Prison.set_ID(Guid value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Init">
+            <summary>Sets the shim of Prison.Init()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.InitializeGuard">
+            <summary>Sets the shim of Prison.InitializeGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.InitializeJobObject">
+            <summary>Sets the shim of Prison.InitializeJobObject()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.InitializeLogonToken">
+            <summary>Sets the shim of Prison.InitializeLogonToken()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.InitializeSystemVirtualAddressSpaceQuotas">
+            <summary>Sets the shim of Prison.InitializeSystemVirtualAddressSpaceQuotas()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.IsProfileLoaded">
+            <summary>Sets the shim of Prison.IsProfileLoaded()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.JobObjectGet">
+            <summary>Sets the shim of Prison.get_JobObject()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.ListCellInstances">
+            <summary>Sets the shim of Prison.ListCellInstances()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Load">
+            <summary>Sets the shim of Prison.Load()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.LoadPrisonAndAttachGuid">
+            <summary>Sets the shim of Prison.LoadPrisonAndAttach(Guid prisonId)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.LoadPrisonNoAttachGuid">
+            <summary>Sets the shim of Prison.LoadPrisonNoAttach(Guid prisonId)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.LoadUserProfile">
+            <summary>Sets the shim of Prison.LoadUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.LoadUserProfileIfNotLoaded">
+            <summary>Sets the shim of Prison.LoadUserProfileIfNotLoaded()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.LockdownPrisonRules">
+            <summary>Sets the shim of Prison.Lockdown(PrisonRules prisonRules)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Reattach">
+            <summary>Sets the shim of Prison.Reattach()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.RulesGet">
+            <summary>Sets the shim of Prison.get_Rules()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.RunGuard">
+            <summary>Sets the shim of Prison.RunGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.Save">
+            <summary>Sets the shim of Prison.Save()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.StaticConstructor">
+            <summary>Sets the shim of Prison.Prison()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.TagGet">
+            <summary>Sets the shim of Prison.get_Tag()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.TagSetString">
+            <summary>Sets the shim of Prison.set_Tag(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.TryStopGuard">
+            <summary>Sets the shim of Prison.TryStopGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.UnloadUserProfile">
+            <summary>Sets the shim of Prison.UnloadUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.UnloadUserProfileUntilReleased">
+            <summary>Sets the shim of Prison.UnloadUserProfileUntilReleased()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.UserGet">
+            <summary>Sets the shim of Prison.get_User()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrison.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.AddProcessToGuardJobObjectProcess">
+            <summary>Sets the shim of Prison.AddProcessToGuardJobObject(Process p)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.CellEnabledRuleType">
+            <summary>Sets the shim of Prison.CellEnabled(RuleType cellTypeQuery)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.ChangeProfilePathString">
+            <summary>Sets the shim of Prison.ChangeProfilePath(String destination)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.CheckGuard">
+            <summary>Sets the shim of Prison.CheckGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.CreateUserProfile">
+            <summary>Sets the shim of Prison.CreateUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.DeletePersistedPrirson">
+            <summary>Sets the shim of Prison.DeletePersistedPrirson()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.DeleteUserProfile">
+            <summary>Sets the shim of Prison.DeleteUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.Destroy">
+            <summary>Sets the shim of Prison.Destroy()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.ExecuteString">
+            <summary>Sets the shim of Prison.Execute(String filename)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.ExecuteStringString">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.ExecuteStringStringBoolean">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments, Boolean interactive)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.ExecuteStringStringBooleanDictionaryOfStringString">
+            <summary>Sets the shim of Prison.Execute(String filename, String arguments, Boolean interactive, Dictionary`2&lt;String,String&gt; extraEnvironmentVariables)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.GetDefaultEnvironmentVarialbes">
+            <summary>Sets the shim of Prison.GetDefaultEnvironmentVarialbes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.IDGet">
+            <summary>Sets the shim of Prison.get_ID()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.IDSetGuid">
+            <summary>Sets the shim of Prison.set_ID(Guid value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.InitializeGuard">
+            <summary>Sets the shim of Prison.InitializeGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.InitializeJobObject">
+            <summary>Sets the shim of Prison.InitializeJobObject()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.InitializeLogonToken">
+            <summary>Sets the shim of Prison.InitializeLogonToken()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.InitializeSystemVirtualAddressSpaceQuotas">
+            <summary>Sets the shim of Prison.InitializeSystemVirtualAddressSpaceQuotas()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.IsProfileLoaded">
+            <summary>Sets the shim of Prison.IsProfileLoaded()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.JobObjectGet">
+            <summary>Sets the shim of Prison.get_JobObject()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.LoadUserProfile">
+            <summary>Sets the shim of Prison.LoadUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.LoadUserProfileIfNotLoaded">
+            <summary>Sets the shim of Prison.LoadUserProfileIfNotLoaded()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.LockdownPrisonRules">
+            <summary>Sets the shim of Prison.Lockdown(PrisonRules prisonRules)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.Reattach">
+            <summary>Sets the shim of Prison.Reattach()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.RulesGet">
+            <summary>Sets the shim of Prison.get_Rules()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.RunGuard">
+            <summary>Sets the shim of Prison.RunGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.Save">
+            <summary>Sets the shim of Prison.Save()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.TagGet">
+            <summary>Sets the shim of Prison.get_Tag()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.TagSetString">
+            <summary>Sets the shim of Prison.set_Tag(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.TryStopGuard">
+            <summary>Sets the shim of Prison.TryStopGuard()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.UnloadUserProfile">
+            <summary>Sets the shim of Prison.UnloadUserProfile()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.UnloadUserProfileUntilReleased">
+            <summary>Sets the shim of Prison.UnloadUserProfileUntilReleased()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrison.AllInstances.UserGet">
+            <summary>Sets the shim of Prison.get_User()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrisonRules">
+            <summary>Shim type of Uhuru.Prison.PrisonRules</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonRules.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonRules.#ctor(Uhuru.Prison.PrisonRules)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonRules.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonRules.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.ActiveProcessesLimitGet">
+            <summary>Sets the shim of PrisonRules.get_ActiveProcessesLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.ActiveProcessesLimitSetInt32">
+            <summary>Sets the shim of PrisonRules.set_ActiveProcessesLimit(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AppPortOutboundRateLimitBitsPerSecondGet">
+            <summary>Sets the shim of PrisonRules.get_AppPortOutboundRateLimitBitsPerSecond()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AppPortOutboundRateLimitBitsPerSecondSetInt64">
+            <summary>Sets the shim of PrisonRules.set_AppPortOutboundRateLimitBitsPerSecond(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.CPUPercentageLimitGet">
+            <summary>Sets the shim of PrisonRules.get_CPUPercentageLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.CPUPercentageLimitSetInt64">
+            <summary>Sets the shim of PrisonRules.set_CPUPercentageLimit(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.CellTypeGet">
+            <summary>Sets the shim of PrisonRules.get_CellType()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.CellTypeSetRuleType">
+            <summary>Sets the shim of PrisonRules.set_CellType(RuleType value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.Constructor">
+            <summary>Sets the shim of PrisonRules.PrisonRules()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.DiskQuotaBytesGet">
+            <summary>Sets the shim of PrisonRules.get_DiskQuotaBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.DiskQuotaBytesSetInt64">
+            <summary>Sets the shim of PrisonRules.set_DiskQuotaBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.IdGet">
+            <summary>Sets the shim of PrisonRules.get_Id()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.IdSetString">
+            <summary>Sets the shim of PrisonRules.set_Id(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.NetworkOutboundRateLimitBitsPerSecondGet">
+            <summary>Sets the shim of PrisonRules.get_NetworkOutboundRateLimitBitsPerSecond()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.NetworkOutboundRateLimitBitsPerSecondSetInt64">
+            <summary>Sets the shim of PrisonRules.set_NetworkOutboundRateLimitBitsPerSecond(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.PriorityClassGet">
+            <summary>Sets the shim of PrisonRules.get_PriorityClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.PriorityClassSetNullableOfProcessPriorityClass">
+            <summary>Sets the shim of PrisonRules.set_PriorityClass(Nullable`1&lt;ProcessPriorityClass&gt; value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.PrisonHomePathGet">
+            <summary>Sets the shim of PrisonRules.get_PrisonHomePath()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.PrisonHomePathSetString">
+            <summary>Sets the shim of PrisonRules.set_PrisonHomePath(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.TotalPrivateMemoryLimitBytesGet">
+            <summary>Sets the shim of PrisonRules.get_TotalPrivateMemoryLimitBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.TotalPrivateMemoryLimitBytesSetInt64">
+            <summary>Sets the shim of PrisonRules.set_TotalPrivateMemoryLimitBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.UrlPortAccessGet">
+            <summary>Sets the shim of PrisonRules.get_UrlPortAccess()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.UrlPortAccessSetInt32">
+            <summary>Sets the shim of PrisonRules.set_UrlPortAccess(Int32 value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.ActiveProcessesLimitGet">
+            <summary>Sets the shim of PrisonRules.get_ActiveProcessesLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.ActiveProcessesLimitSetInt32">
+            <summary>Sets the shim of PrisonRules.set_ActiveProcessesLimit(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.AppPortOutboundRateLimitBitsPerSecondGet">
+            <summary>Sets the shim of PrisonRules.get_AppPortOutboundRateLimitBitsPerSecond()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.AppPortOutboundRateLimitBitsPerSecondSetInt64">
+            <summary>Sets the shim of PrisonRules.set_AppPortOutboundRateLimitBitsPerSecond(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.CPUPercentageLimitGet">
+            <summary>Sets the shim of PrisonRules.get_CPUPercentageLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.CPUPercentageLimitSetInt64">
+            <summary>Sets the shim of PrisonRules.set_CPUPercentageLimit(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.CellTypeGet">
+            <summary>Sets the shim of PrisonRules.get_CellType()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.CellTypeSetRuleType">
+            <summary>Sets the shim of PrisonRules.set_CellType(RuleType value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.DiskQuotaBytesGet">
+            <summary>Sets the shim of PrisonRules.get_DiskQuotaBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.DiskQuotaBytesSetInt64">
+            <summary>Sets the shim of PrisonRules.set_DiskQuotaBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.IdGet">
+            <summary>Sets the shim of PrisonRules.get_Id()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.IdSetString">
+            <summary>Sets the shim of PrisonRules.set_Id(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.NetworkOutboundRateLimitBitsPerSecondGet">
+            <summary>Sets the shim of PrisonRules.get_NetworkOutboundRateLimitBitsPerSecond()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.NetworkOutboundRateLimitBitsPerSecondSetInt64">
+            <summary>Sets the shim of PrisonRules.set_NetworkOutboundRateLimitBitsPerSecond(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.PriorityClassGet">
+            <summary>Sets the shim of PrisonRules.get_PriorityClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.PriorityClassSetNullableOfProcessPriorityClass">
+            <summary>Sets the shim of PrisonRules.set_PriorityClass(Nullable`1&lt;ProcessPriorityClass&gt; value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.PrisonHomePathGet">
+            <summary>Sets the shim of PrisonRules.get_PrisonHomePath()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.PrisonHomePathSetString">
+            <summary>Sets the shim of PrisonRules.set_PrisonHomePath(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.TotalPrivateMemoryLimitBytesGet">
+            <summary>Sets the shim of PrisonRules.get_TotalPrivateMemoryLimitBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.TotalPrivateMemoryLimitBytesSetInt64">
+            <summary>Sets the shim of PrisonRules.set_TotalPrivateMemoryLimitBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.UrlPortAccessGet">
+            <summary>Sets the shim of PrisonRules.get_UrlPortAccess()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonRules.AllInstances.UrlPortAccessSetInt32">
+            <summary>Sets the shim of PrisonRules.set_UrlPortAccess(Int32 value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrisonUser">
+            <summary>Shim type of Uhuru.Prison.PrisonUser</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonUser.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonUser.#ctor(Uhuru.Prison.PrisonUser)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonUser.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimPrisonUser.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.Constructor">
+            <summary>Sets the shim of PrisonUser.PrisonUser()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.ConstructorString">
+            <summary>Sets the shim of PrisonUser.PrisonUser(String prefix)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.ConstructorStringStringStringBoolean">
+            <summary>Sets the shim of PrisonUser.PrisonUser(String prefix, String username, String password, Boolean existing)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.Create">
+            <summary>Sets the shim of PrisonUser.Create()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.Delete">
+            <summary>Sets the shim of PrisonUser.Delete()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.GenerateUsernameString">
+            <summary>Sets the shim of PrisonUser.GenerateUsername(String username)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.GetUsernamePrefixString">
+            <summary>Sets the shim of PrisonUser.GetUsernamePrefix(String username)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.ListOrphanedUsers">
+            <summary>Sets the shim of PrisonUser.ListOrphanedUsers()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.ListUsers">
+            <summary>Sets the shim of PrisonUser.ListUsers()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.ListUsersString">
+            <summary>Sets the shim of PrisonUser.ListUsers(String prefixFilter)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.PasswordGet">
+            <summary>Sets the shim of PrisonUser.get_Password()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.UserSIDGet">
+            <summary>Sets the shim of PrisonUser.get_UserSID()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.UsernameGet">
+            <summary>Sets the shim of PrisonUser.get_Username()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.UsernamePrefixGet">
+            <summary>Sets the shim of PrisonUser.get_UsernamePrefix()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.Create">
+            <summary>Sets the shim of PrisonUser.Create()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.Delete">
+            <summary>Sets the shim of PrisonUser.Delete()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.GenerateUsernameString">
+            <summary>Sets the shim of PrisonUser.GenerateUsername(String username)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.PasswordGet">
+            <summary>Sets the shim of PrisonUser.get_Password()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.UserSIDGet">
+            <summary>Sets the shim of PrisonUser.get_UserSID()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.UsernameGet">
+            <summary>Sets the shim of PrisonUser.get_Username()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimPrisonUser.AllInstances.UsernamePrefixGet">
+            <summary>Sets the shim of PrisonUser.get_UsernamePrefix()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimProfileInfo">
+            <summary>Shim type of Uhuru.Prison.ProfileInfo</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimProfileInfo.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimProfileInfo.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimProfileInfo.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimProfileInfo.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimProfileInfo.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimRule">
+            <summary>Shim type of Uhuru.Prison.Rule</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRule.#ctor(Uhuru.Prison.Rule)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRule.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRule.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRule.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRule.Constructor">
+            <summary>Sets the shim of Rule.Rule()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimRule.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimRuleInstanceInfo">
+            <summary>Shim type of Uhuru.Prison.RuleInstanceInfo</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.#ctor(Uhuru.Prison.RuleInstanceInfo)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.Constructor">
+            <summary>Sets the shim of RuleInstanceInfo.RuleInstanceInfo()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.InfoGet">
+            <summary>Sets the shim of RuleInstanceInfo.get_Info()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.InfoSetString">
+            <summary>Sets the shim of RuleInstanceInfo.set_Info(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.NameGet">
+            <summary>Sets the shim of RuleInstanceInfo.get_Name()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.NameSetString">
+            <summary>Sets the shim of RuleInstanceInfo.set_Name(String value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.AllInstances.InfoGet">
+            <summary>Sets the shim of RuleInstanceInfo.get_Info()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.AllInstances.InfoSetString">
+            <summary>Sets the shim of RuleInstanceInfo.set_Info(String value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.AllInstances.NameGet">
+            <summary>Sets the shim of RuleInstanceInfo.get_Name()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimRuleInstanceInfo.AllInstances.NameSetString">
+            <summary>Sets the shim of RuleInstanceInfo.set_Name(String value)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimSafeTokenHandle">
+            <summary>Shim type of Uhuru.Prison.SafeTokenHandle</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimSafeTokenHandle.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimSafeTokenHandle.#ctor(Uhuru.Prison.SafeTokenHandle)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimSafeTokenHandle.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimSafeTokenHandle.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.ShimSafeTokenHandle.Bind(System.IDisposable)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimSafeTokenHandle.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimSafeTokenHandle.Constructor">
+            <summary>Sets the shim of SafeTokenHandle.SafeTokenHandle()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimSafeTokenHandle.ReleaseHandle">
+            <summary>Sets the shim of SafeTokenHandle.ReleaseHandle()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.ShimSafeTokenHandle.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.ShimSafeTokenHandle.AllInstances.ReleaseHandle">
+            <summary>Sets the shim of SafeTokenHandle.ReleaseHandle()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubPersistenceRow">
+            <summary>Stub type of Uhuru.Prison.PersistenceRow</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPersistenceRow.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPersistenceRow.#ctor(System.String,System.String,System.Object)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPersistenceRow.InitializeStub">
+            <summary>Initializes a new instance of type StubPersistenceRow</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPersistenceRow.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPersistenceRow.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPersistenceRow.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubPrison">
+            <summary>Stub type of Uhuru.Prison.Prison</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrison.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrison.#ctor(System.Guid)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrison.InitializeStub">
+            <summary>Initializes a new instance of type StubPrison</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrison.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrison.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrison.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubPrisonRules">
+            <summary>Stub type of Uhuru.Prison.PrisonRules</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrisonRules.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrisonRules.InitializeStub">
+            <summary>Initializes a new instance of type StubPrisonRules</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonRules.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonRules.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonRules.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubPrisonUser">
+            <summary>Stub type of Uhuru.Prison.PrisonUser</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrisonUser.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrisonUser.#ctor(System.String)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubPrisonUser.InitializeStub">
+            <summary>Initializes a new instance of type StubPrisonUser</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonUser.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonUser.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubPrisonUser.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubRule">
+            <summary>Stub type of Uhuru.Prison.Rule</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.Apply(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Rule.Apply(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.ApplyPrison">
+            <summary>Sets the stub of Rule.Apply(Prison prison)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.Destroy(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Rule.Destroy(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.DestroyPrison">
+            <summary>Sets the stub of Rule.Destroy(Prison prison)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.GetFlag">
+            <summary>Sets the stub of Rule.GetFlag()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.GetFlag01">
+            <summary>Sets the stub of Rule.GetFlag()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.Init">
+            <summary>Sets the stub of Rule.Init()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.Init01">
+            <summary>Sets the stub of Rule.Init()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.InitializeStub">
+            <summary>Initializes a new instance of type StubRule</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.List">
+            <summary>Sets the stub of Rule.List()</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.List01">
+            <summary>Sets the stub of Rule.List()</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRule.Recover(Uhuru.Prison.Prison)">
+            <summary>Sets the stub of Rule.Recover(Prison prison)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Fakes.StubRule.RecoverPrison">
+            <summary>Sets the stub of Rule.Recover(Prison prison)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRule.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRule.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRule.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Fakes.StubRuleInstanceInfo">
+            <summary>Stub type of Uhuru.Prison.RuleInstanceInfo</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRuleInstanceInfo.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Fakes.StubRuleInstanceInfo.InitializeStub">
+            <summary>Initializes a new instance of type StubRuleInstanceInfo</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRuleInstanceInfo.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRuleInstanceInfo.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Fakes.StubRuleInstanceInfo.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimCommand">
+            <summary>Shim type of Uhuru.Prison.Utilities.Command</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCommand.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCommand.#ctor(Uhuru.Prison.Utilities.Command)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCommand.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCommand.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.Constructor">
+            <summary>Sets the shim of Command.Command()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.ExecuteCommandString">
+            <summary>Sets the shim of Command.ExecuteCommand(String command)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.ExecuteCommandStringInt32">
+            <summary>Sets the shim of Command.ExecuteCommand(String command, Int32 timeout)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.ExecuteCommandStringString">
+            <summary>Sets the shim of Command.ExecuteCommand(String command, String workingDirectory)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.ExecuteCommandsStringStringStreamWriterCallbackProcessDoneCallback">
+            <summary>Sets the shim of Command.ExecuteCommands(String shell, String arguments, StreamWriterCallback writerCallback, ProcessDoneCallback doneCallback)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.RunCommandAndGetOutputAndErrorsStringString">
+            <summary>Sets the shim of Command.RunCommandAndGetOutputAndErrors(String command, String arguments)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.RunCommandAndGetOutputStringString">
+            <summary>Sets the shim of Command.RunCommandAndGetOutput(String command, String arguments)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCommand.RunCommandAndGetOutputStringStringBoolean">
+            <summary>Sets the shim of Command.RunCommandAndGetOutput(String command, String arguments, Boolean outputIncludesErrors)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimCommand.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimCredentials">
+            <summary>Shim type of Uhuru.Prison.Utilities.Credentials</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCredentials.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCredentials.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimCredentials.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCredentials.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCredentials.GenerateCredential">
+            <summary>Sets the shim of Credentials.GenerateCredential()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCredentials.GenerateCredentialInt32">
+            <summary>Sets the shim of Credentials.GenerateCredential(Int32 length)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimCredentials.GenerateSecureGuid">
+            <summary>Sets the shim of Credentials.GenerateSecureGuid()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools">
+            <summary>Shim type of Uhuru.Prison.Utilities.DirectoryTools</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.#ctor(Uhuru.Prison.Utilities.DirectoryTools)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.Constructor">
+            <summary>Sets the shim of DirectoryTools.DirectoryTools()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.ForceDeleteDirecotryString">
+            <summary>Sets the shim of DirectoryTools.ForceDeleteDirecotry(String path)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.GetOwnershipForDirectoryStringIdentityReference">
+            <summary>Sets the shim of DirectoryTools.GetOwnershipForDirectory(String path, IdentityReference owner)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimDirectoryTools.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust">
+            <summary>Shim type of Uhuru.Prison.Utilities.PrivilegeAdjust</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.#ctor(Uhuru.Prison.Utilities.PrivilegeAdjust)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.Constructor">
+            <summary>Sets the shim of PrivilegeAdjust.PrivilegeAdjust()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.EnablePrivilegeIntPtrStringBoolean">
+            <summary>Sets the shim of PrivilegeAdjust.EnablePrivilege(IntPtr hproc, String privilege, Boolean disable)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimPrivilegeAdjust.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas">
+            <summary>Shim type of Uhuru.Prison.Utilities.SystemVirtualAddressSpaceQuotas</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.RemoveQuotasIdentityReference">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.RemoveQuotas(IdentityReference user)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.SetNonPagedPoolQuotaInt64IdentityReference">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.SetNonPagedPoolQuota(Int64 sizeBytes, IdentityReference user)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.SetPagedPoolQuotaInt64IdentityReference">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.SetPagedPoolQuota(Int64 sizeBytes, IdentityReference user)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.SetPagingFileQuotaInt64IdentityReference">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.SetPagingFileQuota(Int64 sizeBytes, IdentityReference user)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.SetWorkingSetPagesQuotaInt64IdentityReference">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.SetWorkingSetPagesQuota(Int64 sizeBytes, IdentityReference user)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimSystemVirtualAddressSpaceQuotas.StaticConstructor">
+            <summary>Sets the shim of SystemVirtualAddressSpaceQuotas.SystemVirtualAddressSpaceQuotas()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator">
+            <summary>Shim type of Uhuru.Prison.Utilities.UserImpersonator</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.#ctor(Uhuru.Prison.Utilities.UserImpersonator)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.Bind(System.IDisposable)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.ConstructorStringStringStringBoolean">
+            <summary>Sets the shim of UserImpersonator.UserImpersonator(String userName, String domainName, String password, Boolean loadUserProfile)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.DeleteUserProfileStringString">
+            <summary>Sets the shim of UserImpersonator.DeleteUserProfile(String userName, String domainName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.Dispose">
+            <summary>Sets the shim of UserImpersonator.Dispose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.DisposeBoolean">
+            <summary>Sets the shim of UserImpersonator.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.GetRegistryHandle">
+            <summary>Sets the shim of UserImpersonator.GetRegistryHandle()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.ImpersonateValidUserStringStringStringBoolean">
+            <summary>Sets the shim of UserImpersonator.ImpersonateValidUser(String userName, String domain, String password, Boolean loadUserProfile)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.AllInstances.Dispose">
+            <summary>Sets the shim of UserImpersonator.Dispose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.AllInstances.DisposeBoolean">
+            <summary>Sets the shim of UserImpersonator.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.AllInstances.GetRegistryHandle">
+            <summary>Sets the shim of UserImpersonator.GetRegistryHandle()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimUserImpersonator.AllInstances.ImpersonateValidUserStringStringStringBoolean">
+            <summary>Sets the shim of UserImpersonator.ImpersonateValidUser(String userName, String domain, String password, Boolean loadUserProfile)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups">
+            <summary>Shim type of Uhuru.Prison.Utilities.WindowsUsersAndGroups</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.AddUserToGroupStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.AddUserToGroup(String userName, String groupName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.CreateGroupString">
+            <summary>Sets the shim of WindowsUsersAndGroups.CreateGroup(String groupName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.CreateGroupStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.CreateGroup(String groupName, String description)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.CreateUserStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.CreateUser(String userName, String password)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.CreateUserStringStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.CreateUser(String userName, String password, String description)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.DeleteGroupString">
+            <summary>Sets the shim of WindowsUsersAndGroups.DeleteGroup(String groupName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.DeleteUserString">
+            <summary>Sets the shim of WindowsUsersAndGroups.DeleteUser(String userName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.ExistsGroupString">
+            <summary>Sets the shim of WindowsUsersAndGroups.ExistsGroup(String groupName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.ExistsUserString">
+            <summary>Sets the shim of WindowsUsersAndGroups.ExistsUser(String userName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.GetGroups">
+            <summary>Sets the shim of WindowsUsersAndGroups.GetGroups()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.GetLocalUserSidString">
+            <summary>Sets the shim of WindowsUsersAndGroups.GetLocalUserSid(String userName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.GetUsers">
+            <summary>Sets the shim of WindowsUsersAndGroups.GetUsers()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.GetUsersDescription">
+            <summary>Sets the shim of WindowsUsersAndGroups.GetUsersDescription()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.IsUserMemberOfGroupStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.IsUserMemberOfGroup(String userName, String groupName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.ShimWindowsUsersAndGroups.RemoveUserFromGroupStringString">
+            <summary>Sets the shim of WindowsUsersAndGroups.RemoveUserFromGroup(String userName, String groupName)</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.StubCommand">
+            <summary>Stub type of Uhuru.Prison.Utilities.Command</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubCommand.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubCommand.InitializeStub">
+            <summary>Initializes a new instance of type StubCommand</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubCommand.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubCommand.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubCommand.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools">
+            <summary>Stub type of Uhuru.Prison.Utilities.DirectoryTools</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools.InitializeStub">
+            <summary>Initializes a new instance of type StubDirectoryTools</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubDirectoryTools.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust">
+            <summary>Stub type of Uhuru.Prison.Utilities.PrivilegeAdjust</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust.InitializeStub">
+            <summary>Initializes a new instance of type StubPrivilegeAdjust</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubPrivilegeAdjust.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator">
+            <summary>Stub type of Uhuru.Prison.Utilities.UserImpersonator</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.#ctor(System.String,System.String,System.String,System.Boolean)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.Dispose(System.Boolean)">
+            <summary>Sets the stub of UserImpersonator.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.DisposeBoolean">
+            <summary>Sets the stub of UserImpersonator.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.InitializeStub">
+            <summary>Initializes a new instance of type StubUserImpersonator</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.Fakes.StubUserImpersonator.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject">
+            <summary>Shim type of Uhuru.Prison.Utilities.WindowsJobObjects.JobObject</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.#ctor(Uhuru.Prison.Utilities.WindowsJobObjects.JobObject)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.Bind(System.IDisposable)">
+            <summary>Binds the members of the interface to the shim.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ActiveProcessesGet">
+            <summary>Sets the shim of JobObject.get_ActiveProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ActiveProcessesLimitGet">
+            <summary>Sets the shim of JobObject.get_ActiveProcessesLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ActiveProcessesLimitSetInt32">
+            <summary>Sets the shim of JobObject.set_ActiveProcessesLimit(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AddProcessIntPtr">
+            <summary>Sets the shim of JobObject.AddProcess(IntPtr processHandle)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AddProcessProcess">
+            <summary>Sets the shim of JobObject.AddProcess(Process process)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AffinityGet">
+            <summary>Sets the shim of JobObject.get_Affinity()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AffinitySetIntPtr">
+            <summary>Sets the shim of JobObject.set_Affinity(IntPtr value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllowChildProcessesBreakawayGet">
+            <summary>Sets the shim of JobObject.get_AllowChildProcessesBreakaway()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllowChildProcessesBreakawaySetBoolean">
+            <summary>Sets the shim of JobObject.set_AllowChildProcessesBreakaway(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AlwaysBreakawayChildProcessesGet">
+            <summary>Sets the shim of JobObject.get_AlwaysBreakawayChildProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AlwaysBreakawayChildProcessesSetBoolean">
+            <summary>Sets the shim of JobObject.set_AlwaysBreakawayChildProcesses(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AttachString">
+            <summary>Sets the shim of JobObject.Attach(String jobObjectName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.CPUPercentageLimitGet">
+            <summary>Sets the shim of JobObject.get_CPUPercentageLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.CPUPercentageLimitSetSingle">
+            <summary>Sets the shim of JobObject.set_CPUPercentageLimit(Single value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.Constructor">
+            <summary>Sets the shim of JobObject.JobObject()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ConstructorString">
+            <summary>Sets the shim of JobObject.JobObject(String jobObjectName)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.DieOnUnhandledExceptionGet">
+            <summary>Sets the shim of JobObject.get_DieOnUnhandledException()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.DieOnUnhandledExceptionSetBoolean">
+            <summary>Sets the shim of JobObject.set_DieOnUnhandledException(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.Dispose">
+            <summary>Sets the shim of JobObject.Dispose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.DisposeBoolean">
+            <summary>Sets the shim of JobObject.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.GetJobProcesses">
+            <summary>Sets the shim of JobObject.GetJobProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.HasProcessIntPtr">
+            <summary>Sets the shim of JobObject.HasProcess(IntPtr processHandle)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.HasProcessProcess">
+            <summary>Sets the shim of JobObject.HasProcess(Process process)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOOtherBytesGet">
+            <summary>Sets the shim of JobObject.get_IOOtherBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOOtherOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOOtherOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOReadBytesGet">
+            <summary>Sets the shim of JobObject.get_IOReadBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOReadOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOReadOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOWriteBytesGet">
+            <summary>Sets the shim of JobObject.get_IOWriteBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.IOWriteOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOWriteOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.JobMemoryLimitBytesGet">
+            <summary>Sets the shim of JobObject.get_JobMemoryLimitBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.JobMemoryLimitBytesSetInt64">
+            <summary>Sets the shim of JobObject.set_JobMemoryLimitBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.JobUserTimeLimitGet">
+            <summary>Sets the shim of JobObject.get_JobUserTimeLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.JobUserTimeLimitSetTimeSpan">
+            <summary>Sets the shim of JobObject.set_JobUserTimeLimit(TimeSpan value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.KernelProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_KernelProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.KillProcessesOnJobCloseGet">
+            <summary>Sets the shim of JobObject.get_KillProcessesOnJobClose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.KillProcessesOnJobCloseSetBoolean">
+            <summary>Sets the shim of JobObject.set_KillProcessesOnJobClose(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.NonPagedSystemMemoryGet">
+            <summary>Sets the shim of JobObject.get_NonPagedSystemMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PagedMemoryGet">
+            <summary>Sets the shim of JobObject.get_PagedMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PagedSystemMemoryGet">
+            <summary>Sets the shim of JobObject.get_PagedSystemMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PeakJobMemoryGet">
+            <summary>Sets the shim of JobObject.get_PeakJobMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PeakProcessMemoryGet">
+            <summary>Sets the shim of JobObject.get_PeakProcessMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PriorityClassGet">
+            <summary>Sets the shim of JobObject.get_PriorityClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PriorityClassSetProcessPriorityClass">
+            <summary>Sets the shim of JobObject.set_PriorityClass(ProcessPriorityClass value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.PrivateMemoryGet">
+            <summary>Sets the shim of JobObject.get_PrivateMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ProcessMemoryLimitGet">
+            <summary>Sets the shim of JobObject.get_ProcessMemoryLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ProcessMemoryLimitSetInt64">
+            <summary>Sets the shim of JobObject.set_ProcessMemoryLimit(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ProcessUserTimeLimitGet">
+            <summary>Sets the shim of JobObject.get_ProcessUserTimeLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.ProcessUserTimeLimitSetTimeSpan">
+            <summary>Sets the shim of JobObject.set_ProcessUserTimeLimit(TimeSpan value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.QueryBasicAndIoAccounting">
+            <summary>Sets the shim of JobObject.QueryBasicAndIoAccounting()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.QueryExtendedLimitInformation">
+            <summary>Sets the shim of JobObject.QueryExtendedLimitInformation()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.QueryProcessIds">
+            <summary>Sets the shim of JobObject.QueryProcessIds()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.SchedulingClassGet">
+            <summary>Sets the shim of JobObject.get_SchedulingClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.SchedulingClassSetInt32">
+            <summary>Sets the shim of JobObject.set_SchedulingClass(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.TerminateProcessesInt32">
+            <summary>Sets the shim of JobObject.TerminateProcesses(Int32 exitCode)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.TotalProcessesGet">
+            <summary>Sets the shim of JobObject.get_TotalProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.TotalProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_TotalProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.TotalTerminatedProcessesGet">
+            <summary>Sets the shim of JobObject.get_TotalTerminatedProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.UpdateCPULimits">
+            <summary>Sets the shim of JobObject.UpdateCPULimits()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.UpdateExtendedLimit">
+            <summary>Sets the shim of JobObject.UpdateExtendedLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.UserProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_UserProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.VirtualMemoryGet">
+            <summary>Sets the shim of JobObject.get_VirtualMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.WorkingSetMemoryGet">
+            <summary>Sets the shim of JobObject.get_WorkingSetMemory()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ActiveProcessesGet">
+            <summary>Sets the shim of JobObject.get_ActiveProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ActiveProcessesLimitGet">
+            <summary>Sets the shim of JobObject.get_ActiveProcessesLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ActiveProcessesLimitSetInt32">
+            <summary>Sets the shim of JobObject.set_ActiveProcessesLimit(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AddProcessIntPtr">
+            <summary>Sets the shim of JobObject.AddProcess(IntPtr processHandle)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AddProcessProcess">
+            <summary>Sets the shim of JobObject.AddProcess(Process process)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AffinityGet">
+            <summary>Sets the shim of JobObject.get_Affinity()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AffinitySetIntPtr">
+            <summary>Sets the shim of JobObject.set_Affinity(IntPtr value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AllowChildProcessesBreakawayGet">
+            <summary>Sets the shim of JobObject.get_AllowChildProcessesBreakaway()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AllowChildProcessesBreakawaySetBoolean">
+            <summary>Sets the shim of JobObject.set_AllowChildProcessesBreakaway(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AlwaysBreakawayChildProcessesGet">
+            <summary>Sets the shim of JobObject.get_AlwaysBreakawayChildProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.AlwaysBreakawayChildProcessesSetBoolean">
+            <summary>Sets the shim of JobObject.set_AlwaysBreakawayChildProcesses(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.CPUPercentageLimitGet">
+            <summary>Sets the shim of JobObject.get_CPUPercentageLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.CPUPercentageLimitSetSingle">
+            <summary>Sets the shim of JobObject.set_CPUPercentageLimit(Single value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.DieOnUnhandledExceptionGet">
+            <summary>Sets the shim of JobObject.get_DieOnUnhandledException()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.DieOnUnhandledExceptionSetBoolean">
+            <summary>Sets the shim of JobObject.set_DieOnUnhandledException(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.Dispose">
+            <summary>Sets the shim of JobObject.Dispose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.DisposeBoolean">
+            <summary>Sets the shim of JobObject.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.GetJobProcesses">
+            <summary>Sets the shim of JobObject.GetJobProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.HasProcessIntPtr">
+            <summary>Sets the shim of JobObject.HasProcess(IntPtr processHandle)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.HasProcessProcess">
+            <summary>Sets the shim of JobObject.HasProcess(Process process)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOOtherBytesGet">
+            <summary>Sets the shim of JobObject.get_IOOtherBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOOtherOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOOtherOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOReadBytesGet">
+            <summary>Sets the shim of JobObject.get_IOReadBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOReadOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOReadOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOWriteBytesGet">
+            <summary>Sets the shim of JobObject.get_IOWriteBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.IOWriteOperationsCountGet">
+            <summary>Sets the shim of JobObject.get_IOWriteOperationsCount()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.JobMemoryLimitBytesGet">
+            <summary>Sets the shim of JobObject.get_JobMemoryLimitBytes()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.JobMemoryLimitBytesSetInt64">
+            <summary>Sets the shim of JobObject.set_JobMemoryLimitBytes(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.JobUserTimeLimitGet">
+            <summary>Sets the shim of JobObject.get_JobUserTimeLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.JobUserTimeLimitSetTimeSpan">
+            <summary>Sets the shim of JobObject.set_JobUserTimeLimit(TimeSpan value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.KernelProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_KernelProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.KillProcessesOnJobCloseGet">
+            <summary>Sets the shim of JobObject.get_KillProcessesOnJobClose()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.KillProcessesOnJobCloseSetBoolean">
+            <summary>Sets the shim of JobObject.set_KillProcessesOnJobClose(Boolean value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.NonPagedSystemMemoryGet">
+            <summary>Sets the shim of JobObject.get_NonPagedSystemMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PagedMemoryGet">
+            <summary>Sets the shim of JobObject.get_PagedMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PagedSystemMemoryGet">
+            <summary>Sets the shim of JobObject.get_PagedSystemMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PeakJobMemoryGet">
+            <summary>Sets the shim of JobObject.get_PeakJobMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PeakProcessMemoryGet">
+            <summary>Sets the shim of JobObject.get_PeakProcessMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PriorityClassGet">
+            <summary>Sets the shim of JobObject.get_PriorityClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PriorityClassSetProcessPriorityClass">
+            <summary>Sets the shim of JobObject.set_PriorityClass(ProcessPriorityClass value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.PrivateMemoryGet">
+            <summary>Sets the shim of JobObject.get_PrivateMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ProcessMemoryLimitGet">
+            <summary>Sets the shim of JobObject.get_ProcessMemoryLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ProcessMemoryLimitSetInt64">
+            <summary>Sets the shim of JobObject.set_ProcessMemoryLimit(Int64 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ProcessUserTimeLimitGet">
+            <summary>Sets the shim of JobObject.get_ProcessUserTimeLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.ProcessUserTimeLimitSetTimeSpan">
+            <summary>Sets the shim of JobObject.set_ProcessUserTimeLimit(TimeSpan value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.QueryBasicAndIoAccounting">
+            <summary>Sets the shim of JobObject.QueryBasicAndIoAccounting()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.QueryExtendedLimitInformation">
+            <summary>Sets the shim of JobObject.QueryExtendedLimitInformation()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.QueryProcessIds">
+            <summary>Sets the shim of JobObject.QueryProcessIds()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.SchedulingClassGet">
+            <summary>Sets the shim of JobObject.get_SchedulingClass()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.SchedulingClassSetInt32">
+            <summary>Sets the shim of JobObject.set_SchedulingClass(Int32 value)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.TerminateProcessesInt32">
+            <summary>Sets the shim of JobObject.TerminateProcesses(Int32 exitCode)</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.TotalProcessesGet">
+            <summary>Sets the shim of JobObject.get_TotalProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.TotalProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_TotalProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.TotalTerminatedProcessesGet">
+            <summary>Sets the shim of JobObject.get_TotalTerminatedProcesses()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.UpdateCPULimits">
+            <summary>Sets the shim of JobObject.UpdateCPULimits()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.UpdateExtendedLimit">
+            <summary>Sets the shim of JobObject.UpdateExtendedLimit()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.UserProcessorTimeGet">
+            <summary>Sets the shim of JobObject.get_UserProcessorTime()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.VirtualMemoryGet">
+            <summary>Sets the shim of JobObject.get_VirtualMemory()</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.ShimJobObject.AllInstances.WorkingSetMemoryGet">
+            <summary>Sets the shim of JobObject.get_WorkingSetMemory()</summary>
+        </member>
+        <member name="T:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject">
+            <summary>Stub type of Uhuru.Prison.Utilities.WindowsJobObjects.JobObject</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.#ctor(System.String)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.Dispose(System.Boolean)">
+            <summary>Sets the stub of JobObject.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="F:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.DisposeBoolean">
+            <summary>Sets the stub of JobObject.Dispose(Boolean disposing)</summary>
+        </member>
+        <member name="M:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.InitializeStub">
+            <summary>Initializes a new instance of type StubJobObject</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Uhuru.Prison.Utilities.WindowsJobObjects.Fakes.StubJobObject.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+    </members>
+</doc>
