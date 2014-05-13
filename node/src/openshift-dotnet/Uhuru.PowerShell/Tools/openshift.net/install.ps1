@@ -116,6 +116,10 @@
     This is a switch parameter that allows the user to skip cleaning up the binary directory.
     This is useful in development environments, when presistence of logs and configurations is required.
 
+.PARAMETER upgrade
+    This is a switch parameter that allows the user to upgrade an existing deployment.
+    The configuration values that are not provided are taken from the existing deployment.
+
 .NOTES
     Author: Vlad Iovanov
     Date:   January 17, 2014
@@ -133,37 +137,39 @@ Install the node for an OpenShift Enterprise deployment, passing a non-default m
 .\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 #>
+
 [CmdletBinding()]
 param (
+    [Switch] $upgrade = $false,
     # parameters used for setting up the OpenShift Windows Node binaries
-    [string] $binLocation = 'c:\openshift\bin\',
+    [string] $binLocation = $(if (-not $upgrade) {  'c:\openshift\bin\' }),
     # parameters used for setting ip node configuration file
-    [string] $publicHostname = $( Read-Host "Public hostname (FQDN) of the machine" ),
-    [string] $brokerHost = $( Read-Host "Hostname of the broker (FQDN)" ),
-    [string] $cloudDomain = $( Read-Host "Cloud domain" ),
-    [string] $sqlServerSAPassword = $( Read-Host "SQL Server sa password" ),
-    [string] $externalEthDevice = 'Ethernet',
-    [string] $internalEthDevice = 'Ethernet',
+    [string] $publicHostname = $(if (-not $upgrade) { Read-Host "Public hostname (FQDN) of the machine" } ),
+    [string] $brokerHost = $(if (-not $upgrade) { Read-Host "Hostname of the broker (FQDN)" }),
+    [string] $cloudDomain = $(if (-not $upgrade) { Read-Host "Cloud domain" }),
+    [string] $sqlServerSAPassword = $(if (-not $upgrade) { Read-Host "SQL Server sa password" }),
+    [string] $externalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
+    [string] $internalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
     [string] $publicIp = @((get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq (get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -eq $externalEthDevice }).DeviceID }).IPAddress | where { $_ -notmatch ':' })[0],
-    [string] $gearBaseDir = 'c:\openshift\gears\',
-    [string] $gearShell = (Join-Path $binLocation 'oo-trap-user.exe'),
-    [string] $gearGecos = 'OpenShift guest',
-    [string] $cartridgeBasePath = 'c:\openshift\cartridges\',
-    [string] $platformLogFile = 'c:\openshift\log\platform.log',
+    [string] $gearBaseDir = $(if (-not $upgrade) { 'c:\openshift\gears\' }),
+    [string] $gearShell = $(if (-not $upgrade) { (Join-Path $binLocation 'oo-trap-user.exe') }),
+    [string] $gearGecos = $(if (-not $upgrade) {  'OpenShift guest' }),
+    [string] $cartridgeBasePath = $(if (-not $upgrade) {  'c:\openshift\cartridges\' }),
+    [string] $platformLogFile = $(if (-not $upgrade) { 'c:\openshift\log\platform.log' }),
     [ValidateSet('TRACE','DEBUG','WARNING','ERROR')]
-    [string] $platformLogLevel = 'DEBUG',
-    [string] $containerizationPlugin = 'uhuru-prison',
+    [string] $platformLogLevel = $(if (-not $upgrade) {  'DEBUG' }),
+    [string] $containerizationPlugin = $(if (-not $upgrade) {  'uhuru-prison' }),
     # parameters used for ruby installation
     [string] $rubyDownloadLocation ='http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.9.3-p448.exe?direct',
-    [string] $rubyInstallLocation = 'c:\openshift\ruby\',
+    [string] $rubyInstallLocation = $(if (-not $upgrade) { 'c:\openshift\ruby\' }),
     # parameters used for mcollective setup
     [string] $mcollectiveActivemqServer = $brokerHost,
     [int] $mcollectiveActivemqPort = 61613,
     [string] $mcollectiveActivemqUser = 'mcollective',
     [string] $mcollectiveActivemqPassword = 'marionette',
-    [string] $mcollectivePskPlugin = $( Read-Host "MCollective psk plugin (default for a Fedora all-in-one VM is 'unset', for a default OpenShift Enterprise installation it's 'asimplething')" ),
+    [string] $mcollectivePskPlugin = $(if (-not $upgrade) { Read-Host "MCollective psk plugin (default for a Fedora all-in-one VM is 'unset', for a default OpenShift Enterprise installation it's 'asimplething')" }),
     # parameters used for setting up sshd
-    [string] $sshdCygwinDir = 'c:\openshift\cygwin',
+    [string] $sshdCygwinDir = $(if (-not $upgrade) {  'c:\openshift\cygwin' }),
     [string] $sshdListenAddress = '0.0.0.0',
     [int] $sshdPort = 22,
     # parameters used for proxy settings
@@ -194,8 +200,35 @@ $upgradeDeployment = Check-OpenShiftServices
 
 if ($upgradeDeployment)
 {
+    
     Stop-Gears
+    if ($upgrade)
+    {
+      Write-Host "Loading existing configuration file"
+      $config = Load-Config
+      if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
+      if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
+      if (!$brokerHost) { $brokerHost = $config["BROKER_HOST"]};
+      if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
+      if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
+      if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
+      if (!$internalEthDevice){$internalEthDevice= $config["INTERNAL_ETH_DEV"] };
+      if (!$gearBaseDir){$gearBaseDir= $config["GEAR_BASE_DIR"] };
+      if (!$gearShell){$gearShell= $config["GEAR_SHELL"] };
+      if (!$gearGecos){$gearGecos= $config["GEAR_GECOS"] };
+      if (!$cartridgeBasePath){$cartridgeBasePath= $config["CARTRIDGE_BASE_PATH"] };
+      if (!$platformLogFile){$platformLogFile= $config["PLATFORM_LOG_FILE"] };
+      if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
+      if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
+      if (!$binLocation){$binLocation= $config["BIN_DIR"] };
+      if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
+      if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
+      if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
+    }
+    
 }
+
+
 
 # Check to see if any processes are running
 Check-RunningProcesses
@@ -207,8 +240,6 @@ New-Item -path 'C:\openshift\setup_logs' -type directory -Force | out-Null
 # TODO: vladi: Using a hardcoded mcollective path - this is no longer necessary, we can setup mcollective using a dynamic path
 $mcollectivePath = 'c:\openshift\mcollective\'
 
-
-# TODO: stop existing services?
 
 # Be verbose and print all settings
 Write-Verbose "Target binary location used is '$binLocation'"
@@ -377,6 +408,9 @@ if ($skipServicesSetup -eq $false)
 
     Write-Host 'Setting up startup script to start gears ...'
     Setup-StartupScheduledTask $openshiftServiceUserPassword $binLocation
+
+    Write-Host 'Setting up shutdown script to stop gears ...'
+    Setup-StopScheduledTask $openshiftServiceUserPassword $binLocation
 
     Remove-Service 'openshift.mcollectived' $sshdCygwinDir
     Remove-Service 'openshift.sshd' $sshdCygwinDir

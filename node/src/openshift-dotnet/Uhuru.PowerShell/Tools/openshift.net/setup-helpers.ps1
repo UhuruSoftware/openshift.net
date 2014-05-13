@@ -216,3 +216,24 @@ function Setup-Privileges()
     Remove-Item -Force -Path $inFile
     Remove-Item -Force -Path $outFile
 }
+
+function Load-Config()
+{
+    $data = Get-Content "c:\openshift\node.conf"
+    $dict = @{}
+    foreach ($line in $data)
+    {
+       $key = $line.split("=")[0]
+       $value = $line.split("=")[1]
+      
+       if ($key -ne "" -and $value -ne $null)
+       {
+            #removing comments
+            $value = $value.Split("#")[0].Trim()
+            $value = $value.Replace('"', "")
+            $key = $key.Trim()
+            $dict.Add($key, $value)
+       }
+    }
+    return $dict
+}

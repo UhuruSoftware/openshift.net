@@ -1,7 +1,7 @@
 
 function Create-OpenshiftGroup
 {
-    Write-Host "createign group"
+    Write-Host "Creating openshift group"
     $groupname = 'openshift_admins'
     [ADSI]$localServer="WinNT://${env:COMPUTERNAME}"
 
@@ -76,7 +76,7 @@ function Create-OpenshiftUser([REF]$password)
         $group.add("WinNT://${env:COMPUTERNAME}/${username},user")
 
 
-        Write-Host "Adding current user to openshift admins ..."
+        Write-Host "Checking current user ..."
         $currentUser = [Environment]::UserName
         $isInGroup = $false
 
@@ -93,7 +93,9 @@ function Create-OpenshiftUser([REF]$password)
             Write-Host("Current user is in openshift admin group")
         }
         else{
-            $group.add("WinNT://${env:COMPUTERNAME}/${currentUser},user")
+            Write-Host("Adding current user to openshift admins")
+           # $group = [ADSI]("WinNT://${env:COMPUTERNAME}/openshift_admins,group")
+           # $group.add("WinNT://${env:COMPUTERNAME}/${currentUser},user")
         }
 
     }
@@ -215,10 +217,31 @@ function Setup-StartupScheduledTask($serviceAccountPassword, $binDir)
     Register-ScheduledTask -TaskName $taskName -Trigger $recurringTime -User "${env:env:COMPUTERNAME}\${serviceUsername}" –Action $action -Password $serviceAccountPassword.ToString()
 }
 
+function Setup-StopScheduledTask($serviceAccountPassword, $binDir)
+{
+    $taskName = 'openshift.shutdown'
+    $serviceUsername = 'openshift_service'
+
+    $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+
+    if ($existingTask -ne $null)
+    {
+        Write-Host "Removing scheduled task '${taskName}' ..."
+
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    }
+
+    $powershellExe = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    $factScript = (Join-Path $binDir "powershell\OO-Cmdlets\oo-admin-ctl-gears.ps1")
+    $action = New-ScheduledTaskAction -Execute $powershellExe -Argument "-ExecutionPolicy Bypass -File ""${factScript}"" stopall"
+    
+    Register-ScheduledTask -TaskName $taskName -User "${env:env:COMPUTERNAME}\${serviceUsername}" –Action $action -Password $serviceAccountPassword.ToString()
+}
+
 function Stop-Gears
 {
     Write-Host "Stopping Gears"
-    iex "c:\openshift\bin\powershell\OO-Cmdlets\oo-admin-ctl-gears.ps1 stopall" 
+    Start-ScheduledTask -TaskName openshift.shutdown
 }
 
 function Start-Gears
