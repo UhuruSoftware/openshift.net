@@ -26,7 +26,7 @@ function Create-OpenshiftGroup
         {
             $exceptionMessage = $_.Exception.Message
             Write-Error "Could not create group '${group}' - ${exceptionMessage}"
-            #exit 1
+            exit 1
         }
     }
 }

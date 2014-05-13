@@ -205,10 +205,14 @@ if ($upgradeDeployment)
     if ($upgrade)
     {
       Write-Host "Loading existing configuration file"
-      $config = Load-Config
+      $config = Load-Config($mcollectivePath)
       if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
       if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
-      if (!$brokerHost) { $brokerHost = $config["BROKER_HOST"]};
+      if (!$brokerHost) 
+      { 
+        $brokerHost = $config["BROKER_HOST"] 
+        $mcollectiveActivemqServer = $config["BROKER_HOST"]
+      };
       if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
       if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
       if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
@@ -227,7 +231,6 @@ if ($upgradeDeployment)
     }
     
 }
-
 
 
 # Check to see if any processes are running

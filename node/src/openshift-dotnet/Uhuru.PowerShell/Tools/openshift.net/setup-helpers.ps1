@@ -219,8 +219,23 @@ function Setup-Privileges()
 
 function Load-Config()
 {
-    $data = Get-Content "c:\openshift\node.conf"
-    $dict = @{}
+   
+    $dict = Get-Config-Values("c:\openshift\node.conf")
+    
+    $clientPath = (Join-Path $dict["MCOLLECTIVE_LOCATION"] 'etc\client.cfg')
+    if (Test-Path $clientPath)
+    {
+        Write-Host "Existsa" + $mcPath
+        $dict += Get-Content $clientPath
+    }
+
+    return $dict
+}
+
+function Get-Config-Values($filename)
+{
+    $data = Get-Content $filename
+    $configValues = @{}
     foreach ($line in $data)
     {
        $key = $line.split("=")[0]
@@ -232,8 +247,9 @@ function Load-Config()
             $value = $value.Split("#")[0].Trim()
             $value = $value.Replace('"', "")
             $key = $key.Trim()
-            $dict.Add($key, $value)
+            $configValues.Add($key, $value)
        }
     }
-    return $dict
+    
+    return $configValues 
 }
