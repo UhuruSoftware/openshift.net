@@ -13,7 +13,7 @@ namespace Uhuru.Openshift.Tests.Unit
     [TestClass]
     public class ContainerTest
     {
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Test_Configure()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
@@ -23,7 +23,7 @@ namespace Uhuru.Openshift.Tests.Unit
             container.Deconfigure("dotnet-4.5");
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Test_PreReceive_Init()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
@@ -35,7 +35,7 @@ namespace Uhuru.Openshift.Tests.Unit
             container.PreReceive(options);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Test_PostReceive_Init()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
@@ -47,7 +47,7 @@ namespace Uhuru.Openshift.Tests.Unit
             container.PostReceive(options);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Test_AddSsh_Key()
         {
             ApplicationContainer container = TestHelper.CreateAppContainer();
