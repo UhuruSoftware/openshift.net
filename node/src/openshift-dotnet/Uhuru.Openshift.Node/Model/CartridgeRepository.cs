@@ -282,7 +282,12 @@ namespace Uhuru.Openshift.Runtime
             foreach(string version in Manifest.SortVersions(cartridge.Versions))
             {
                 Manifest projectedCartridge = cartridge.ProjectVersionOverrides(version, path);
-                Index[name] = new Dictionary<string, Dictionary<string, Manifest>>();
+                
+                if (!Index.ContainsKey(name))
+                {
+                    Index[name] = new Dictionary<string, Dictionary<string, Manifest>>();
+                }
+
                 Index[name][version] = new Dictionary<string, Manifest>();
                 Index[name][version][cartridgeVersion] = projectedCartridge;
                 Index[name][version]["_"] = projectedCartridge;

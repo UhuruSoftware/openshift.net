@@ -25,10 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openshift-origin-cartridge-mssql2012", "openshift-origin-cartridge-mssql2012", "{CBB8E756-5D2F-41A0-B9DF-EDF2A9AF2563}"
-EndProject
-Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "openshift-origin-cartridge-mssql2012", "openshift-origin-cartridge-mssql2012\openshift-origin-cartridge-mssql2012.pssproj", "{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,22 +103,6 @@ Global
 		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|x64.Build.0 = Release|x64
 		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|x86.ActiveCfg = Release|Win32
 		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6}.Release|x86.Build.0 = Release|Win32
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|x64.Build.0 = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|ARM.ActiveCfg = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|x64.ActiveCfg = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|x64.Build.0 = Release|Any CPU
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +112,5 @@ Global
 		{D577C3D6-9046-40BF-B414-FEECA8FD6EB6} = {D41B88E1-5255-4ECF-8E3A-9529063FEB43}
 		{3FB09695-E9AC-489D-8214-14B23E0BA8AA} = {C01BE436-7991-46FA-9D73-D901166D0AD6}
 		{6CAFC0C6-A428-4D30-A9F9-700E829FEA51} = {804A808E-EC68-4EA7-9D17-B70FE7318E74}
-		{E2A1B6CA-1AF9-462F-8F37-8EE0CADF1682} = {CBB8E756-5D2F-41A0-B9DF-EDF2A9AF2563}
 	EndGlobalSection
 EndGlobal

@@ -73,7 +73,7 @@ namespace Uhuru.Openshift.Runtime
             this.CreateDependencyDirectories(cartridge);
             sb.AppendLine(CartridgeAction(cartridge, "setup", softwareVersion, true));
             sb.AppendLine(CartridgeAction(cartridge, "install", softwareVersion));
-            sb.AppendLine(PopulateGearRepo(name, templateGitUrl));
+            sb.AppendLine(PopulateGearRepo(name, softwareVersion, templateGitUrl));
             return sb.ToString();
         }
 
@@ -360,7 +360,7 @@ namespace Uhuru.Openshift.Runtime
             return output.ToString();
         }
 
-        private string PopulateGearRepo(string cartName, string templateGitUrl)
+        private string PopulateGearRepo(string cartName, string softwareVersion, string templateGitUrl)
         {
             ApplicationRepository repo = new ApplicationRepository(this.container);
             if (string.IsNullOrEmpty(templateGitUrl))
@@ -379,16 +379,17 @@ namespace Uhuru.Openshift.Runtime
             var prison = Prison.Prison.LoadPrisonNoAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
 
             // TODO (vladi): make sure there isn't a more elegant way to deal with SQL Server Instances
-            if (cartName == "mssql")
+            if (cartName == "mssql" && softwareVersion == "2008")
             {
                 Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL10_50", "MSSQLSERVER");
                 CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL10_50", "MSSQLSERVER");
+                ChangeConfigControl(cartName, softwareVersion, "MSSQL10_50");
             }
-
-            if (cartName == "mssql2012")
+            else if (cartName == "mssql" && softwareVersion == "2012")
             {
                 Uhuru.Prison.MsSqlInstanceTool.ConfigureMsSqlInstanceRegistry(prison, "MSSQL11", "MSSQLSERVER2012");
                 CreateSQLServerInstanceDatabases(cartName, prison, "MSSQL11", "MSSQLSERVER2012");
+                ChangeConfigControl(cartName, softwareVersion, "MSSQL11");
             }
 
             Logger.Debug("Setting permisions to home dir gear {0}, prison user {1}", this.container.Uuid, prison.User.Username);
@@ -434,6 +435,31 @@ namespace Uhuru.Openshift.Runtime
             Logger.Debug("Sys db generator result for gear {0}: rc={1}; out={2}; err={3}", this.container.Uuid, result.ExitCode, result.StdOut, result.StdErr);
 
             // TODO: vladi: GLOBAL LOCK
+        }
+
+        public void ChangeConfigControl(string cartName, string softwareVersion, string instanceType)
+        {
+            try
+            {
+                string configPath = Path.Combine(this.container.ContainerDir, cartName, "bin", "control.exe.config");
+                System.Xml.XmlDocument config = new System.Xml.XmlDocument();
+                config.Load(configPath);
+
+                foreach (System.Xml.XmlElement item in config.DocumentElement)
+                {
+                    if (item.Name == "appSettings")
+                    {
+                        item.ChildNodes[0].Attributes[1].Value = softwareVersion;
+                        item.ChildNodes[1].Attributes[1].Value = instanceType;
+                    }
+                }
+
+                config.Save(configPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString());
+            }
         }
 
         public string PostConfigure(string cartridgeName)
