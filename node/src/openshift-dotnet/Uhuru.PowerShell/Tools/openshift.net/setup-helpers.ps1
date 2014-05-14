@@ -178,7 +178,7 @@ function Get-UpdatedPrivilegeRule($iniDictionary, $privilege, $itemToAdd)
 
 function Setup-Privileges()
 {
-    $serviceAccount = 'openshift_service'
+    $serviceAccount = 'openshift_admins'
     $outFile = 'c:\openshift\secedit_symlink_out.inf'
     $inFile = 'c:\openshift\secedit_symlink.inf'
 
@@ -191,6 +191,7 @@ function Setup-Privileges()
     $objUser = New-Object System.Security.Principal.NTAccount('Everyone')
     $strSID = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
     $userSID = $strSID.Value
+    $currentDir = 'C:\openshift\installer\powershell\Tools\openshift.net'
 
     Write-Template (Join-Path $currentDir "secedit_symlink.template") $inFile @{
         seCreateSymbolicLinkPrivilege = Get-UpdatedPrivilegeRule $sceditContent 'SeCreateSymbolicLinkPrivilege' "*${userSID}"
@@ -214,4 +215,41 @@ function Setup-Privileges()
 
     Remove-Item -Force -Path $inFile
     Remove-Item -Force -Path $outFile
+}
+
+function Load-Config()
+{
+   
+    $dict = Get-Config-Values("c:\openshift\node.conf")
+    
+    $clientPath = (Join-Path $dict["MCOLLECTIVE_LOCATION"] 'etc\client.cfg')
+    if (Test-Path $clientPath)
+    {
+        Write-Host "Existsa" + $mcPath
+        $dict += Get-Content $clientPath
+    }
+
+    return $dict
+}
+
+function Get-Config-Values($filename)
+{
+    $data = Get-Content $filename
+    $configValues = @{}
+    foreach ($line in $data)
+    {
+       $key = $line.split("=")[0]
+       $value = $line.split("=")[1]
+      
+       if ($key -ne "" -and $value -ne $null)
+       {
+            #removing comments
+            $value = $value.Split("#")[0].Trim()
+            $value = $value.Replace('"', "")
+            $key = $key.Trim()
+            $configValues.Add($key, $value)
+       }
+    }
+    
+    return $configValues 
 }

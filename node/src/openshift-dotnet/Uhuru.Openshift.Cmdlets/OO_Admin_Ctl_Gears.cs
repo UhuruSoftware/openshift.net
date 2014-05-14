@@ -39,7 +39,7 @@ namespace Uhuru.Openshift.Runtime
             {
                 RubyHash options = new RubyHash()
                 {
-                    { "user_initiated", "false" },
+                    { "user_initiated", false },
                 };
 
                 if (force)

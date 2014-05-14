@@ -99,25 +99,36 @@ function Check-WindowsFeature($featureName)
     }
 }
 
-function Check-OpenShiftServices()
+function Check-OpenShiftServices
 {
     Write-Verbose "Checking if local OpenShift services are stopped ..."
 
+    $isupdate = $false
+
     $sshdService = (get-service 'openshift.sshd' -ErrorAction SilentlyContinue)
 
-    if (($sshdService -ne $null) -and ($sshdService.Status -ne "Stopped"))
+    if ($sshdService -ne $null)
     {
-        Write-Error "The openshift.sshd service is running. Please stop it and then run the install script again."
-        exit 1
+        
+        if ($sshdService.Status -ne "Stopped")
+        {
+            $sshdService.Stop()
+        }
+        $isupdate = $true
     }
 
     $mcollectivedService = (get-service 'openshift.mcollectived' -ErrorAction SilentlyContinue)
 
-    if (($mcollectivedService -ne $null) -and ($mcollectivedService.Status -ne "Stopped"))
+    if ($mcollectivedService -ne $null)
     {
-        Write-Error "The openshift.mcollectived service is running. Please stop it and then run the install script again."
-        exit 1
+        if ($mcollectivedService.Status -ne "Stopped")
+        {
+            $mcollectivedService.Stop()
+        }
+
+        $isupdate = $true
     }
+    return $isupdate
 }
 
 function Check-SQLServer2008()
