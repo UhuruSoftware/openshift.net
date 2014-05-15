@@ -22,12 +22,13 @@ if (($pshome -like "*syswow64*") -and ((Get-WmiObject Win32_OperatingSystem).OSA
     write-warning "Restarting script under 64 bit powershell"
  
     $powershellLocation = join-path ($pshome -replace "syswow64", "sysnative") "powershell.exe"
+    $scriptPath = $SCRIPT:MyInvocation.MyCommand.Path
     
     # relaunch this script under 64 bit shell
-    & $powershellLocation -file $SCRIPT:MyInvocation.MyCommand.Path -action $action
- 
+    $process = Start-Process -Wait -PassThru -NoNewWindow $powershellLocation "-nologo -noexit -file ${scriptPath} -action $action"
+    
     # This will exit the original powershell process. This will only be done in case of an x86 process on a x64 OS.
-    exit
+    exit $process.ExitCode
 }
 
 function DoAction-Package()
