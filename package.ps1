@@ -51,7 +51,9 @@ function DoAction-Package()
 
     if ($installerProcess.ExitCode -ne 0)
     {
+        Write-Host $installerProcess.StandardOutput.ReadToEnd()
         Write-Error "There was an error building the installer."
+        Write-Error $installerProcess.StandardError.ReadToEnd()
         exit 1
     }
     
