@@ -200,36 +200,35 @@ $upgradeDeployment = Check-OpenShiftServices
 
 if ($upgradeDeployment)
 {
-    
     Stop-Gears
     if ($upgrade)
     {
-      Write-Host "Loading existing configuration file"
-      $config = Load-Config($mcollectivePath)
-      if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
-      if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
-      if (!$brokerHost) 
-      { 
-        $brokerHost = $config["BROKER_HOST"] 
-        $mcollectiveActivemqServer = $config["BROKER_HOST"]
-      };
-      if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
-      if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
-      if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
-      if (!$internalEthDevice){$internalEthDevice= $config["INTERNAL_ETH_DEV"] };
-      if (!$gearBaseDir){$gearBaseDir= $config["GEAR_BASE_DIR"] };
-      if (!$gearShell){$gearShell= $config["GEAR_SHELL"] };
-      if (!$gearGecos){$gearGecos= $config["GEAR_GECOS"] };
-      if (!$cartridgeBasePath){$cartridgeBasePath= $config["CARTRIDGE_BASE_PATH"] };
-      if (!$platformLogFile){$platformLogFile= $config["PLATFORM_LOG_FILE"] };
-      if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
-      if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
-      if (!$binLocation){$binLocation= $config["BIN_DIR"] };
-      if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
-      if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
-      if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
+        Write-Host "Loading existing configuration file"
+        $config = Load-Config($mcollectivePath)
+        if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
+        if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
+        if (!$brokerHost) 
+        { 
+            $brokerHost = $config["BROKER_HOST"] 
+            $mcollectiveActivemqServer = $config["BROKER_HOST"]
+        };
+
+        if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
+        if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
+        if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
+        if (!$internalEthDevice){$internalEthDevice= $config["INTERNAL_ETH_DEV"] };
+        if (!$gearBaseDir){$gearBaseDir= $config["GEAR_BASE_DIR"] };
+        if (!$gearShell){$gearShell= $config["GEAR_SHELL"] };
+        if (!$gearGecos){$gearGecos= $config["GEAR_GECOS"] };
+        if (!$cartridgeBasePath){$cartridgeBasePath= $config["CARTRIDGE_BASE_PATH"] };
+        if (!$platformLogFile){$platformLogFile= $config["PLATFORM_LOG_FILE"] };
+        if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
+        if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
+        if (!$binLocation){$binLocation= $config["BIN_DIR"] };
+        if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
+        if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
+        if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
     }
-    
 }
 
 

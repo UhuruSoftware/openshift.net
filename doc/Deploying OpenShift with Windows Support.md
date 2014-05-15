@@ -406,6 +406,15 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 - Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 
 `.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
+
+## Importing Cartridges ##
+
+On the Linux broker, run the following script (it will cleanup all currently configured cartridges and import all of them again):
+
+	for i in `oo-admin-ctl-cartridge -c list|awk '{print $2}'`;do echo "$i";done | oo-admin-ctl-cartridge -c deactivate
+	oo-admin-ctl-cartridge -c clean
+	oo-admin-broker-cache --clear
+	oo-admin-ctl-cartridge -c import-node --activate --force
     
 ## Creating your first Windows application ##
 
