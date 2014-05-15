@@ -54,7 +54,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="mscorlib.4.0.0.0.Fakes">
+      <HintPath>FakesAssemblies\mscorlib.4.0.0.0.Fakes.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.4.0.0.0.Fakes">
+      <HintPath>FakesAssemblies\System.4.0.0.0.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="Uhuru.Openshift.Node.Fakes">
+      <HintPath>FakesAssemblies\Uhuru.Openshift.Node.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="Uhuru.Prison.Fakes">
+      <HintPath>FakesAssemblies\Uhuru.Prison.Fakes.dll</HintPath>
+    </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>..\lib\YamlDotNet.dll</HintPath>
     </Reference>
@@ -77,11 +90,20 @@
     <Compile Include="Unit\CartridgeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit\ConfigTest.cs" />
+    <Compile Include="Unit\ConnectionTest.cs" />
+    <Compile Include="Unit\EnvironTest.cs" />
+    <Compile Include="Unit\EtcTest.cs" />
+    <Compile Include="Unit\GearRegistryTest.cs" />
+    <Compile Include="Unit\GitUriTest.cs" />
+    <Compile Include="Unit\ManifestTest.cs" />
+    <Compile Include="Unit\NetworkTest.cs" />
     <Compile Include="Unit\NodeTest.cs" />
     <Compile Include="Unit\ContainerTest.cs" />
     <Compile Include="Unit\LoggerTest.cs" />
     <Compile Include="Unit\UniquePredictablePortTest.cs" />
     <Compile Include="Unit\ParseConfigTest.cs" />
+    <Compile Include="Unit\SshdTest.cs" />
+    <Compile Include="Unit\UtilitiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Openshift.Common\Uhuru.Openshift.Common.csproj">
@@ -114,9 +136,23 @@
     <Content Include="Assets\resource_limits.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="local.runsettings">
-      <SubType>Designer</SubType>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\SampleManifest.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\System.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\mscorlib.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\Uhuru.Openshift.Node.fakes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Fakes Include="Fakes\Uhuru.Prison.fakes" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

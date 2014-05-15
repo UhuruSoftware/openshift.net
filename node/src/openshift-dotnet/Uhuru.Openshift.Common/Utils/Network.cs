@@ -36,6 +36,37 @@ namespace Uhuru.Openshift.Common.Utils
             openPorts.Remove(Convert.ToInt32(port), NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP);
         }
 
+        private static List<int> GetPortRange(int ApplicationUid, int PortsPerUser, int MinUid, int StartPort = 10001)
+        {
+            List<int> ports = new List<int>();
+
+            int startport = (ApplicationUid - MinUid) % ((65536 - StartPort) / PortsPerUser) * PortsPerUser + StartPort;
+
+            for (int i = startport; i < startport + PortsPerUser; i++)
+            {
+                ports.Add(i);
+            }
+            return ports;
+        }
+
+        public static int GetAvailablePort(int ApplicationUid,int PortsPerUser=10,int MinUid=1000, int StartPort =10001)
+        {
+            List<int> availableport = GetPortRange(ApplicationUid, PortsPerUser, MinUid, StartPort);
+            foreach (int port in availableport)
+            {                
+                    TcpClient tcpClient = new TcpClient();
+                    try
+                    {
+                        tcpClient.Connect("127.0.0.1", port);
+                    }
+                    catch
+                    {
+                        return port;
+                    }                
+            }
+            throw new Exception(string.Format("No available port for application Uid:{0}", ApplicationUid));
+        }
+
         public static int GetUniquePredictablePort(string portCounterFile)
         {
             // TODO: vladi: GLOBAL LOCK

@@ -52,7 +52,25 @@ namespace Uhuru.Openshift.Runtime
             prisonRules.DiskQuotaBytes = Convert.ToInt64(Node.ResourceLimits["quota_blocks"]) * 1024;
 
             prisonRules.PrisonHomePath = container.ContainerDir;
-            prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
+                        
+            //NodeConfig.Values["PORTS_PER_USER"] should be used DistrictConfig.Values["first_uid"] if available in the configuration           
+            try
+            {
+                try
+                {
+                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), Int32.Parse(DistrictConfig.Values["first_uid"]), Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                }
+                catch
+                {
+                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]),0, Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.Debug("GetAvailablePort could not be called with all arguments: {0}", ex.Message.ToString());
+                prisonRules.UrlPortAccess = Network.GetAvailablePort(container.uid);
+            }
+            //prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
 
             Logger.Debug("Assigning port {0} to gear {1}", prisonRules.UrlPortAccess, container.Uuid);
 

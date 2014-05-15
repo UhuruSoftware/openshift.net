@@ -30,3 +30,8 @@ BIN_DIR="${binDir}"
 SQL_SERVER_SA_PASSWORD="${sqlServerSAPassword}"
 MCOLLECTIVE_LOCATION="${mcollectiveLocation}"
 RUBY_LOCATION="${rubyLocation}"
+
+# Settings used for port reservations
+
+PORTS_PER_USER=10
+STARTING_PORT=10001

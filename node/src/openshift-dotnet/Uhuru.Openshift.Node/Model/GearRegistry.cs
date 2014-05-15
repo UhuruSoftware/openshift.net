@@ -113,12 +113,19 @@ namespace Uhuru.Openshift.Runtime.Model
             }
 
             string type = options["type"].ToString();
-            if (this.gearRegistry[type] == null)
+            if (this.gearRegistry.ContainsKey(type))
             {
-                this.gearRegistry[type] = new Dictionary<string, Entry>();
+                if (this.gearRegistry[type] == null)
+                {
+                    this.gearRegistry[type] = new Dictionary<string, Entry>();
+                }
+            }
+            else
+            {
+                this.gearRegistry.Add(type, new Dictionary<string, Entry>());
             }
 
-            this.gearRegistry[type][options["uuis"].ToString()] = new Entry(options);
+            this.gearRegistry[type].Add(options["uuid"].ToString(),new Entry(options));
         }
 
         public delegate void WithLockCallback();

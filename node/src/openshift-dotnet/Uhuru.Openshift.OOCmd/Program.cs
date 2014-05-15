@@ -16,7 +16,17 @@ namespace Uhuru.Openshift.OOCmd
         static int Main(string[] args)
         {
             // trim all args first
-            args = args.Select(arg => arg.Trim()).ToArray();
+            args = args.Select(arg => arg.Trim().Replace("\"",string.Empty)).ToArray();
+
+            for(int i=0;i<args.Length;i++)
+            {
+                if (args[i].Count(Char.IsWhiteSpace) > 1)
+                {
+                    var parameters = args[i].Split(' ');
+                    args = args.Where(w => w != args[i]).ToArray();
+                    args = args.Concat(parameters).ToArray();
+                }
+            }
 
             ReturnStatus status = new ReturnStatus();
             try

@@ -18,7 +18,9 @@ using Uhuru.Openshift.Common.Utils;
 using System.Text.RegularExpressions;
 using System.Net;
 using Uhuru.Openshift.Common.JsonHelper;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Uhuru.Openshift.Tests")]
 
 namespace Uhuru.Openshift.Runtime
 {

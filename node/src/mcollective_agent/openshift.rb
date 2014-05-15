@@ -143,6 +143,14 @@ module MCollective
         @logger.error "upgrade_action not implemented"
         #TODO we need to implement this
       end
+	  
+	  #
+	  # Restore rights for user
+	  #
+	  def oo_admin_restore_acls(args)
+		@logger.debug "oo_admin_restore_acls called with args: #{args}";
+		run_command(__method__,args)
+	  end
 
       def oo_app_create(args)
         run_command(__method__, args)
