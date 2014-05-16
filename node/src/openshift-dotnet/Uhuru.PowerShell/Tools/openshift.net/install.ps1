@@ -221,7 +221,6 @@ if ($upgradeDeployment)
         if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
         if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
         if (!$binLocation){$binLocation= $config["BIN_DIR"] };
-        if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
         if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
         if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
     }
