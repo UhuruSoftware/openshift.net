@@ -41,7 +41,7 @@ namespace Uhuru.Openshift.Runtime.Utils
             return new RubyHash()
                 {
                     {"district_uuid", DistrictConfig.Exists() ? DistrictConfig.Values["uuid"] : "NONE" },
-                    {"district_active", DistrictConfig.Exists() ? (DistrictConfig.Values["active"] == "true") : false },
+                    {"district_active", DistrictConfig.Exists() ? (DistrictConfig.Values["active"].Contains("true")) : false },
                     {"district_first_uid", DistrictConfig.Exists() ? DistrictConfig.Values["first_uid"] : "1000" },
                     {"district_max_uid", DistrictConfig.Exists() ? DistrictConfig.Values["max_uid"] : "6999"},
 
