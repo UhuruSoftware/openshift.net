@@ -283,7 +283,7 @@ function Setup-Mssql2012Authentication()
 
 	try
     {
-		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQL`$MSSQLSERVER2012\MSSQL" "\binn\sqlservr.exe") "-c -s MSSQL`$MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\MSSQL" "\binn\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
 		$sqlcmd = (get-command sqlcmd).path
 
 		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
