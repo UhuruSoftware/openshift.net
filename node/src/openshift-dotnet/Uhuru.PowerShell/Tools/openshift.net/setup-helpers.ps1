@@ -253,3 +253,49 @@ function Get-Config-Values($filename)
     
     return $configValues 
 }
+
+function Setup-Mssql2008Authentication()
+{
+	$domainUser = "${env:COMPUTERNAME}\openshift_service"
+
+	try
+    {
+		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\" "\binn\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+		$sqlcmd = (get-command sqlcmd).path
+
+		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+		start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+		start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+		$process | Stop-Process 
+		Write-Host "MSSQL 2008 Authentication configured"
+	}
+	catch [Exception]
+    {
+        $exceptionMessage = $_.Exception.Message
+        Write-Error "Could not setup MSSQL 2008 Authentication"
+        exit 1
+    }
+}
+
+function Setup-Mssql2012Authentication()
+{
+	$domainUser = "${env:COMPUTERNAME}\openshift_service"
+
+	try
+    {
+		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\MSSQL" "\binn\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+		$sqlcmd = (get-command sqlcmd).path
+
+		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+		start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+		start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+		$process | Stop-Process 
+		Write-Host "MSSQL 2012 Authentication configured"
+	}
+	catch [Exception]
+    {
+        $exceptionMessage = $_.Exception.Message
+        Write-Error "Could not setup MSSQL 2012 Authentication"
+        exit 1
+    }
+}

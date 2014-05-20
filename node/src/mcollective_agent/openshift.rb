@@ -209,7 +209,7 @@ module MCollective
       end
 
       def oo_get_quota(args)
-        @logger.error "oo_get_quota not implemented"
+        run_command(__method__, args)
       end
 
       def oo_set_quota(args)

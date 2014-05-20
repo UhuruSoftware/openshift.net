@@ -112,6 +112,7 @@ function Check-OpenShiftServices
         
         if ($sshdService.Status -ne "Stopped")
         {
+            Write-Host "Stopping sshd service..."
             $sshdService.Stop()
         }
         $isupdate = $true
@@ -123,6 +124,7 @@ function Check-OpenShiftServices
     {
         if ($mcollectivedService.Status -ne "Stopped")
         {
+            Write-Host "Stopping mcollectived service..."
             $mcollectivedService.Stop()
         }
 
@@ -259,6 +261,6 @@ function Check-Builders()
     # http://www.microsoft.com/en-us/download/details.aspx?id=7036
     Check-Product 'Microsoft Visual Studio Shell 2008 - ENU' $products $false
 
-	# http://www.microsoft.com/en-us/download/details.aspx?id=40750
-	Check-Product 'Microsoft Agents for Visual Studio 2013' $products  $false
+    # http://www.microsoft.com/en-us/download/details.aspx?id=40750
+    Check-Product 'Microsoft Agents for Visual Studio 2013' $products  $false
 }

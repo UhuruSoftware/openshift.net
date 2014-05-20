@@ -14,8 +14,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 {
     class Program
     {
-        static string CommandFormat = "MsSQLSysGenerator.exe pass=currentSAPassword dir=destinationDirectory newPass=newSAPassword instanceType=MSSQL10_50 defaultInstanceName=MSSQLSERVER";
-        static string currentPass = string.Empty;
+        static string CommandFormat = "MsSQLSysGenerator.exe dir=destinationDirectory newPass=newSAPassword instanceType=MSSQL10_50 defaultInstanceName=MSSQLSERVER";
         static string destinationDir = string.Empty;
         static string newPass = string.Empty;
         static string instanceType = string.Empty;
@@ -33,11 +32,10 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
                 return -1;
             }
 
-            currentPass = args[0].Split('=')[1];
-            destinationDir = args[1].Split('=')[1];
-            newPass = args[2].Split('=')[1];
-            instanceType = args[3].Split('=')[1];
-            defaultInstanceName = args[4].Split('=')[1];
+            destinationDir = args[0].Split('=')[1];
+            newPass = args[1].Split('=')[1];
+            instanceType = args[2].Split('=')[1];
+            defaultInstanceName = args[3].Split('=')[1];
 
             mssqlBasePath = (string)Registry.LocalMachine.OpenSubKey(string.Format(@"SOFTWARE\Microsoft\Microsoft SQL Server\{0}.{1}\Setup", instanceType, defaultInstanceName)).GetValue("SQLPath");
             mssqlRegPath = string.Format(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\{0}.{1}", instanceType, defaultInstanceName);
@@ -56,7 +54,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             BackupSystem();
             Process defaultInstance = StartMSSQLInstance(defaultInstanceName, mssqlBasePath);
 
-            CheckMSSQLInstance("", currentPass);
+            CheckMSSQLInstance("");
 
             ChangeDatabaseLocations();
 
@@ -87,7 +85,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
         {
             Output.WriteInfo("Changing SA user passwrord");
 
-            string connectionString = GetConnectionString(currentPass);
+            string connectionString = GetConnectionString();
             SqlConnection sqlConnection = new SqlConnection(connectionString);
             try
             {
@@ -114,7 +112,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
         {
             Output.WriteInfo("Changing database location");
 
-            string connectionString = GetConnectionString(currentPass);
+            string connectionString = GetConnectionString();
             SqlConnection sqlConnection = new SqlConnection(connectionString);
             SqlDataReader sqlReader = null;
             try
@@ -197,10 +195,10 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             return proc;
         }
 
-        static void CheckMSSQLInstance(string instanceName, string password)
+        static void CheckMSSQLInstance(string instanceName)
         {
             Output.WriteInfo(string.Format("Checking instance {0}", (instanceName != string.Empty ? "Default Instance": instanceName)));
-            string connectionString = GetConnectionString(instanceName, password);
+            string connectionString = GetConnectionString(instanceName);
             SqlConnection sqlConnection = new SqlConnection(connectionString);
 
             bool success = false;
@@ -227,14 +225,14 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             }
         }
 
-        static string GetConnectionString(string password)
+        static string GetConnectionString()
         {
-            return GetConnectionString(string.Empty, password);
+            return GetConnectionString(string.Empty);
         }
 
-        static string GetConnectionString(string instanceName, string password)
+        static string GetConnectionString(string instanceName)
         {
-            string connectionString = string.Format(@"user id=sa; password={0}; server=127.0.0.1\{1}; database=master; connection timeout=30", password, instanceName);
+            string connectionString = string.Format(@"trusted_connection=True; server=127.0.0.1\{0}; database=master; connection timeout=30", instanceName);
             return connectionString;
         }
 
@@ -264,7 +262,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
 
         static bool ValidArgs(string[] args)
         {
-            if (args.Length != 5)
+            if (args.Length != 4)
             {
                 Output.WriteError("Invalid number of parameters. The comand format is :" + Environment.NewLine + CommandFormat);
                 return false;
@@ -280,7 +278,7 @@ namespace Uhuru.Openshift.MsSQLSysGenerator
             }
 
             bool validPath = true;
-            foreach (var c in args[1].Split('=')[1].Where(Path.GetInvalidPathChars().Contains))
+            foreach (var c in args[0].Split('=')[1].Where(Path.GetInvalidPathChars().Contains))
             {
                 Output.WriteError(string.Format("Provided path contains invalid character {0}", c));
                 validPath = false;

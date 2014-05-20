@@ -40,6 +40,12 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public int WithUid;
 
+        [Parameter]
+        public int WithQuotaBlocks;
+
+        [Parameter]
+        public int WithQuotaFiles;
+
         protected override void ProcessRecord()
         {            
             this.WriteObject(Execute());

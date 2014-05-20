@@ -34,6 +34,10 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public int WithUid;
 
+        [Parameter]
+        public bool SkipHooks;
+
+
         protected override void ProcessRecord()
         {            
             this.WriteObject(this.Execute());

@@ -83,7 +83,7 @@ namespace Control
             string instanceName = string.Format("Instance{0}", dbPort);
             string instanceDir = Path.Combine(currentDir, string.Format("{0}.{1}", instanceType, instanceName));
             string dbName = Environment.GetEnvironmentVariable("OPENSHIFT_APP_NAME");
-            string username = "sa";
+            string username = System.Security.Principal.WindowsIdentity.GetCurrent().Name.ToString();
             string password = File.ReadAllText(Path.Combine(instanceDir, "sqlpasswd"));
 
             File.WriteAllText(string.Format(@"{0}\env\OPENSHIFT_MSSQL_DB_USERNAME", mssqlDir), username);
@@ -103,11 +103,16 @@ namespace Control
             sqlserver.Arguments = string.Format(@"/c {0}\mssql\binn\sqlservr.exe -c -s {1} 1>>{2}\\stdout.log 2>>{2}\stderr.log", instanceDir, instanceName, logDir);
             Process sqlProcess = Process.Start(sqlserver);
 
+            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""CREATE LOGIN {0} WITH PASSWORD='{1}'"" -U sa -P {1} -S ""tcp:127.0.0.1,{2}""", username, password, dbPort), "Error creating user");
+
+
+            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""EXEC sp_addsrvrolemember '{0}', 'sysadmin'"" -U sa -P {1} -S ""tcp:127.0.0.1,{2}""",username, password, dbPort), "Error setting sysadmin");
+
             //list databases on SQL server
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""EXEC sp_databases"" -U sa -P {0} -S ""tcp:127.0.0.1,{1}""", password, dbPort), "Error while listing databases");
+            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""EXEC sp_databases"" -S ""tcp:127.0.0.1,{0}"" -E", dbPort), "Error while listing databases. Username: " + username);
 
             //create application database
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""CREATE DATABASE [{0}]"" -U sa -P {1} -S ""tcp:127.0.0.1,{2}""", dbName, password, dbPort), "Error while creating application database");
+            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""CREATE DATABASE [{0}]"" -S ""tcp:127.0.0.1,{1}""", dbName, dbPort), "Error while creating application database");
            
             string text = string.Format("{0}Microsoft SQL Server {1} database added.  Please make note of these credentials:{0}{0}     sa password: {2}{0}   database name: {3}{0}{0}Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/{0}",
                 Environment.NewLine, version, password, dbName);

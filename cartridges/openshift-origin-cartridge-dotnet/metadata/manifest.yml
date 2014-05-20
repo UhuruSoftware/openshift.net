@@ -9,7 +9,7 @@ Cartridge-Version: '0.0.1'
 # is a version number identifying a release of your cartridge to OpenShift.
 Compatible-Versions: ['0.0.1']
 #  is a list of past cartridge versions that are compatible with this version. To be compatible with a previous version, the code changes you made in this version do not require the cartridge to be restarted or the application developer’s application to be restarted.
-Cartridge-Vendor: uhuru
+Cartridge-Vendor: redhat
 #  is used to differentiate cartridges when installed in the system. As an individual, you should use the same unique value for all your cartridges to identify yourself; otherwise, use your company name.
 Display-Name: DotNet 4.5
 Description: "Microsoft DotNet 4.5 Cartrige."

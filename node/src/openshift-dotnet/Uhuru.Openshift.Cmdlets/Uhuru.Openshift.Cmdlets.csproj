@@ -85,6 +85,9 @@
     <Compile Include="Install_Cartridges.cs" />
     <Compile Include="OO_Activate.cs" />
     <Compile Include="OO_Admin_Cartridge.cs" />
+    <Compile Include="OO_Admin_Restore_Acls.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="OO_Authorized_Ssh_Key_Batch_Add.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Batch_Remove.cs" />
     <Compile Include="OO_Force_Stop.cs" />
@@ -99,6 +102,7 @@
     <Compile Include="OO_Expose_Port.cs" />
     <Compile Include="OO_Deconfigure.cs" />
     <Compile Include="OO_Authorized_Ssh_Key_Remove.cs" />
+    <Compile Include="OO_Get_Quota.cs" />
     <Compile Include="OO_Idler_Stats.cs" />
     <Compile Include="OO_Status.cs" />
     <Compile Include="OO_Tidy.cs" />
@@ -136,9 +140,17 @@
       <Project>{c69f8537-81e8-45df-846b-508da2ad1b0e}</Project>
       <Name>Uhuru.Openshift.Node</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Uhuru.OpenShift.TrapUser\Uhuru.OpenShift.TrapUser.csproj">
+      <Project>{d3949f75-d14c-411d-b4dc-fe4f2783160b}</Project>
+      <Name>Uhuru.OpenShift.TrapUser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Uhuru.Openshift.Utilities\Uhuru.Openshift.Utilities.csproj">
       <Project>{38966805-0431-42d3-b5ff-51202dbcd5cd}</Project>
       <Name>Uhuru.Openshift.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\windows-isolation\src\Uhuru.Prison\Uhuru.Prison.csproj">
+      <Project>{b9c02cb5-33ce-479a-9a16-78f67a66bf80}</Project>
+      <Name>Uhuru.Prison</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

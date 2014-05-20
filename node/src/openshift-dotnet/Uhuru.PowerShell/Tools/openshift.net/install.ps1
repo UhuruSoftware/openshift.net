@@ -16,9 +16,6 @@
     
 .PARAMETER cloudDomain
     The domain of the cloud (e.g. mycloud.com).
-    
-.PARAMETER sqlServerSAPassword
-    The password for the sa account for the installed instance of SQL Server.
 
 .PARAMETER externalEthDevice
     Public ethernet device.
@@ -125,16 +122,16 @@
     Date:   January 17, 2014
 
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com 
 Install the node by passing the minimum information required for a Fedora all-in-one installation. 
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -publicIP 10.2.0.104
 Install the node by also passing the public IP address of the machine for a Fedora all-in-one installation.
 .EXAMPLE
 .\install.ps1 -mcollectivePskPlugin asimplething
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com 
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 #>
 
@@ -147,7 +144,6 @@ param (
     [string] $publicHostname = $(if (-not $upgrade) { Read-Host "Public hostname (FQDN) of the machine" } ),
     [string] $brokerHost = $(if (-not $upgrade) { Read-Host "Hostname of the broker (FQDN)" }),
     [string] $cloudDomain = $(if (-not $upgrade) { Read-Host "Cloud domain" }),
-    [string] $sqlServerSAPassword = $(if (-not $upgrade) { Read-Host "SQL Server sa password" }),
     [string] $externalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
     [string] $internalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
     [string] $publicIp = @((get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq (get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -eq $externalEthDevice }).DeviceID }).IPAddress | where { $_ -notmatch ':' })[0],
@@ -200,36 +196,34 @@ $upgradeDeployment = Check-OpenShiftServices
 
 if ($upgradeDeployment)
 {
-    
     Stop-Gears
     if ($upgrade)
     {
-      Write-Host "Loading existing configuration file"
-      $config = Load-Config($mcollectivePath)
-      if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
-      if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
-      if (!$brokerHost) 
-      { 
-        $brokerHost = $config["BROKER_HOST"] 
-        $mcollectiveActivemqServer = $config["BROKER_HOST"]
-      };
-      if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
-      if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
-      if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
-      if (!$internalEthDevice){$internalEthDevice= $config["INTERNAL_ETH_DEV"] };
-      if (!$gearBaseDir){$gearBaseDir= $config["GEAR_BASE_DIR"] };
-      if (!$gearShell){$gearShell= $config["GEAR_SHELL"] };
-      if (!$gearGecos){$gearGecos= $config["GEAR_GECOS"] };
-      if (!$cartridgeBasePath){$cartridgeBasePath= $config["CARTRIDGE_BASE_PATH"] };
-      if (!$platformLogFile){$platformLogFile= $config["PLATFORM_LOG_FILE"] };
-      if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
-      if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
-      if (!$binLocation){$binLocation= $config["BIN_DIR"] };
-      if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
-      if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
-      if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
+        Write-Host "Loading existing configuration file"
+        $config = Load-Config($mcollectivePath)
+        if (!$publicHostname) { $publicHostname = $config["PUBLIC_HOSTNAME"] };
+        if (!$publicIp) {$publicIp = $config["PUBLIC_IP"]};
+        if (!$brokerHost) 
+        { 
+            $brokerHost = $config["BROKER_HOST"] 
+            $mcollectiveActivemqServer = $config["BROKER_HOST"]
+        };
+
+        if (!$sshdCygwinDir) {  $sshdCygwinDir = Split-Path($config["SSHD_BASE_DIR"])};
+        if (!$cloudDomain) { $cloudDomain = $config["CLOUD_DOMAIN"]};
+        if (!$externalEthDevice){$externalEthDevice= $config["EXTERNAL_ETH_DEV"] };
+        if (!$internalEthDevice){$internalEthDevice= $config["INTERNAL_ETH_DEV"] };
+        if (!$gearBaseDir){$gearBaseDir= $config["GEAR_BASE_DIR"] };
+        if (!$gearShell){$gearShell= $config["GEAR_SHELL"] };
+        if (!$gearGecos){$gearGecos= $config["GEAR_GECOS"] };
+        if (!$cartridgeBasePath){$cartridgeBasePath= $config["CARTRIDGE_BASE_PATH"] };
+        if (!$platformLogFile){$platformLogFile= $config["PLATFORM_LOG_FILE"] };
+        if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
+        if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
+        if (!$binLocation){$binLocation= $config["BIN_DIR"] };
+        if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
+        if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
     }
-    
 }
 
 
@@ -299,13 +293,13 @@ if ($skipChecks -eq $false)
     Check-Elevation
     Check-WindowsVersion
     Check-VCRedistributable
-	Check-Java
+    Check-Java
     $windowsFeatures = @('NET-Framework-Features', 'NET-Framework-Core', 'NET-Framework-45-Features', 'NET-Framework-45-Core', 'NET-Framework-45-ASPNET', 'NET-WCF-Services45', 'NET-WCF-TCP-PortSharing45') 
     $windowsFeatures | ForEach-Object { Check-WindowsFeature $_ }
     $iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
     $iisFeatures | ForEach-Object { Check-WindowsFeature $_ }
-	Check-SQLServer2008
-	Check-SQLServer2012
+    Check-SQLServer2008
+    Check-SQLServer2012
     Check-Builders
 }
 
@@ -329,7 +323,6 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     platformLogLevel = $platformLogLevel
     containerizationPlugin = $containerizationPlugin
     binDir = $binLocation
-    sqlServerSAPassword = $sqlServerSAPassword
     mcollectiveLocation = $mcollectivePath
     rubyLocation = $rubyInstallLocation
 }
@@ -350,6 +343,9 @@ if ($skipServicesSetup -eq $false)
     Setup-Privileges
 }
 
+# setup MSSQL authentication
+Setup-Mssql2008Authentication
+Setup-Mssql2012Authentication
 
 # copy binaries
 Write-Host 'Copying binaries ...'
