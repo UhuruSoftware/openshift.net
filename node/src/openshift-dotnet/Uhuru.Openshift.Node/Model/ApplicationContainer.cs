@@ -133,7 +133,7 @@ namespace Uhuru.Openshift.Runtime
         }
 
         public ApplicationContainer(string applicationUuid, string containerUuid, EtcUser userId, string applicationName,
-            string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass)
+            string containerName, string namespaceName, object quotaBlocks, object quotaFiles, Hourglass hourglass,int applicationUid=0)
         {
             this.config = NodeConfig.Values;
             this.Uuid = containerUuid;
@@ -147,13 +147,16 @@ namespace Uhuru.Openshift.Runtime
             this.hourglass = hourglass ?? new Hourglass(3600);
             this.BaseDir = this.config["GEAR_BASE_DIR"];
             this.containerPlugin = new ContainerPlugin(this);
-            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);
-
+            this.Cartridge = new CartridgeModel(this, this.State, this.hourglass);            
             if (userId != null)
             {
                 this.uid = userId.Uid;
                 this.gid = userId.Gid;
                 this.gecos = userId.Gecos;
+            }
+            if (applicationUid > 0)
+            {
+                this.uid = applicationUid;
             }
         }
 
