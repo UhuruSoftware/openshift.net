@@ -345,6 +345,7 @@ if ($skipServicesSetup -eq $false)
 
 # setup MSSQL authentication
 Setup-Mssql2008Authentication
+Start-Sleep -s 10
 Setup-Mssql2012Authentication
 
 # copy binaries

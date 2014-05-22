@@ -117,6 +117,9 @@ namespace Control
             string text = string.Format("{0}Microsoft SQL Server {1} database added.  Please make note of these credentials:{0}{0}     sa password: {2}{0}   database name: {3}{0}{0}Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/{0}",
                 Environment.NewLine, version, password, dbName);
             ClientResult(text);
+
+            Console.WriteLine(sqlProcess.Id);
+            File.WriteAllText(pidFile, sqlProcess.Id.ToString());
         }
 
         private static void StopCartridge()
