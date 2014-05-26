@@ -257,10 +257,11 @@ function Get-Config-Values($filename)
 function Setup-Mssql2008Authentication()
 {
 	$domainUser = "${env:COMPUTERNAME}\openshift_service"
+	$mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup' -name SQLBinRoot).SQLBinRoot
 
 	try
     {
-		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\" "\binn\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+		$process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
 		$sqlcmd = (get-command sqlcmd).path
 
 		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
@@ -280,10 +281,11 @@ function Setup-Mssql2008Authentication()
 function Setup-Mssql2012Authentication()
 {
 	$domainUser = "${env:COMPUTERNAME}\openshift_service"
+	$mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\Setup' -name SQLBinRoot).SQLBinRoot
 
 	try
     {
-		$process = (start-process (Join-Path "C:\Program Files\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\MSSQL" "\binn\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+		$process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
 		$sqlcmd = (get-command sqlcmd).path
 
 		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
