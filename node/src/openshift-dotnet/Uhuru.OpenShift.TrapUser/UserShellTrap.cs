@@ -56,7 +56,7 @@ namespace Uhuru.OpenShift.TrapUser
             Logger.Info(logMessage.ToString());
         }
 
-        private static void SetupGearEnv(Dictionary<string, string> targetList, string homeDir)
+        public static void SetupGearEnv(Dictionary<string, string> targetList, string homeDir)
         {
             Logger.Info("oo-trap-user setting up vars for home directory '{0}'", homeDir);
 
@@ -159,7 +159,7 @@ namespace Uhuru.OpenShift.TrapUser
             return exitCode;
         }
 
-        private static void FixHomeDir(string userHomeDir, string username, string gearUuid)
+        public static void FixHomeDir(string userHomeDir, string username, string gearUuid)
         {
             if (!string.IsNullOrEmpty(userHomeDir))
             {

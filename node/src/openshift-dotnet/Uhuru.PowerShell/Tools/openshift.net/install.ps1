@@ -16,9 +16,6 @@
     
 .PARAMETER cloudDomain
     The domain of the cloud (e.g. mycloud.com).
-    
-.PARAMETER sqlServerSAPassword
-    The password for the sa account for the installed instance of SQL Server.
 
 .PARAMETER externalEthDevice
     Public ethernet device.
@@ -125,16 +122,16 @@
     Date:   January 17, 2014
 
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com 
 Install the node by passing the minimum information required for a Fedora all-in-one installation. 
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104
+.\install.ps1 -mcollectivePskPlugin unset -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -publicIP 10.2.0.104
 Install the node by also passing the public IP address of the machine for a Fedora all-in-one installation.
 .EXAMPLE
 .\install.ps1 -mcollectivePskPlugin asimplething
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
 .EXAMPLE
-.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword
+.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com 
 Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 #>
 
@@ -147,7 +144,6 @@ param (
     [string] $publicHostname = $(if (-not $upgrade) { Read-Host "Public hostname (FQDN) of the machine" } ),
     [string] $brokerHost = $(if (-not $upgrade) { Read-Host "Hostname of the broker (FQDN)" }),
     [string] $cloudDomain = $(if (-not $upgrade) { Read-Host "Cloud domain" }),
-    [string] $sqlServerSAPassword = $(if (-not $upgrade) { Read-Host "SQL Server sa password" }),
     [string] $externalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
     [string] $internalEthDevice = $(if (-not $upgrade) {  'Ethernet' }),
     [string] $publicIp = @((get-wmiobject -class "Win32_NetworkAdapterConfiguration" | Where { $_.Index -eq (get-wmiobject -class "Win32_NetworkAdapter" | Where { $_.netConnectionId -eq $externalEthDevice }).DeviceID }).IPAddress | where { $_ -notmatch ':' })[0],
@@ -225,7 +221,6 @@ if ($upgradeDeployment)
         if (!$platformLogLevel){$platformLogLevel= $config["PLATFORM_LOG_LEVEL"] };
         if (!$containerizationPlugin){$containerizationPlugin= $config["CONTAINERIZATION_PLUGIN"] };
         if (!$binLocation){$binLocation= $config["BIN_DIR"] };
-        if (!$sqlServerSAPassword){$sqlServerSAPassword= $config["SQL_SERVER_SA_PASSWORD"] };
         if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
         if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
     }
@@ -328,7 +323,6 @@ Write-Template (Join-Path $currentDir "node.conf.template") "c:\openshift\node.c
     platformLogLevel = $platformLogLevel
     containerizationPlugin = $containerizationPlugin
     binDir = $binLocation
-    sqlServerSAPassword = $sqlServerSAPassword
     mcollectiveLocation = $mcollectivePath
     rubyLocation = $rubyInstallLocation
 }
@@ -349,6 +343,10 @@ if ($skipServicesSetup -eq $false)
     Setup-Privileges
 }
 
+# setup MSSQL authentication
+Setup-Mssql2008Authentication
+Start-Sleep -s 10
+Setup-Mssql2012Authentication
 
 # copy binaries
 Write-Host 'Copying binaries ...'

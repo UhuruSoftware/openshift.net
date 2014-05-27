@@ -126,8 +126,21 @@ namespace Uhuru.Openshift.Runtime
             string output = StoppedStatusAttr();
 
             //TODO: we need to implement the windows prison to get the disk quota for the user
-
+            //this is temporary fix to test gear move possibility
+            output += @"
+ATTR: quota_blocks=1048576
+ATTR: quota_files=40000
+";
             output += this.Cartridge.DoControl("status", cartName);
+            return output;
+        }
+
+        public string GetQuota(string cartName)
+        {
+            //TODO: we need to implement the method to get the quota from the cartridge
+            string output = "1048576"; //have to clarify how the broker agent gets this information currently it's getting the 3 and 6 element ->this is just mock data
+
+            //output += this.Cartridge.DoControl("get-quota", cartName);
             return output;
         }
 

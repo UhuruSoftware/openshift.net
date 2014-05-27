@@ -416,12 +416,10 @@ namespace Uhuru.Openshift.Runtime
             string binLocation = Path.GetDirectoryName(this.GetType().Assembly.Location);
             string dbBuilderExe = Path.Combine(binLocation, "MsSQLSysGenerator.exe");
 
-            string sqlServerPassword = NodeConfig.Values["SQL_SERVER_SA_PASSWORD"];
-
             string destination = Path.Combine(this.container.ContainerDir, cartName, "bin", string.Format("{0}.Instance{1}", instanceType, prison.Rules.UrlPortAccess), "mssql");
             string newSAPassword = string.Format("Pr!5{0}", Prison.Utilities.Credentials.GenerateCredential(10));
 
-            string arguments = string.Format("pass={0} dir={1} newPass={2} instanceType={3} defaultInstanceName={4}", sqlServerPassword, destination, newSAPassword, instanceType, defaultInstanceName);
+            string arguments = string.Format("dir={0} newPass={1} instanceType={2} defaultInstanceName={3}", destination, newSAPassword, instanceType, defaultInstanceName);
 
             ProcessResult result = ProcessExtensions.RunCommandAndGetOutput(dbBuilderExe, arguments, Path.GetTempPath());
 

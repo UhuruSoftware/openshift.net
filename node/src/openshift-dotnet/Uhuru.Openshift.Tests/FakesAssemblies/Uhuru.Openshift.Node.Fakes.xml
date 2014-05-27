@@ -223,9 +223,6 @@
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimApplicationContainer.ConnectorExecuteStringStringStringStringString">
             <summary>Sets the shim of ApplicationContainer.ConnectorExecute(String cartName, String hookName, String publishingCartName, String connectionType, String inputArgs)</summary>
         </member>
-        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimApplicationContainer.ConstructorStringStringEtcUserStringStringStringObjectObjectHourglass">
-            <summary>Sets the shim of ApplicationContainer.ApplicationContainer(String applicationUuid, String containerUuid, EtcUser userId, String applicationName, String containerName, String namespaceName, Object quotaBlocks, Object quotaFiles, Hourglass hourglass)</summary>
-        </member>
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimApplicationContainer.ConstructorStringStringEtcUserStringStringStringObjectObjectHourglassInt32">
             <summary>Sets the shim of ApplicationContainer.ApplicationContainer(String applicationUuid, String containerUuid, EtcUser userId, String applicationName, String containerName, String namespaceName, Object quotaBlocks, Object quotaFiles, Hourglass hourglass, Int32 applicationUid)</summary>
         </member>
@@ -1069,6 +1066,9 @@
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.CartridgeTeardownStringBoolean">
             <summary>Sets the shim of CartridgeModel.CartridgeTeardown(String cartridgeName, Boolean removeCartridgeDir)</summary>
         </member>
+        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.ChangeConfigControlStringStringString">
+            <summary>Sets the shim of CartridgeModel.ChangeConfigControl(String cartName, String softwareVersion, String instanceType)</summary>
+        </member>
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.ConfigureStringStringString">
             <summary>Sets the shim of CartridgeModel.Configure(String cartName, String templateGitUrl, String manifest)</summary>
         </member>
@@ -1132,8 +1132,8 @@
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.GetPrimaryCartridge">
             <summary>Sets the shim of CartridgeModel.GetPrimaryCartridge()</summary>
         </member>
-        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.PopulateGearRepoStringString">
-            <summary>Sets the shim of CartridgeModel.PopulateGearRepo(String cartName, String templateGitUrl)</summary>
+        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.PopulateGearRepoStringStringString">
+            <summary>Sets the shim of CartridgeModel.PopulateGearRepo(String cartName, String softwareVersion, String templateGitUrl)</summary>
         </member>
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.PostConfigureString">
             <summary>Sets the shim of CartridgeModel.PostConfigure(String cartridgeName)</summary>
@@ -1207,6 +1207,9 @@
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.CartridgeTeardownStringBoolean">
             <summary>Sets the shim of CartridgeModel.CartridgeTeardown(String cartridgeName, Boolean removeCartridgeDir)</summary>
         </member>
+        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.ChangeConfigControlStringStringString">
+            <summary>Sets the shim of CartridgeModel.ChangeConfigControl(String cartName, String softwareVersion, String instanceType)</summary>
+        </member>
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.ConfigureStringStringString">
             <summary>Sets the shim of CartridgeModel.Configure(String cartName, String templateGitUrl, String manifest)</summary>
         </member>
@@ -1267,8 +1270,8 @@
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.GetPrimaryCartridge">
             <summary>Sets the shim of CartridgeModel.GetPrimaryCartridge()</summary>
         </member>
-        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.PopulateGearRepoStringString">
-            <summary>Sets the shim of CartridgeModel.PopulateGearRepo(String cartName, String templateGitUrl)</summary>
+        <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.PopulateGearRepoStringStringString">
+            <summary>Sets the shim of CartridgeModel.PopulateGearRepo(String cartName, String softwareVersion, String templateGitUrl)</summary>
         </member>
         <member name="P:Uhuru.Openshift.Runtime.Fakes.ShimCartridgeModel.AllInstances.PostConfigureString">
             <summary>Sets the shim of CartridgeModel.PostConfigure(String cartridgeName)</summary>
@@ -1815,9 +1818,6 @@
         </member>
         <member name="T:Uhuru.Openshift.Runtime.Fakes.StubApplicationContainer">
             <summary>Stub type of Uhuru.Openshift.Runtime.ApplicationContainer</summary>
-        </member>
-        <member name="M:Uhuru.Openshift.Runtime.Fakes.StubApplicationContainer.#ctor(System.String,System.String,Uhuru.Openshift.Runtime.Utils.EtcUser,System.String,System.String,System.String,System.Object,System.Object,Uhuru.Openshift.Runtime.Utils.Hourglass)">
-            <summary>Initializes a new instance</summary>
         </member>
         <member name="M:Uhuru.Openshift.Runtime.Fakes.StubApplicationContainer.#ctor(System.String,System.String,Uhuru.Openshift.Runtime.Utils.EtcUser,System.String,System.String,System.String,System.Object,System.Object,Uhuru.Openshift.Runtime.Utils.Hourglass,System.Int32)">
             <summary>Initializes a new instance</summary>
@@ -2664,12 +2664,6 @@
         </member>
         <member name="P:Uhuru.Openshift.Runtime.Utils.Fakes.ShimLinuxFiles.ChmodStringString">
             <summary>Sets the shim of LinuxFiles.Chmod(String file, String mod)</summary>
-        </member>
-        <member name="P:Uhuru.Openshift.Runtime.Utils.Fakes.ShimLinuxFiles.ChownBinaryGet">
-            <summary>Sets the shim of LinuxFiles.get_ChownBinary()</summary>
-        </member>
-        <member name="P:Uhuru.Openshift.Runtime.Utils.Fakes.ShimLinuxFiles.ChownStringString">
-            <summary>Sets the shim of LinuxFiles.Chown(String user, String file)</summary>
         </member>
         <member name="P:Uhuru.Openshift.Runtime.Utils.Fakes.ShimLinuxFiles.CygpathBinaryGet">
             <summary>Sets the shim of LinuxFiles.get_CygpathBinary()</summary>

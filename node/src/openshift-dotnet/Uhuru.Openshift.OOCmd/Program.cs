@@ -14,7 +14,7 @@ namespace Uhuru.Openshift.OOCmd
     class Program
     {
         static int Main(string[] args)
-        {
+        {            
             // trim all args first
             args = args.Select(arg => arg.Trim().Replace("\"",string.Empty)).ToArray();
 
@@ -48,6 +48,7 @@ namespace Uhuru.Openshift.OOCmd
                     if (args.Length == 1)
                     {
                         string arg = Console.ReadLine();
+                        Logger.Debug("Arguments from json {0}",arg);
                         arguments = JsonConvert.DeserializeObject<RubyHash>(arg);                        
                     }
                     else
@@ -128,9 +129,13 @@ namespace Uhuru.Openshift.OOCmd
                     SetInstanceFields(instance, ((JObject)pair.Value).ToObject<RubyHash>());
                 }
                 else
-                {
+                {                   
                     Type classType = instance.GetType();
-                    string fieldName = GetFieldName(pair.Key);
+                    string fieldName = GetFieldName(pair.Key);                  
+                    if (pair.Value == null)
+                    {
+                        continue;
+                    }
                     Logger.Debug("Computed field name {0} from arg {1} with value {2}", fieldName, pair.Key, pair.Value.ToString());
                     FieldInfo fi = classType.GetField(fieldName);
                     if (fi != null)
