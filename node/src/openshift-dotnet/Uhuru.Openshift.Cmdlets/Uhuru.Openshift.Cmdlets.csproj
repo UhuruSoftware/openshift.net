@@ -78,6 +78,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Properties\SharedAssemblyInfo.cs">
+      <Link>SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Cartridge_Repository_Action.cs" />
     <Compile Include="Get_All_Gears_Endpoints_Action.cs" />
     <Compile Include="Get_Gear_Envs_Action.cs" />

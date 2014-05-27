@@ -77,6 +77,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Properties\SharedAssemblyInfo.cs">
+      <Link>SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Config\DistrictConfig.cs" />
     <Compile Include="Config\NodeConfig.cs" />
     <Compile Include="ContainerPlugin.cs" />
