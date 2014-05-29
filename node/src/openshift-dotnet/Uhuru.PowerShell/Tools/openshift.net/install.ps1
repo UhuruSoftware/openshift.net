@@ -223,6 +223,7 @@ if ($upgradeDeployment)
         if (!$binLocation){$binLocation= $config["BIN_DIR"] };
         if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
         if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
+        if (!$mcollectivePskPlugin){$mcollectivePskPlugin= $config["plugin.psk"]};
     }
 	Start-Sleep -s 10
 }

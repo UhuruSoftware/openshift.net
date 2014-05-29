@@ -225,8 +225,7 @@ function Load-Config()
     $clientPath = (Join-Path $dict["MCOLLECTIVE_LOCATION"] 'etc\client.cfg')
     if (Test-Path $clientPath)
     {
-        Write-Host "Existsa" + $mcPath
-        $dict += Get-Content $clientPath
+        $dict += Get-Config-Values($clientPath)
     }
 
     return $dict
