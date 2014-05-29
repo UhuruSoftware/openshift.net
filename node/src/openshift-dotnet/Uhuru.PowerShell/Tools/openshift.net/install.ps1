@@ -224,6 +224,7 @@ if ($upgradeDeployment)
         if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
         if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
     }
+	Start-Sleep -s 10
 }
 
 
