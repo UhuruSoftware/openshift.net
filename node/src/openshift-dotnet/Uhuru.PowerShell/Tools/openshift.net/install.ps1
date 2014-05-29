@@ -160,9 +160,9 @@ param (
     [string] $rubyInstallLocation = $(if (-not $upgrade) { 'c:\openshift\ruby\' }),
     # parameters used for mcollective setup
     [string] $mcollectiveActivemqServer = $brokerHost,
-    [int] $mcollectiveActivemqPort = 61613,
-    [string] $mcollectiveActivemqUser = 'mcollective',
-    [string] $mcollectiveActivemqPassword = 'marionette',
+    [int] $mcollectiveActivemqPort = $(if (-not $upgrade){ 61613 }),
+    [string] $mcollectiveActivemqUser = $(if (-not $upgrade) {'mcollective'}),
+    [string] $mcollectiveActivemqPassword = $(if (-not $upgrade) {'marionette'}),
     [string] $mcollectivePskPlugin = $(if (-not $upgrade) { Read-Host "MCollective psk plugin (default for a Fedora all-in-one VM is 'unset', for a default OpenShift Enterprise installation it's 'asimplething')" }),
     # parameters used for setting up sshd
     [string] $sshdCygwinDir = $(if (-not $upgrade) {  'c:\openshift\cygwin' }),
@@ -224,6 +224,9 @@ if ($upgradeDeployment)
         if (!$mcollectivePath){$mcollectivePath= $config["MCOLLECTIVE_LOCATION"] };
         if (!$rubyInstallLocation){$rubyInstallLocation= $config["RUBY_LOCATION"] };
         if (!$mcollectivePskPlugin){$mcollectivePskPlugin= $config["plugin.psk"]};
+        if (!$mcollectiveActivemqPort){$mcollectiveActivemqPort= $config["plugin.activemq.pool.1.port"]};
+        if (!$mcollectiveActivemqUser){$mcollectiveActivemqUser= $config["plugin.activemq.pool.1.user"]};
+        if (!$mcollectiveActivemqPassword){$mcollectiveActivemqPassword= $config["plugin.activemq.pool.1.password"]};
     }
 	Start-Sleep -s 10
 }
