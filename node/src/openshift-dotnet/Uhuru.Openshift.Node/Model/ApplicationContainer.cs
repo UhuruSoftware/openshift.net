@@ -161,17 +161,13 @@ namespace Uhuru.Openshift.Runtime
         }
 
         public string Create(string secretToken = null)
-        {
-            SessionUtil.ValidateSessionForWindowsIsolation();
-
+        {            
             containerPlugin.Create();
             return string.Empty;
         }
 
         public string Destroy()
         {
-            SessionUtil.ValidateSessionForWindowsIsolation();
-
             StringBuilder output = new StringBuilder();
             output.AppendLine(this.Cartridge.Destroy());
 
@@ -972,8 +968,6 @@ namespace Uhuru.Openshift.Runtime
 
         public string ForceStop(Dictionary<string, object> options = null)
         {
-            SessionUtil.ValidateSessionForWindowsIsolation();
-
             this.State.Value(Uhuru.Openshift.Runtime.State.STOPPED);
             return this.containerPlugin.Stop();
         }
@@ -983,8 +977,6 @@ namespace Uhuru.Openshift.Runtime
 
             return Cartridge.GetCartridge(cartridgeName);
         }
-
-
 
         private int CalculateBatchSize(int count, double ratio)
         {
