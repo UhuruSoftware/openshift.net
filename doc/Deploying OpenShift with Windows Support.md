@@ -85,11 +85,13 @@ The supported Windows versions are Windows Server 2012 and Windows Server 2012 R
 - Install SQL Server 2008
 	- Install SQL Server with a simple default instance (no extra services, just the database engine)
     - Make sure you set it up with mixed authentication
+    - Please note the password you set for the `sa` account - you will need to configure the OpenShift node with it
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 	
 - Install SQL Server 2012
 	- Install SQL Server 2012 with a simple named instance MSSQLSERVER2012(no extra services, just the database engine)
     - Make sure you set it up with mixed authentication
+    - The password you set for the `sa` account has to be the same as the one for SQL Server 2008
 	- Enable TCP/IP SQL Server 2012 Protocol to listen to All IPs
     - After the installation is complete, stop the `SQL Server (MSSQLSERVER2012)` Windows Service, then disable it (the Windows Node installation script will check to see if this was setup correctly)
 	- **<font color=red>IMPORTANT! Make sure that the TCP/IP protocol is enabled for SQL Server 2012 and that the port 1433 is set to for "IPAll" in the Sql Server Configuration Manager</font>**
@@ -233,7 +235,7 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
     -sqlServerSAPassword <String>
         The password for the sa account for the installed instance of SQL Server.
-        Required?                    no
+        Required?                    yes
 
     -externalEthDevice <String>
         Public ethernet device.
@@ -388,12 +390,12 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
 - Install the node by passing the minimum information required.
 
-`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com`
+`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
 
 
 - Install the node by also passing the public IP address of the machine.
 
-`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -publicIP 10.2.0.104`
+`.\install.ps1 -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword -publicIP 10.2.0.104`
 
 
 - Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin.
@@ -403,7 +405,7 @@ After finishing the installation on Windows, clear the cache on the Linux machin
 
 - Install the node for an OpenShift Enterprise deployment, passing a non-default mcollectivePskPlugin and the minimum information required.
 
-`.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com`
+`.\install.ps1 -mcollectivePskPlugin asimplething -publicHostname winnode-001.mycloud.com -brokerHost broker.mycloud.com -cloudDomain mycloud.com -sqlServerSAPassword mysapassword`
 
 ## Importing Cartridges ##
 
