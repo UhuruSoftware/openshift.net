@@ -423,10 +423,12 @@ Example:
 
 	rhc create-app myapp dotnet -s
 	
-Add a MS SQL Server cartridge
+Add a MS SQL Server 2008 cartridge
 
-	rhc add-cartridge mssql -a myapp
+	rhc add-cartridge mssql-2008 -a myapp
 
+For a MS SQL Server 2012 cartridge, the name of the cartridge is mssql-2012
+	
 A Windows application deployed on OpenShift has the following topology:
 
 <img src="application_topology.png" width="60%"/>
