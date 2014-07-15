@@ -8,7 +8,7 @@ Compatible-Versions: ['0.0.1']
 Cartridge-Vendor: redhat
 #  is used to differentiate cartridges when installed in the system. As an individual, you should use the same unique value for all your cartridges to identify yourself; otherwise, use your company name.
 Display-Name: MS SQL Server 2008
-Description: "Microsoft SQL Server Cartrige."
+Description: "Microsoft SQL Server Cartridge."
 Version: '2008'
 # is the default or only version of the software packaged by this cartridge.
 Versions: 

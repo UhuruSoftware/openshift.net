@@ -11,10 +11,18 @@ function Cleanup-Directory($directory)
     }
 }
 
-function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir)
+function Setup-MCollective($installLocation, $cygwinInstallLocation, $rubyDir, $localGemsDir)
 {
     $mcollectiveSetupScript = (Join-Path $currentDir '..\mcollective\setup-mcollective.ps1')
-    $mcollectiveSetupCommand = "-File ${mcollectiveSetupScript} -installLocation ${installLocation} -cygwinInstallLocation ${cygwinInstallLocation}"
+
+    if ($localGemsDir -eq [string]::Empty)
+    {
+        $mcollectiveSetupCommand = "-File ${mcollectiveSetupScript} -installLocation ${installLocation} -cygwinInstallLocation ${cygwinInstallLocation}"
+    }
+    else
+    {
+        $mcollectiveSetupCommand = "-File ${mcollectiveSetupScript} -installLocation ${installLocation} -cygwinInstallLocation ${cygwinInstallLocation} -localGemsDir ${localGemsDir}"
+    }
 
     Run-RubyCommand $rubyDir "powershell ${mcollectiveSetupCommand}" $rubyDir
 }
@@ -28,13 +36,21 @@ function Configure-MCollective($userActivemqServer, $userActivemqPort, $userActi
     Run-RubyCommand $rubyDir "powershell ${arguments}" $mcollectiveInstallDir
 }
 
-function Setup-SSHD($cygwinDir, $listenAddress, $port)
+function Setup-SSHD($cygwinDir, $listenAddress, $port, $cygwinCustomSetupExe)
 {
     Cleanup-Directory $cygwinDir
 
     $sshdSetupScript = (Join-Path $currentDir '..\sshd\setup-sshd.ps1')
 
-    $arguments = "-File ${sshdSetupScript} -cygwinDir ${cygwinDir} -listenAddress ${listenAddress} -port ${port}"
+    if ($cygwinCustomSetupExe -ne [string]::Empty)
+    {
+        $arguments = "-File ${sshdSetupScript} -cygwinDir ${cygwinDir} -listenAddress ${listenAddress} -port ${port} -cygwinCustomSetupExe ${cygwinCustomSetupExe}"
+    }
+    else
+    {
+        $arguments = "-File ${sshdSetupScript} -cygwinDir ${cygwinDir} -listenAddress ${listenAddress} -port ${port}"
+    }
+
     $sshdSetupProcess = Start-Process -Wait -PassThru -NoNewWindow 'powershell' $arguments
 
     if ($sshdSetupProcess.ExitCode -ne 0)
@@ -56,21 +72,21 @@ function Setup-OOAliases($binLocation, $cygwinDir)
     Write-Verbose "Creating oo-bin directory '${ooBinDir}' ..."
     New-Item -path $ooBinDir -type directory -Force | Out-Null
 
-	$nodeCommands = @("gear", "oo-accept-node", "oo-admin-cartridge", "oo-admin-ctl-gears")
-	$ooCmdPath = (Join-Path $binLocation 'oo-cmd.exe').Replace("\", "/")
-	foreach($nodeCommand in $nodeCommands)
-	{
-		$aliasPath = (Join-Path $ooBinDir $nodeCommand.ToLower())
-		"${ooCmdPath} ${nodeCommand} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
+    $nodeCommands = @("gear", "oo-accept-node", "oo-admin-cartridge", "oo-admin-ctl-gears")
+    $ooCmdPath = (Join-Path $binLocation 'oo-cmd.exe').Replace("\", "/")
+    foreach($nodeCommand in $nodeCommands)
+    {
+        $aliasPath = (Join-Path $ooBinDir $nodeCommand.ToLower())
+        "${ooCmdPath} ${nodeCommand} `$@" | Out-File -Encoding Ascii -Force -FilePath $aliasPath
         $aliasUnixPath = & $cygpath $aliasPath
         & $chmod +x $aliasUnixPath
-	}
-	
-	$ooDiagnosticsAlias = (Join-Path $ooBinDir 'oo-diagnostics')
-	$ooDiagnosticsPath = (Join-Path $binLocation 'oo-diagnostics.exe').Replace("\", "/")
-	"c:/windows/system32/cmd.exe /c ${ooDiagnosticsPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $ooDiagnosticsAlias
-	 $aliasUnixDiagnosticsPath = & $cygpath $ooDiagnosticsAlias
-	 & $chmod +x $aliasUnixDiagnosticsPath
+    }
+    
+    $ooDiagnosticsAlias = (Join-Path $ooBinDir 'oo-diagnostics')
+    $ooDiagnosticsPath = (Join-Path $binLocation 'oo-diagnostics.exe').Replace("\", "/")
+    "c:/windows/system32/cmd.exe /c ${ooDiagnosticsPath} `$@" | Out-File -Encoding Ascii -Force -FilePath $ooDiagnosticsAlias
+     $aliasUnixDiagnosticsPath = & $cygpath $ooDiagnosticsAlias
+     & $chmod +x $aliasUnixDiagnosticsPath
 
     Write-Host "Setting up oo-ssh ..."
     $ooSSHScriptPath = (Join-Path $ooBinDir "oo-ssh")
@@ -86,12 +102,12 @@ function Setup-OOAliases($binLocation, $cygwinDir)
 
 function Setup-GAC($binLocation)
 {	
-	$executables = $("MsSQLSysGenerator.exe", "oo-cmd.exe", "oo-trap-user.exe")
-	foreach($exe in $executables)
-	{		
-		$exePath = Join-Path $binLocation $exe
-		& C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe install $exePath 
-	}
+    $executables = $("MsSQLSysGenerator.exe", "oo-cmd.exe", "oo-trap-user.exe")
+    foreach($exe in $executables)
+    {		
+        $exePath = Join-Path $binLocation $exe
+        & C:\Windows\Microsoft.NET\Framework64\v4.0.30319\ngen.exe install $exePath 
+    }
 }
 
 function Setup-GlobalEnv($binLocation)
@@ -105,7 +121,7 @@ function Setup-GlobalEnv($binLocation)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_BROKER_HOST'), $brokerHost)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CLOUD_DOMAIN'), $cloudDomain)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_POWERSHELL'), (Join-Path $binLocation 'cartridge_sdk\powershell\sdk.ps1'))
-	[System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_BASH'), (Join-Path $binLocation 'cartridge_sdk\bash\sdk'))
+    [System.IO.File]::WriteAllText((Join-Path $envDir 'OPENSHIFT_CARTRIDGE_SDK_BASH'), (Join-Path $binLocation 'cartridge_sdk\bash\sdk'))
 
     $pathEnvEntries =@('/usr/local/bin',
         '/usr/bin',
@@ -119,23 +135,30 @@ function Setup-GlobalEnv($binLocation)
     [System.IO.File]::WriteAllText((Join-Path $envDir 'PATH'), [string]::Join(":", $pathEnvEntries))
 }
 
-function Setup-Ruby($rubyDownloadLocation, $rubyInstallLocation)
+function Setup-Ruby($rubyDownloadLocation, $rubyInstallLocation, $rubyCustomSetupExe)
 {
-    Write-Host "Downloading ruby setup package from '${rubyDownloadLocation}'"
-    $rubySetupPackage = Join-Path $env:TEMP "ruby-setup.exe"
-    if ((Test-Path $rubySetupPackage) -eq $true)
+    if ($rubyCustomSetupExe -eq [string]::Empty)
     {
-        Write-Verbose "Removing existing ruby setup package from temp dir."
-        rm $rubySetupPackage -Force > $null
-    }
+        Write-Host "Downloading ruby setup package from '${rubyDownloadLocation}'"
+        $rubySetupPackage = Join-Path $env:TEMP "ruby-setup.exe"
+        if ((Test-Path $rubySetupPackage) -eq $true)
+        {
+            Write-Verbose "Removing existing ruby setup package from temp dir."
+            rm $rubySetupPackage -Force > $null
+        }
 
-    if ([string]::IsNullOrWhiteSpace($env:osiProxy))
-    {
-        Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage
+        if ([string]::IsNullOrWhiteSpace($env:osiProxy))
+        {
+            Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage
+        }
+        else
+        {
+            Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage -Proxy $env:osiProxy
+        }
     }
     else
     {
-        Invoke-WebRequest $rubyDownloadLocation -OutFile $rubySetupPackage -Proxy $env:osiProxy
+        $rubySetupPackage = $rubyCustomSetupExe
     }
 
     Write-Verbose "Ruby install package downloaded to '${rubySetupPackage}'"
@@ -256,21 +279,21 @@ function Get-Config-Values($filename)
 
 function Setup-Mssql2008Authentication()
 {
-	$domainUser = "${env:COMPUTERNAME}\openshift_service"
-	$mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup' -name SQLBinRoot).SQLBinRoot
+    $domainUser = "${env:COMPUTERNAME}\openshift_service"
+    $mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup' -name SQLBinRoot).SQLBinRoot
 
-	try
+    try
     {
-		$process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
-		$sqlcmd = (get-command sqlcmd).path
+        $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+        $sqlcmd = (get-command sqlcmd).path
 
-		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-		start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-		start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
-		$process | Stop-Process 
-		Write-Host "MSSQL 2008 Authentication configured"
-	}
-	catch [Exception]
+        start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+        start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+        start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+        $process | Stop-Process 
+        Write-Host "MSSQL 2008 Authentication configured"
+    }
+    catch [Exception]
     {
         $exceptionMessage = $_.Exception.Message
         Write-Error "Could not setup MSSQL 2008 Authentication"
@@ -280,21 +303,21 @@ function Setup-Mssql2008Authentication()
 
 function Setup-Mssql2012Authentication()
 {
-	$domainUser = "${env:COMPUTERNAME}\openshift_service"
-	$mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\Setup' -name SQLBinRoot).SQLBinRoot
+    $domainUser = "${env:COMPUTERNAME}\openshift_service"
+    $mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\Setup' -name SQLBinRoot).SQLBinRoot
 
-	try
+    try
     {
-		$process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
-		$sqlcmd = (get-command sqlcmd).path
+        $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
+        $sqlcmd = (get-command sqlcmd).path
 
-		start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-		start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-		start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
-		$process | Stop-Process 
-		Write-Host "MSSQL 2012 Authentication configured"
-	}
-	catch [Exception]
+        start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+        start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
+        start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+        $process | Stop-Process 
+        Write-Host "MSSQL 2012 Authentication configured"
+    }
+    catch [Exception]
     {
         $exceptionMessage = $_.Exception.Message
         Write-Error "Could not setup MSSQL 2012 Authentication"

@@ -7,7 +7,7 @@
     Before the installation is started this script will verify that all prerequisites are present and properly installed.
 .PARAMETER binLocation
     Target bin directory. This is where all the OpenShift binaries will be copied.
-
+    
 .PARAMETER publicHostname
     Public hostname of the machine. This should resolve to the public IP of this node.
     
@@ -111,11 +111,31 @@
 
 .PARAMETER skipBinDirCleanup
     This is a switch parameter that allows the user to skip cleaning up the binary directory.
-    This is useful in development environments, when presistence of logs and configurations is required.
+    This is useful in development environments, when persistence of logs and configurations is required.
 
 .PARAMETER upgrade
     This is a switch parameter that allows the user to upgrade an existing deployment.
     The configuration values that are not provided are taken from the existing deployment.
+
+.PARAMETER cygwinInstallerExe
+    This allows the user to point the installation script to a cygwin installer. 
+    It is useful when installing behind a firewall that doesn't allow downloading executables.
+
+.PARAMETER rubyInstallerExe
+    This allows the user to point the installation script to a ruby installer. 
+    It is useful when installing behind a firewall that doesn't allow downloading executables.
+
+.PARAMETER mcollectiveGemsDir
+    This allows the user to point the installation script to a folder containing the ruby gems.
+    It is useful when installing behind a firewall.
+
+.PARAMETER noSql2008
+    This installs the Windows Node without SQL Server 2008 cartridge support. 
+    Note that the mssql cartridge manifest must be manually updated (C:\openshift\cartridges\mssql\metadata\manifest.yml).
+
+.PARAMETER noSql2012
+    This installs the Windows Node without SQL Server 2012 cartridge support.
+    Note that the mssql cartridge manifest must be manually updated (C:\openshift\cartridges\mssql\metadata\manifest.yml).
 
 .NOTES
     Author: Vlad Iovanov
@@ -177,7 +197,14 @@ param (
     [Switch] $skipChecks = $false,
     [Switch] $skipGlobalEnv = $false,
     [Switch] $skipServicesSetup = $false,
-    [Switch] $skipBinDirCleanup = $false
+    [Switch] $skipBinDirCleanup = $false,
+    # parameters used when behind the firewall
+    [string] $cygwinInstallerExe = [string]::Empty,
+    [string] $rubyInstallerExe = [string]::Empty,
+    [string] $mcollectiveGemsDir = [string]::Empty,
+    # parameters used for skipping SQL Server support
+    [switch] $noSql2008 = $false,
+    [switch] $noSql2012 = $false
 )
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
@@ -263,6 +290,34 @@ Write-Verbose "Target cygwin installation dir used is '$sshdCygwinDir'"
 Write-Verbose "SSHD listen address used is '$sshdListenAddress'"
 Write-Verbose "SSHD listening port used is '$sshdPort'"
 
+if ($rubyInstallerExe -ne $false)
+{
+    Write-Warning "Using ruby installer '$rubyInstallerExe'"
+}
+else
+{
+    Write-Warning "Ruby installer will be downloaded from '$rubyDownloadLocation'"
+}
+
+if ($cygwinInstallerExe -ne $false)
+{
+    Write-Warning "Using cygwin installer '$cygwinInstallerExe'"
+}
+else
+{
+    Write-Warning "Ruby installer will be downloaded from 'http://cygwin.com/setup-x86.exe'"
+}
+
+if ($mcollectiveGemsDir -ne $false)
+{
+    Write-Warning "Installing MCollective gems from '$mcollectiveGemsDir'"
+}
+else
+{
+    Write-Warning "MCollective gems will be downloaded from 'http://rubygems.org'"
+}
+
+
 if ([string]::IsNullOrWhiteSpace($proxy))
 {
     Write-Verbose "Not using a proxy server."
@@ -298,11 +353,19 @@ if ($skipChecks -eq $false)
     $windowsFeatures | ForEach-Object { Check-WindowsFeature $_ }
     $iisFeatures = @('Web-Server', 'Web-WebServer', 'Web-Common-Http', 'Web-Default-Doc', 'Web-Dir-Browsing', 'Web-Http-Errors', 'Web-Static-Content', 'Web-Http-Redirect', 'Web-DAV-Publishing', 'Web-Health', 'Web-Http-Logging', 'Web-Custom-Logging', 'Web-Log-Libraries', 'Web-ODBC-Logging', 'Web-Request-Monitor', 'Web-Http-Tracing', 'Web-Performance', 'Web-Stat-Compression', 'Web-Dyn-Compression', 'Web-Security', 'Web-Filtering', 'Web-Basic-Auth', 'Web-CertProvider', 'Web-Client-Auth', 'Web-Digest-Auth', 'Web-Cert-Auth', 'Web-IP-Security', 'Web-Url-Auth', 'Web-Windows-Auth', 'Web-App-Dev', 'Web-Net-Ext', 'Web-Net-Ext45', 'Web-AppInit', 'Web-Asp-Net', 'Web-Asp-Net45', 'Web-CGI', 'Web-ISAPI-Ext', 'Web-ISAPI-Filter', 'Web-Includes', 'Web-WebSockets', 'Web-Mgmt-Tools', 'Web-Scripting-Tools', 'Web-Mgmt-Service', 'Web-WHC')
     $iisFeatures | ForEach-Object { Check-WindowsFeature $_ }
-    Check-SQLServer2008
-    Check-SQLServer2012
+    
+    if ($noSql2008 -eq $false)
+    {
+        Check-SQLServer2008
+    }
+
+    if ($noSql2012 -eq $false)
+    {
+        Check-SQLServer2012
+    }
+
     Check-Builders
 }
-
 
 Write-Host 'Generating node.conf file ...'
 Write-Verbose 'Creating directory c:\openshift ...'
@@ -344,9 +407,17 @@ if ($skipServicesSetup -eq $false)
 }
 
 # setup MSSQL authentication
-Setup-Mssql2008Authentication
+if ($noSql2008 -eq $false)
+{
+    Setup-Mssql2008Authentication
+}
+
 Start-Sleep -s 10
-Setup-Mssql2012Authentication
+
+if ($noSql2010 -eq $false)
+{
+    Setup-Mssql2012Authentication
+}
 
 # copy binaries
 Write-Host 'Copying binaries ...'
@@ -365,13 +436,13 @@ Setup-GAC($binLocation)
 # setup ruby
 if ($skipRuby -eq $false)
 {
-    Setup-Ruby $rubyDownloadLocation $rubyInstallLocation
+    Setup-Ruby $rubyDownloadLocation $rubyInstallLocation $rubyInstallerExe
 }
 
 Write-Host 'Setting up SSHD ...'
 if ($skipCygwin -eq $false)
 {
-    Setup-SSHD $sshdCygwinDir  $sshdListenAddress $sshdPort
+    Setup-SSHD $sshdCygwinDir $sshdListenAddress $sshdPort $cygwinInstallerExe
 }
 $cygpath = (Join-Path $sshdCygwinDir 'installation\bin\cygpath.exe')
 $chmod = (Join-Path $sshdCygwinDir 'installation\bin\chmod.exe')
@@ -380,7 +451,7 @@ $chmod = (Join-Path $sshdCygwinDir 'installation\bin\chmod.exe')
 Write-Host 'Setting up MCollective ...'
 if ($skipMCollective -eq $false)
 {
-    Setup-MCollective 'c:\openshift\mcollective' (Join-Path $sshdCygwinDir 'installation') $rubyInstallLocation
+    Setup-MCollective 'c:\openshift\mcollective' (Join-Path $sshdCygwinDir 'installation') $rubyInstallLocation $mcollectiveGemsDir
 }
 Configure-MCollective $mcollectiveActivemqServer $mcollectiveActivemqPort $mcollectiveActivemqUser $mcollectiveActivemqPassword 'c:\openshift\mcollective' $binLocation $rubyInstallLocation $mcollectivePskPlugin
 

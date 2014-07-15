@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param (
     [string] $installLocation = 'c:\openshift\mcollective\',
-    [string] $cygwinInstallLocation = 'c:\openshift\cygwin\installation\'
+    [string] $cygwinInstallLocation = 'c:\openshift\cygwin\installation\',
+    [string] $localGemsDir = [string]::Empty
 )
 
 $currentDir = split-path $SCRIPT:MyInvocation.MyCommand.Path -parent
@@ -107,7 +108,15 @@ Copy-Item -Force -Recurse -Path (Join-Path $mcollectiveUnpackDir '\*') $installL
 Remove-Item -Force -Recurse -Path $mcollectiveUnpackDir
 
 Write-Host "Setting up mcollective gem dependencies ..."
-$gemInstallProcess = Start-Process -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp windows-pr win32-security facter"
+
+if ($localGemsDir -eq [string]::Empty)
+{
+    $gemInstallProcess = Start-Process -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp windows-pr win32-security facter"
+}
+else
+{
+    $gemInstallProcess = Start-Process -WorkingDirectory $localGemsDir -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp windows-pr win32-security facter"
+}
 
 if ($gemInstallProcess.ExitCode -ne 0)
 {

@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem 'sys-admin'
+gem 'win32-process'
+gem 'win32-dir'
+gem 'win32-service'
+gem 'stomp'
+gem 'windows-pr'
+gem 'win32-security'
+gem 'facter'
