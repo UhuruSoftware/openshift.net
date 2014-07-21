@@ -42,7 +42,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {               
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                        WithContainerName, WithNamespace, null, null, null);
+                        WithContainerName, WithNamespace, null, null, null, WithUid);
                 status.Output = string.Format("{0}CLIENT_RESULT: {1}{0}", Environment.NewLine, container.State.Value().ToLower());
                 status.ExitCode = 0;
             }

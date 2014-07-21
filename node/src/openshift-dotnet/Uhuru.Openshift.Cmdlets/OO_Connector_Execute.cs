@@ -66,7 +66,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                    WithNamespace, null, null, null);
+                    WithNamespace, null, null, null, WithUid);
 
                 status.Output = container.ConnectorExecute(CartName, HookName, PublishingCartName, ConnectionType, InputArgs);
                 status.ExitCode = 0;

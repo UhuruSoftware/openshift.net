@@ -58,7 +58,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                   WithNamespace, null, null, new Hourglass(235));
+                   WithNamespace, null, null, new Hourglass(235), WithUid);
                 status.Output = container.PostConfigure(CartName, WithTemplateGitUrl);
                 status.ExitCode = 0;
             }
