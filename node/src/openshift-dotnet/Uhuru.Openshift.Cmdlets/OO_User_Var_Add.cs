@@ -39,6 +39,8 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public string WithExposePorts;
 
+        public int WithUid;
+
         protected override void ProcessRecord()
         {
             this.WriteObject(Execute());
@@ -49,7 +51,7 @@ namespace Uhuru.Openshift.Cmdlets
             ReturnStatus status = new ReturnStatus();
 
             ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-               WithContainerName, WithNamespace, null, null, null);
+               WithContainerName, WithNamespace, null, null, null, WithUid);
 
             try
             {

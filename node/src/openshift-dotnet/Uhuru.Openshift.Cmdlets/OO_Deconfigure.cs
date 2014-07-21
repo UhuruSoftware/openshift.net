@@ -57,8 +57,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                    WithNamespace, null, null, null);
-
+                    WithNamespace, null, null, null, WithUid);                
                 status.Output = container.Deconfigure(CartName);
                 status.ExitCode = 0;
             }

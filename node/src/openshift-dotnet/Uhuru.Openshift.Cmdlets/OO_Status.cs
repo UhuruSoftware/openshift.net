@@ -54,7 +54,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName,
-                    WithContainerName, WithNamespace, null, null, null,WithUid);
+                    WithContainerName, WithNamespace, null, null, null, WithUid);
                 status.Output = container.GetStatus(CartName);
                 status.ExitCode = 0;
             }

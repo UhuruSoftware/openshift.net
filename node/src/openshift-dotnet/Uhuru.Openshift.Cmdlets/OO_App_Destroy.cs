@@ -49,7 +49,7 @@ namespace Uhuru.Openshift.Cmdlets
             try
             {                
                 ApplicationContainer container = new ApplicationContainer(WithAppUuid, WithContainerUuid, null, WithAppName, WithContainerName,
-                   WithNamespace, null, null, null);
+                   WithNamespace, null, null, null, WithUid);
                 status.Output = container.Destroy();
                 status.ExitCode = 0;
             }
