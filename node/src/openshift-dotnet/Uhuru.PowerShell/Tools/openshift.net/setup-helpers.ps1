@@ -287,7 +287,6 @@ function Setup-Mssql2008Authentication()
         $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
         $sqlcmd = (get-command sqlcmd).path
 
-        start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
         start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
         start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
         $process | Stop-Process 
@@ -311,7 +310,6 @@ function Setup-Mssql2012Authentication()
         $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
         $sqlcmd = (get-command sqlcmd).path
 
-        start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
         start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
         start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
         $process | Stop-Process 
