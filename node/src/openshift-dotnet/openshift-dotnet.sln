@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Openshift.Cmdlets", "Uhuru.Openshift.Cmdlets\Uhuru.Openshift.Cmdlets.csproj", "{164C85D3-7F57-4937-9EEC-4C0A47C24745}"
 EndProject
@@ -198,7 +198,8 @@ Global
 		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|Any CPU.Build.0 = Release|Any CPU
 		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|x64.ActiveCfg = Release|Any CPU
+		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|x64.ActiveCfg = Release|x64
+		{55E28C63-13A1-49FE-933E-F71A8C1F9E47}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
