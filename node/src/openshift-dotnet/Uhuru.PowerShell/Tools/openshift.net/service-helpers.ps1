@@ -7,7 +7,7 @@ function Create-OpenshiftGroup
 
     if ([ADSI]::Exists("WinNT://${env:COMPUTERNAME}/${groupname},group"))
     {
-       Write-Host("User group exists, skippting")
+       Write-Host("User group exists, skipping")
     }
     else
     {
