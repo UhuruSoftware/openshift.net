@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Control
@@ -103,16 +105,39 @@ namespace Control
             sqlserver.Arguments = string.Format(@"/c {0}\mssql\binn\sqlservr.exe -c -s {1} 1>>{2}\\stdout.log 2>>{2}\stderr.log", instanceDir, instanceName, logDir);
             Process sqlProcess = Process.Start(sqlserver);
 
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""CREATE LOGIN {0} WITH PASSWORD='{1}'"" -U sa -P {1} -S ""tcp:127.0.0.1,{2}""", username, password, dbPort), "Error creating user");
-
-
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""EXEC sp_addsrvrolemember '{0}', 'sysadmin'"" -U sa -P {1} -S ""tcp:127.0.0.1,{2}""",username, password, dbPort), "Error setting sysadmin");
-
-            //list databases on SQL server
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""EXEC sp_databases"" -S ""tcp:127.0.0.1,{0}"" -E", dbPort), "Error while listing databases. Username: " + username);
-
             //create application database
-            RunProcess(@"sqlcmd.exe", string.Format(@"-Q ""CREATE DATABASE [{0}]"" -S ""tcp:127.0.0.1,{1}""", dbName, dbPort), "Error while creating application database");
+            string connectionString = string.Format(@"server=127.0.0.1,{0}; database=master; User Id=sa; Password={1}; connection timeout=30", dbPort, password);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+
+            bool success = false;
+
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    Thread.Sleep(3000);
+                    sqlConnection.Open();
+                    SqlCommand sqlCmd = new SqlCommand(string.Format(@"IF NOT EXISTS(select * from sys.databases where name='{0}') CREATE DATABASE [{0}]", dbName));
+                    sqlCmd.Connection = sqlConnection;
+                    sqlCmd.ExecuteNonQuery();
+                    success = true;
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex.ToString());
+                }   
+                finally
+                {
+                    sqlConnection.Close();
+                    sqlConnection.Dispose();
+                }
+            }
+
+            if (!success)
+            {
+                throw new Exception("Cannot connect to SQL Server instance");
+            }
            
             string text = string.Format("{0}Microsoft SQL Server {1} database added.  Please make note of these credentials:{0}{0}     sa password: {2}{0}   database name: {3}{0}{0}Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/{0}",
                 Environment.NewLine, version, password, dbName);
