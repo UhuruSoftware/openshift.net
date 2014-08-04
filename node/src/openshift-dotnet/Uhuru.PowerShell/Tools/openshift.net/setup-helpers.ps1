@@ -286,15 +286,32 @@ function Setup-Mssql2008Authentication()
     {
         $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
         $sqlcmd = (get-command sqlcmd).path
-
-        start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-        start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+		$seconds = 3
+		$dropLoginExitCode = ((start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		$createLoginExitCode = ((start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		$addRoleExitCode = ((start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		
+		while(($seconds -gt 0) -and (($dropLoginExitCode -ne 0) -or ($createLoginExitCode -ne 0) -or ($addRoleExitCode -ne 0)))
+		{
+			Write-Verbose "Try ${seconds} of 10 to connect to SQL server"
+			Start-Sleep -s 1
+			
+			$dropLoginExitCode = (start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$createLoginExitCode = (start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$addRoleExitCode = (start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$seconds --
+		}
+		
+		if ($dropLoginExitCode -ne 0 -or $createLoginExitCode -ne 0 -or $addRoleExitCode -ne 0)
+		{
+			throw Exception
+		}
+	          
         $process | Stop-Process 
         Write-Host "MSSQL 2008 Authentication configured"
     }
     catch [Exception]
     {
-        $exceptionMessage = $_.Exception.Message
         Write-Error "Could not setup MSSQL 2008 Authentication"
         exit 1
     }
@@ -305,19 +322,36 @@ function Setup-Mssql2012Authentication()
     $domainUser = "${env:COMPUTERNAME}\openshift_service"
     $mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL11.MSSQLSERVER2012\Setup' -name SQLBinRoot).SQLBinRoot
 
-    try
+	try
     {
         $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER2012" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
         $sqlcmd = (get-command sqlcmd).path
-
-        start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow 
-        start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -NoNewWindow
+		$seconds = 10
+		$dropLoginExitCode = ((start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		$createLoginExitCode = ((start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		$addRoleExitCode = ((start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode)
+		
+		while(($seconds -gt 0) -and (($dropLoginExitCode -ne 0) -or ($createLoginExitCode -ne 0) -or ($addRoleExitCode -ne 0)))
+		{
+			Write-Verbose "Try ${seconds} of 10 to connect to SQL server"
+			Start-Sleep -s 1
+			
+			$dropLoginExitCode = (start-process -FilePath $sqlcmd "-Q ""DROP LOGIN [$domainUser]"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$createLoginExitCode = (start-process -FilePath $sqlcmd "-Q ""CREATE LOGIN [$domainUser] FROM WINDOWS"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$addRoleExitCode = (start-process -FilePath $sqlcmd "-Q ""EXEC sp_addsrvrolemember '$domainUser', 'sysadmin'"" -E -S ""tcp:127.0.0.1,1433""" -Wait -Passthru -NoNewWindow).ExitCode
+			$seconds --
+		}
+		
+		if ($dropLoginExitCode -ne 0 -or $createLoginExitCode -ne 0 -or $addRoleExitCode -ne 0)
+		{
+			throw Exception
+		}
+	          
         $process | Stop-Process 
         Write-Host "MSSQL 2012 Authentication configured"
     }
     catch [Exception]
     {
-        $exceptionMessage = $_.Exception.Message
         Write-Error "Could not setup MSSQL 2012 Authentication"
         exit 1
     }
