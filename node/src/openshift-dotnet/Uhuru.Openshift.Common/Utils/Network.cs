@@ -52,6 +52,7 @@ namespace Uhuru.Openshift.Common.Utils
         public static int GetAvailablePort(int ApplicationUid,int PortsPerUser=10,int MinUid=1000, int StartPort =10001)
         {
             List<int> availableport = GetPortRange(ApplicationUid, PortsPerUser, MinUid, StartPort);
+            List<int> occupiedports = GetOccupiedPorts();
             foreach (int port in availableport)
             {                
                     TcpClient tcpClient = new TcpClient();
@@ -61,10 +62,43 @@ namespace Uhuru.Openshift.Common.Utils
                     }
                     catch
                     {
-                        return port;
+                        if (!occupiedports.Contains(port))
+                        {
+                            return port;
+                        }
                     }                
             }
             throw new Exception(string.Format("No available port for application Uid:{0}", ApplicationUid));
+        }
+
+        private static List<int> GetOccupiedPorts()
+        {
+            List<int> occupied = new List<int>();
+
+            string BaseDir = Environment.GetEnvironmentVariable("OPENSHIFT_CONF_DIR") ?? @"c:\openshift\";
+            string GearsDir = Path.Combine(BaseDir, "gears");
+
+            if (Directory.Exists(GearsDir))
+            {
+                foreach (string gear in Directory.GetDirectories(GearsDir))
+                {
+                    string GearEnv=Path.Combine(gear, ".env");
+                    if (Directory.Exists(GearEnv))
+                    {
+                        if(File.Exists(Path.Combine(GearEnv,"PRISON_PORT")))
+                        {
+                            int occupiedport = 0;
+                            string port = File.ReadAllText(Path.Combine(GearEnv, "PRISON_PORT"));
+                            Int32.TryParse(port, out occupiedport);
+                            if (occupiedport > 0)
+                            {
+                                occupied.Add(occupiedport);
+                            }
+                        }
+                    }
+                }
+            }
+            return occupied;
         }
 
         public static int GetUniquePredictablePort(string portCounterFile)
