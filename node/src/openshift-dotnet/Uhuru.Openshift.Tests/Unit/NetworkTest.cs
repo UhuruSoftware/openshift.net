@@ -16,7 +16,8 @@ namespace Uhuru.Openshift.Tests.Unit
         [TestInitialize]
         public void GetPort()
         {
-            port = Network.GetAvailablePort(1000);
+            string GearDir = Environment.GetEnvironmentVariable("GEAR_BASE_DIR") ?? @"c:\openshift\gears\";
+            port = Network.GetAvailablePort(1000,GearDir);
         }
 
         [TestMethod]

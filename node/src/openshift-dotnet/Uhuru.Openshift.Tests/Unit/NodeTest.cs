@@ -77,17 +77,17 @@ namespace Uhuru.Openshift.Tests.Unit
                             {
                                 try
                                 {
-                                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), Int32.Parse(DistrictConfig.Values["first_uid"]), Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid, NodeConfig.Values["GEAR_BASE_DIR"], Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), Int32.Parse(DistrictConfig.Values["first_uid"]), Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
                                 }
                                 catch
                                 {
-                                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid, Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), 0, Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
+                                    prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid, NodeConfig.Values["GEAR_BASE_DIR"], Int32.Parse(NodeConfig.Values["PORTS_PER_USER"]), 0, Int32.Parse(NodeConfig.Values["STARTING_PORT"]));
                                 }
                             }
                             catch (Exception ex)
                             {
                                 Logger.Debug("GetAvailablePort could not be called with all arguments: {0}", ex.Message.ToString());
-                                prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid);
+                                prisonRules.UrlPortAccess = Network.GetAvailablePort(container.Instance.uid, NodeConfig.Values["GEAR_BASE_DIR"]);
                             }
                             //prisonRules.UrlPortAccess = Network.GetUniquePredictablePort(@"c:\openshift\ports");
 

@@ -49,10 +49,10 @@ namespace Uhuru.Openshift.Common.Utils
             return ports;
         }
 
-        public static int GetAvailablePort(int ApplicationUid,int PortsPerUser=10,int MinUid=1000, int StartPort =10001)
+        public static int GetAvailablePort(int ApplicationUid, string GearsDir, int PortsPerUser = 10, int MinUid = 1000, int StartPort = 10001)
         {
             List<int> availableport = GetPortRange(ApplicationUid, PortsPerUser, MinUid, StartPort);
-            List<int> occupiedports = GetOccupiedPorts();
+            HashSet<int> occupiedports = GetOccupiedPorts(GearsDir);
             foreach (int port in availableport)
             {                
                     TcpClient tcpClient = new TcpClient();
@@ -71,12 +71,9 @@ namespace Uhuru.Openshift.Common.Utils
             throw new Exception(string.Format("No available port for application Uid:{0}", ApplicationUid));
         }
 
-        private static List<int> GetOccupiedPorts()
+        private static HashSet<int> GetOccupiedPorts(string GearsDir)
         {
-            List<int> occupied = new List<int>();
-
-            string BaseDir = Environment.GetEnvironmentVariable("OPENSHIFT_CONF_DIR") ?? @"c:\openshift\";
-            string GearsDir = Path.Combine(BaseDir, "gears");
+            HashSet<int> Occupied = new HashSet<int>();  
 
             if (Directory.Exists(GearsDir))
             {
@@ -87,18 +84,17 @@ namespace Uhuru.Openshift.Common.Utils
                     {
                         if(File.Exists(Path.Combine(GearEnv,"PRISON_PORT")))
                         {
-                            int occupiedport = 0;
-                            string port = File.ReadAllText(Path.Combine(GearEnv, "PRISON_PORT"));
-                            Int32.TryParse(port, out occupiedport);
-                            if (occupiedport > 0)
-                            {
-                                occupied.Add(occupiedport);
+                            int OccupiedPort = 0;
+                            string Port = File.ReadAllText(Path.Combine(GearEnv, "PRISON_PORT"));
+                            if (Int32.TryParse(Port, out OccupiedPort))
+                            {                               
+                                    Occupied.Add(OccupiedPort);                               
                             }
                         }
                     }
                 }
             }
-            return occupied;
+            return Occupied;
         }
 
         public static int GetUniquePredictablePort(string portCounterFile)
