@@ -279,7 +279,7 @@ function Get-Config-Values($filename)
 
 function Setup-Mssql2008Authentication()
 {
-	$domainUser = "${env:COMPUTERNAME}\openshift_service"
+    $domainUser = "${env:COMPUTERNAME}\openshift_service"
     $mssqlPath = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\Setup' -name SQLBinRoot).SQLBinRoot
 
     $process = (start-process (Join-Path $mssqlPath "\sqlservr.exe") "-c -s MSSQLSERVER" -Passthru -WindowStyle Hidden -WarningAction SilentlyContinue)
