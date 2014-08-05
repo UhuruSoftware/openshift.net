@@ -14,6 +14,18 @@ namespace Control
 {
     class Program
     {
+
+        private const int sleepSeconds = 3000;
+        private const string sqlQueryCreateDB = @"IF NOT EXISTS(select * from sys.databases where name='{0}') CREATE DATABASE [{0}]";
+        private const string sucessMessage = @"
+Microsoft SQL Server {0} database added.  Please make note of these credentials:
+
+      sa password: {1}   
+    database name: {2}
+
+Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/
+";
+
         static string pidFile;
         static string instanceType;
         static string version;
@@ -107,30 +119,28 @@ namespace Control
 
             //create application database
             string connectionString = string.Format(@"server=127.0.0.1,{0}; database=master; User Id=sa; Password={1}; connection timeout=30", dbPort, password);
-            SqlConnection sqlConnection = new SqlConnection(connectionString);
-
             bool success = false;
 
-            for (int i = 0; i < 10; i++)
+            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
-                try
+                for (int i = 0; i < 10; i++)
                 {
-                    Thread.Sleep(3000);
-                    sqlConnection.Open();
-                    SqlCommand sqlCmd = new SqlCommand(string.Format(@"IF NOT EXISTS(select * from sys.databases where name='{0}') CREATE DATABASE [{0}]", dbName));
-                    sqlCmd.Connection = sqlConnection;
-                    sqlCmd.ExecuteNonQuery();
-                    success = true;
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex.ToString());
-                }   
-                finally
-                {
-                    sqlConnection.Close();
-                    sqlConnection.Dispose();
+                    try
+                    {
+                        Thread.Sleep(sleepSeconds);
+                        sqlConnection.Open();
+                        using (SqlCommand sqlCmd = new SqlCommand(string.Format(sqlQueryCreateDB, dbName)))
+                        {
+                            sqlCmd.Connection = sqlConnection;
+                            sqlCmd.ExecuteNonQuery();
+                        }
+                        success = true;
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine(ex.ToString());
+                    }
                 }
             }
 
@@ -138,9 +148,8 @@ namespace Control
             {
                 throw new Exception("Cannot connect to SQL Server instance");
             }
-           
-            string text = string.Format("{0}Microsoft SQL Server {1} database added.  Please make note of these credentials:{0}{0}     sa password: {2}{0}   database name: {3}{0}{0}Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/{0}",
-                Environment.NewLine, version, password, dbName);
+
+            string text = string.Format(sucessMessage, version, password, dbName);
             ClientResult(text);
 
             Console.WriteLine(sqlProcess.Id);
@@ -239,7 +248,7 @@ namespace Control
             Console.WriteLine(process.StandardOutput.ReadToEnd());
             if (process.ExitCode != 0)
             {
-                throw new Exception(string.Format("{0}: {1}", exception, process.StandardError.ReadToEnd()));    
+                throw new Exception(string.Format("{0}: {1}", exception, process.StandardError.ReadToEnd()));
             }
         }
     }
