@@ -264,7 +264,21 @@ namespace Uhuru.Openshift.Runtime
 
         public string StopGear(dynamic options)
         {
-            return this.Cartridge.StopGear(options);
+            var res =  this.Cartridge.StopGear(options);
+
+            if (options != null && options["force"] != null && options["force"] == true) 
+            {
+                int delaySec = 0;
+                if (options["term_delay"] != null)
+                {
+                    delaySec = options["term_delay"];
+                }
+
+                this.containerPlugin.KillAll(delaySec);
+            }
+            
+
+            return res;
         }
 
         public List<RubyHash> Restart(string cartName, RubyHash options)

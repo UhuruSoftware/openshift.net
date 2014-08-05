@@ -419,7 +419,7 @@ if ($noSql2008 -eq $false)
 
 Start-Sleep -s 10
 
-if ($noSql2010 -eq $false)
+if ($noSql2012 -eq $false)
 {
     Setup-Mssql2012Authentication
 }

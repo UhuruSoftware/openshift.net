@@ -158,6 +158,10 @@ namespace Uhuru.Openshift.OOCmd
                         {
                             fi.SetValue(instance, pair.Value.ToString());
                         }
+                        else if (fi.FieldType == typeof(System.Single))
+                        {
+                            fi.SetValue(instance, Convert.ToSingle(pair.Value.ToString()));
+                        }
                         else
                         {
                             fi.SetValue(instance, pair.Value);

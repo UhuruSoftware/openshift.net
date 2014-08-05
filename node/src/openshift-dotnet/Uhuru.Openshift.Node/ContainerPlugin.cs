@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Uhuru.Openshift.Common.Utils;
 using Uhuru.Openshift.Runtime.Config;
 using Uhuru.Openshift.Runtime.Utils;
@@ -108,6 +109,20 @@ namespace Uhuru.Openshift.Runtime
 
             Directory.Delete(this.container.ContainerDir, true);
             return output.ToString();
+        }
+
+        public void KillAll(int termDelaySec)
+        {
+            var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            Logger.Debug("Stopping prison for gear {0}", this.container.Uuid);
+
+            var start = DateTime.Now;
+            while (prison.JobObject.ActiveProcesses > 0 && (DateTime.Now - start).TotalSeconds < termDelaySec)
+            {
+                Thread.Sleep(200);
+            }
+
+            prison.ForceStop();
         }
 
         public string Stop(dynamic options = null)
