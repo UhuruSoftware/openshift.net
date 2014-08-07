@@ -376,7 +376,7 @@ namespace Uhuru.Openshift.Runtime
                 repo.Archive(Path.Combine(this.container.ContainerDir, "app-root", "runtime", "repo"), "master");
             }
 
-            var prison = Prison.Prison.LoadPrisonNoAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            var prison = Prison.Prison.LoadPrisonNoAttach(PrisonIdConverter.Generate(this.container.Uuid));
 
             // TODO (vladi): make sure there isn't a more elegant way to deal with SQL Server Instances
             if (cartName == "mssql" && softwareVersion == "2008")
@@ -576,7 +576,7 @@ namespace Uhuru.Openshift.Runtime
                 WriteEnvironmentVariables(Path.Combine(this.container.ContainerDir, ".env"), envs);
             }
 
-            var prison = Prison.Prison.LoadPrisonNoAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            var prison = Prison.Prison.LoadPrisonNoAttach(PrisonIdConverter.Generate(this.container.Uuid));
             Logger.Debug("Setting permisions to dir {0}, prison user {1}", target, prison.User.Username);
             
             LinuxFiles.TakeOwnership(target, prison.User.Username);

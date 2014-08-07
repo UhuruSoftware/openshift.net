@@ -71,6 +71,7 @@
     <Compile Include="DirectoryUtil.cs" />
     <Compile Include="Facter.cs" />
     <Compile Include="FileUtil.cs" />
+    <Compile Include="GenerateGuid.cs" />
     <Compile Include="ProcessExtensions.cs" />
     <Compile Include="ProcessResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -631,7 +631,7 @@ ATTR: quota_files=40000
             }
             else
             {
-                username = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.Uuid.PadLeft(32, '0'))).User.Username;
+                username = Prison.Prison.LoadPrisonAndAttach(PrisonIdConverter.Generate(this.Uuid)).User.Username;
             }
             if (!string.IsNullOrEmpty(userHomeDir))
             {
