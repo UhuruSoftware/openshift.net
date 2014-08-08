@@ -43,7 +43,7 @@ namespace Uhuru.Openshift.Tests.Unit
                         ShimContainerPlugin containerPlugin = new ShimContainerPlugin(new ContainerPlugin(container.Instance));
                         containerPlugin.Create = new FakesDelegates.Action(() =>
                         {
-                            Guid prisonGuid = Guid.Parse(container.Instance.Uuid.PadLeft(32, '0'));
+                            Guid prisonGuid = PrisonIdConverter.Generate(container.Instance.Uuid);
 
                             Logger.Debug("Creating prison with guid: {0}", prisonGuid);
 

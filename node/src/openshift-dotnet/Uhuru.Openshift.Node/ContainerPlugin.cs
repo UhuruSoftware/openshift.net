@@ -25,7 +25,7 @@ namespace Uhuru.Openshift.Runtime
 
         public void Create()
         {
-            Guid prisonGuid = Guid.Parse(container.Uuid.PadLeft(32, '0'));
+            Guid prisonGuid = PrisonIdConverter.Generate(container.Uuid);
 
             Logger.Debug("Creating prison with guid: {0}", prisonGuid);
 
@@ -102,7 +102,7 @@ namespace Uhuru.Openshift.Runtime
             output.AppendLine(this.container.KillProcs());
             output.AppendLine(RemoveSshdUser());
 
-            var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            var prison = Prison.Prison.LoadPrisonAndAttach(PrisonIdConverter.Generate(this.container.Uuid));
             Logger.Debug("Destroying prison for gear {0}", this.container.Uuid);
 
             prison.Destroy();
@@ -113,7 +113,7 @@ namespace Uhuru.Openshift.Runtime
 
         public void KillAll(int termDelaySec)
         {
-            var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(this.container.Uuid.PadLeft(32, '0')));
+            var prison = Prison.Prison.LoadPrisonAndAttach(PrisonIdConverter.Generate(this.container.Uuid));
             Logger.Debug("Stopping prison for gear {0}", this.container.Uuid);
 
             var start = DateTime.Now;

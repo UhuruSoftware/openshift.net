@@ -143,7 +143,7 @@ namespace Uhuru.OpenShift.TrapUser
             {
                 string userHomeDir = envVars.ContainsKey("OPENSHIFT_HOMEDIR") && Directory.Exists(envVars["OPENSHIFT_HOMEDIR"]) ? envVars["OPENSHIFT_HOMEDIR"] : string.Empty;
 
-                var prison = Prison.Prison.LoadPrisonAndAttach(Guid.Parse(gearUuid.PadLeft(32, '0')));
+                var prison = Prison.Prison.LoadPrisonAndAttach(PrisonIdConverter.Generate(gearUuid));
 
                 FixHomeDir(userHomeDir, prison.User.Username, gearUuid);
 
