@@ -47,6 +47,7 @@ namespace Uhuru.Openshift.Cmdlets
         [Parameter]
         public float ParallelConcurrencyRatio;
 
+        [Parameter]
         public int WithUid;
 
         protected override void ProcessRecord()
