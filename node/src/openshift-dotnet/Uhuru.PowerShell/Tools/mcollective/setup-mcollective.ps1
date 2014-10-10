@@ -115,7 +115,7 @@ if ($localGemsDir -eq [string]::Empty)
 }
 else
 {
-    $gemInstallProcess = Start-Process -WorkingDirectory $localGemsDir -Wait -PassThru -NoNewWindow "gem" "install sys-admin win32-process win32-dir win32-service stomp windows-pr win32-security facter"
+    $gemInstallProcess = Start-Process -WorkingDirectory $localGemsDir -Wait -PassThru -NoNewWindow "gem" "install *.gem"
 }
 
 if ($gemInstallProcess.ExitCode -ne 0)
