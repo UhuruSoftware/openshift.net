@@ -164,6 +164,8 @@ Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/
                 int processId = int.Parse(File.ReadAllText(pidFile));
                 Process.Start("taskkill", string.Format("/F /T /PID {0}", processId)).WaitForExit();
                 File.Delete(pidFile);
+
+                RemoveRegistry();
             }
             else
             {
@@ -250,6 +252,23 @@ Connection URL: mssql://$OPENSHIFT_MSSQL_DB_HOST:$OPENSHIFT_MSSQL_DB_PORT/
             {
                 throw new Exception(string.Format("{0}: {1}", exception, process.StandardError.ReadToEnd()));
             }
+        }
+
+        private static void RemoveRegistry()
+        {
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string registryFile = Path.Combine(currentDir, "sqlserver.reg");
+
+            string content = File.ReadAllText(registryFile, System.Text.Encoding.ASCII).Replace("[HKEY_LOCAL_MACHINE", "[-HKEY_LOCAL_MACHINE");
+
+            string instanceName = string.Format("Instance{0}", Environment.GetEnvironmentVariable("OPENSHIFT_MSSQL_DB_PORT"));
+            string sss = string.Format("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\{0}.{1}]{2}@=\"{1}\"", instanceType, instanceName, Environment.NewLine);
+            content = content.Replace(string.Format("-{0}", sss), sss);
+
+            File.WriteAllText(registryFile, content, System.Text.Encoding.ASCII);
+
+            //import registry file with "-" before each key to remove keys
+            RunProcess(@"cmd.exe", "/C reg import " + registryFile + " /reg:64", "Error while importing registry file");
         }
     }
 }
