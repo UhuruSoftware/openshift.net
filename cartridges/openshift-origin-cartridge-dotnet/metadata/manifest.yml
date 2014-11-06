@@ -76,7 +76,7 @@ Endpoints:
 #Endpoints are where front-end httpd mappings for your cartridge are declared to route traffic from the outside world to your cartridge’s services.
   - Private-IP-Name:   IP
     Private-Port-Name: PORT
-    Private-Port:      0
+    Private-Port:      80
     Public-Port-Name:  PROXY_PORT
     Protocols: 
       - http
